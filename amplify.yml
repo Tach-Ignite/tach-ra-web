@@ -1,0 +1,23 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - export NODE_ENV_ORIG=$(env | grep -e NODE_ENV | cut -d '=' -f2)
+        - export NODE_ENV=development
+        - npx pnpm install --frozen-lockfile --force --ignore-scripts
+    build:
+      commands:
+        - export NODE_ENV=$NODE_ENV_ORIG
+        - env | grep -e NODE_ENV -e EXPOSE_ERROR_STACK >> .env.local
+        - env | grep -e NEXTAUTH_ -e NEXT_PUBLIC_ >> .env.local
+        - env | grep -e TACH_* >> .env.local
+        - cat .env.local > .env.production
+        - npx pnpm build
+    postBuild:
+      commands:
+        - npx pnpm prune --production --config.ignore-scripts=true
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'

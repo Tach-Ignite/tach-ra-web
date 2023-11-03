@@ -1,0 +1,119 @@
+{
+  "extends": [
+    "next",
+    "airbnb",
+    "airbnb/hooks",
+    "eslint:recommended",
+    "next/core-web-vitals",
+    "plugin:react/recommended",
+    "plugin:import/recommended",
+    "prettier"
+  ],
+  "plugins": ["react", "prettier", "unused-imports"],
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2022": true,
+    "jest": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "rules": {
+    "@next/next/no-img-element": "off",
+    "jsx-a11y/href-no-hash": 0,
+    "jsx-a11y/anchor-is-valid": [
+      "error",
+      {
+        "component": ["link"],
+        "socialLink": ["hrefLeft", "hrefRight"],
+        "aspects": ["invalidHref", "preferButton"]
+      }
+    ],
+    "react/react-in-jsx-scope": 0,
+    /* Base */
+    "import/prefer-default-export": 0,
+    "no-console": 0,
+    "no-nested-ternary": 0,
+    "no-underscore-dangle": 0,
+    "no-use-before-define": 0,
+    "react/no-danger": 0,
+    "no-shadow": 0,
+    "no-alert": 0,
+    "import/no-unresolved": 0,
+    "import/extensions": 0,
+    "jsx-a11y/label-has-associated-control": [
+      "error",
+      {
+        "required": {
+          "some": ["nesting", "id"]
+        }
+      }
+    ],
+    "jsx-a11y/label-has-for": [
+      "error",
+      {
+        "required": {
+          "some": ["nesting", "id"]
+        }
+      }
+    ],
+    /* Prettier */
+    "prettier/prettier": [
+      "warn",
+      {
+        "endOfLine": "auto",
+        "arrow-body-style": "off",
+        "prefer-arrow-callback": "off"
+      }
+    ],
+    /* React */
+    "react/jsx-filename-extension": [
+      "warn",
+      {
+        "extensions": [".js", "jsx", "tsx"]
+      }
+    ],
+    "react/jsx-props-no-spreading": 0,
+    "react/require-default-props": 0,
+    "no-unused-expressions": 0,
+    "no-unused-vars": 0,
+    "jsx-a11y/no-static-element-interactions": 0,
+    "jsx-a11y/click-events-have-key-events": 0,
+    "jsx-a11y/no-noninteractive-element-interactions": 0,
+    "no-param-reassign": 0,
+    "no-plusplus": 0,
+    "no-undef": 0,
+    "no-restricted-globals": 0
+    // "unused-imports/no-unused-imports": "error",
+    // "unused-imports/no-unused-vars": [
+    //   "warn",
+    //   {
+    //     "vars": "all",
+    //     "varsIgnorePattern": "^_",
+    //     "args": "after-used",
+    //     "argsIgnorePattern": "^_"
+    //   }
+    // ]
+  },
+  "overrides": [
+    {
+      "files": ["**/*"],
+      "rules": {
+        "import/no-extraneous-dependencies": "off",
+        "class-methods-use-this": "off",
+        "camelcase": "off"
+      }
+    }
+  ]
+}
