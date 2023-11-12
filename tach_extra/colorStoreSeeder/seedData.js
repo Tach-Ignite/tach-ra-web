@@ -208,7 +208,7 @@ function getRandomProducts(imageFileNames = []) {
 const folderName = 'local_data';
 const hasFiles = folderHasFiles(folderName);
 if (!hasFiles) {
-  createCopiesWithRandomColor(svg, 100, folderName);
+  createCopiesWithRandomColor(svg, 25, folderName);
 }
 const files = getFilenamesInFolder(folderName);
 

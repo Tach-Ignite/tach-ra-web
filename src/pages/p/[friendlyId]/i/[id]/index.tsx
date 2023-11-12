@@ -42,7 +42,8 @@ export async function getStaticProps({ params }: any) {
     const scrubbedViewModel = JSON.parse(JSON.stringify(viewModel));
     return { props: { product: scrubbedViewModel }, revalidate: 60 };
   } catch (error) {
-    return { props: { product: {} }, revalidate: 60 };
+    console.log(`\nSkipping static page generation: ${error}`);
+    return { props: { product: null }, revalidate: 60 };
   }
 }
 
@@ -58,14 +59,19 @@ ProductDetailsPage.getLayout = function getLayout(
 };
 
 export async function getStaticPaths() {
-  const m = new ModuleResolver().resolve(ProductsModule);
-  const productService = m.resolve<IProductService>('productService');
-  const products = await productService.getAllProducts();
+  try {
+    const m = new ModuleResolver().resolve(ProductsModule);
+    const productService = m.resolve<IProductService>('productService');
+    const products = await productService.getAllProducts();
 
-  const paths = products.map((product) => ({
-    params: { id: product._id, friendlyId: product.friendlyId },
-  }));
-  return { paths, fallback: 'blocking' };
+    const paths = products.map((product) => ({
+      params: { id: product._id, friendlyId: product.friendlyId },
+    }));
+    return { paths, fallback: 'blocking' };
+  } catch (e) {
+    console.log(`\nSkipping static page generation: ${e}`);
+    return { paths: [], fallback: 'blocking' };
+  }
 }
 
 export default ProductDetailsPage;
