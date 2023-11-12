@@ -6,23 +6,8 @@ import { SecretsModule } from '../security/secrets.module';
 @Module
 export class EmailServiceModule extends ModuleClass {
   constructor() {
-    const tachEmailSource = process.env.TACH_EMAIL_SOURCE;
-    if (!tachEmailSource) {
-      throw new ErrorWithStatusCode(
-        'TACH_EMAIL_SOURCE environment variable is not defined',
-        500,
-        'There was an error on the server. Please try again later.',
-      );
-    }
-
-    const nextPublicBaseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    if (!nextPublicBaseUrl) {
-      throw new ErrorWithStatusCode(
-        'NEXT_PUBLIC_BASE_URL environment variable is not defined',
-        500,
-        'There was an error on the server. Please try again later.',
-      );
-    }
+    const tachEmailSource = process.env.TACH_EMAIL_SOURCE ?? '';
+    const nextPublicBaseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? '';
 
     super({
       imports: [SecretsModule],
