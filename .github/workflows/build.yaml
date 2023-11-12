@@ -2,7 +2,7 @@ name: Tach Ignite - Web Reference Architecture Build
 env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.TACH_AWS_SECRET_ACCESS_KEY }}
   EXPOSE_ERROR_STACK: ${{ vars.EXPOSE_ERROR_STACK }}
-  NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
+  NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL || 'http://localhost:3000' }}
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
   NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
   NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
