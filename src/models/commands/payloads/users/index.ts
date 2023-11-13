@@ -5,3 +5,4 @@ export * from './verifyEmailAddressCommandPayload';
 export * from './createUserCommandPayloadMetadata';
 export * from './createUserCommandPayload';
 export * from './setUserRolesCommandPayload';
+export * from './setUserProfileCommandPayload';

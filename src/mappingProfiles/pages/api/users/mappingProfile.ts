@@ -4,16 +4,19 @@ import {
   createMap,
   forMember,
   mapFrom,
+  mapWithArguments,
 } from '@jersmart/automapper-core';
 import { ITachMappingProfile } from '@/lib/abstractions';
 import {
   CreateUserCommandPayload,
   CreateUserViewModel,
   IUser,
+  MutateUserProfileViewModel,
   ResendEmailAddressVerificationCommandPayload,
   ResetPasswordCommandPayload,
   ResetPasswordViewModel,
   SendPasswordResetRequestCommandPayload,
+  SetUserProfileCommandPayload,
   UserViewModel,
   VerifyEmailAddressCommandPayload,
 } from '@/models';
@@ -80,6 +83,15 @@ export class UserApiIdMappingProfile implements ITachMappingProfile {
         forMember(
           (d) => d.token,
           mapFrom((s) => s),
+        ),
+      );
+      createMap<MutateUserProfileViewModel, SetUserProfileCommandPayload>(
+        mapper,
+        'MutateUserProfileViewModel',
+        'SetUserProfileCommandPayload',
+        forMember(
+          (d) => d.userId,
+          mapWithArguments((s, { userId }) => userId),
         ),
       );
     };

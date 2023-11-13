@@ -142,6 +142,32 @@ export class UserService implements IUserService {
     return mapper.map<UserDto, IUser>(createdUser, 'UserDto', 'IUser');
   }
 
+  async editUser(userId: string, user: Partial<IUser>): Promise<IUser> {
+    const mapper = this._automapperProvider.provide();
+    let userDto = mapper.map<Partial<IUser>, Partial<UserDto>>(
+      user,
+      'IUser',
+      'UserDto',
+    );
+
+    // TODO: Better to do a proper merge, otherwise properties will be lost.
+    userDto = JSON.parse(JSON.stringify(userDto));
+
+    await this._userCommandRepository.update(userId, userDto);
+
+    const updatedUser = await this.getUserById(userId);
+
+    if (!updatedUser) {
+      throw new ErrorWithStatusCode(
+        `Unable to update user with id '${user._id}'.`,
+        500,
+        'There is an issue with the server. Please try again later.',
+      );
+    }
+
+    return updatedUser;
+  }
+
   async resendEmailAddressVerification(token: string): Promise<void> {
     const users = await this._userQueryRepository.find({
       token,
