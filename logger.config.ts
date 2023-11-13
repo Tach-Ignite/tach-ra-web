@@ -84,32 +84,32 @@ export async function getLoggingConfig() {
   };
 
   // pino
-  const pinoCloudwatchTarget = {
-    target: '@serdnam/pino-cloudwatch-transport',
-    level: 'error',
-    options: {
-      logGroupName: 'TachStore',
-      logStreamName: 'errors',
-      awsRegion: process.env.TACH_AWS_REGION,
-      awsAccessKeyId: process.env.TACH_AWS_ACCESS_KEY_ID,
-      awsSecretAccessKey,
-      interval: 1_000, // this is the default
-    },
-  };
+  // const pinoCloudwatchTarget = {
+  //   target: '@serdnam/pino-cloudwatch-transport',
+  //   level: 'error',
+  //   options: {
+  //     logGroupName: 'TachStore',
+  //     logStreamName: 'errors',
+  //     awsRegion: process.env.TACH_AWS_REGION,
+  //     awsAccessKeyId: process.env.TACH_AWS_ACCESS_KEY_ID,
+  //     awsSecretAccessKey,
+  //     interval: 1_000, // this is the default
+  //   },
+  // };
 
-  const pinoConsoleTarget = {
-    target: 'pino-pretty',
-    level: 'silly',
-    options: {
-      colorize: true,
-    },
-  };
+  // const pinoConsoleTarget = {
+  //   target: 'pino-pretty',
+  //   level: 'silly',
+  //   options: {
+  //     colorize: true,
+  //   },
+  // };
 
   const pinoTransports: TransportTargetOptions[] = [];
-  pinoTransports.push(pinoCloudwatchTarget);
+  //pinoTransports.push(pinoCloudwatchTarget);
 
   if (process.env.NODE_ENV !== 'production') {
-    pinoTransports.push(pinoConsoleTarget);
+    //pinoTransports.push(pinoConsoleTarget);
   }
 
   const pinoConfig = [

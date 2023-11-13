@@ -234,15 +234,6 @@ export class AuthOptionsFactory implements IAuthOptionsFactory {
         }
         return session;
       },
-      async redirect({ url, baseUrl }) {
-        const parsed = new URL(url, baseUrl);
-
-        if (parsed.hostname.endsWith(process.env.TACH_DOMAIN as string)) {
-          return parsed.toString();
-        }
-
-        return baseUrl;
-      },
     };
   }
 }

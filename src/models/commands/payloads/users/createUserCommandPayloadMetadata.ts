@@ -5,6 +5,7 @@ import { SendPasswordResetRequestCommandPayload } from './sendPasswordResetReque
 import { ResetPasswordCommandPayload } from './resetPasswordCommandPayload';
 import { ResendEmailAddressVerificationCommandPayload } from './resendEmailAddressVerificationCommandPayload';
 import { SetUserRolesCommandPayload } from './setUserRolesCommandPayload';
+import { SetUserProfileCommandPayload } from './setUserProfileCommandPayload';
 
 export function createUserCommandPayloadMetadata() {
   PojosMetadataMap.create<CreateUserCommandPayload>(
@@ -46,6 +47,13 @@ export function createUserCommandPayloadMetadata() {
     {
       userId: String,
       roles: [String],
+    },
+  );
+  PojosMetadataMap.create<SetUserProfileCommandPayload>(
+    'SetUserProfileCommandPayload',
+    {
+      userId: String,
+      name: String,
     },
   );
 }
