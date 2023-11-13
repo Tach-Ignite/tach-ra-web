@@ -1,6 +1,7 @@
 import { QueryReturnValue } from '@/lib/utils';
 import {
   CreateUserViewModel,
+  MutateUserProfileViewModel,
   RequestPasswordResetViewModel,
   ResetPasswordViewModel,
   SetUserRolesViewModel,
@@ -54,6 +55,23 @@ const usersApi = emptyAppApi.injectEndpoints({
 
         const response = await baseQuery({
           url: `${baseUrl}/${userId}`,
+          method: 'PATCH',
+          body,
+        });
+
+        return response as QueryReturnValue<UserViewModel>;
+      },
+      invalidatesTags: (result) => [
+        { type: 'Users', id: result?._id },
+        'Users',
+      ],
+    }),
+    setUserProfile: build.mutation<UserViewModel, MutateUserProfileViewModel>({
+      queryFn: async (arg, baseQueryApi, extraOptions, baseQuery) => {
+        const body = arg;
+
+        const response = await baseQuery({
+          url: `myAccount/profile`,
           method: 'PATCH',
           body,
         });
@@ -130,5 +148,6 @@ export const {
   useResetPasswordMutation,
   useRequestPasswordResetMutation,
   useSetUserRolesMutation,
+  useSetUserProfileMutation,
   util: usersApiUtil,
 } = usersApi;

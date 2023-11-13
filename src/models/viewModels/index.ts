@@ -593,6 +593,19 @@ export type DarkModeConfigurationViewModel = {
   default: 'light' | 'dark' | 'system';
 };
 
+export type MutateUserProfileViewModel = {
+  name: string;
+};
+
+export const mutateUserProfileViewModelSchema: JSONSchemaType<MutateUserProfileViewModel> =
+  {
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+    },
+    required: ['name'],
+  };
+
 export function createViewModelMetadata() {
   PojosMetadataMap.create<AddressViewModel>('AddressViewModel', {
     ...idModelMetadata,
@@ -745,6 +758,12 @@ export function createViewModelMetadata() {
     'DarkModeConfigurationViewModel',
     {
       default: String,
+    },
+  );
+  PojosMetadataMap.create<MutateUserProfileViewModel>(
+    'MutateUserProfileViewModel',
+    {
+      name: String,
     },
   );
 }

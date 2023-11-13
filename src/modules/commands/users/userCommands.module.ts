@@ -6,6 +6,7 @@ import {
   SetUserRolesCommand,
   VerifyEmailAddressCommand,
 } from '@/commands/users';
+import { SetUserProfileCommand } from '@/commands/users/setUserProfileCommand';
 import { Module, ModuleClass } from '@/lib/ioc/module';
 
 @Module
@@ -36,6 +37,10 @@ export class UserCommandsModule extends ModuleClass {
         {
           provide: 'verifyEmailAddressCommand',
           useClass: VerifyEmailAddressCommand,
+        },
+        {
+          provide: 'setUserProfileCommand',
+          useClass: SetUserProfileCommand,
         },
       ],
     });

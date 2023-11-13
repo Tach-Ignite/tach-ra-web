@@ -11,7 +11,13 @@ function Page() {
     [returnUrl] = returnUrl;
   }
 
-  return <Register returnUrl={returnUrl} />;
+  return (
+    <Register
+      returnUrl={`/auth/register/createProfile${
+        returnUrl ? `?returnUrl=${returnUrl}` : ''
+      }`}
+    />
+  );
 }
 
 Page.getLayout = function getLayout(page: ReactElement, session: Session) {
