@@ -6,6 +6,13 @@ export const emptyAppApi = createApi({
     baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/`,
     fetchFn: (...args) => fetch(...args),
   }),
-  tagTypes: ['Products', 'Categories', 'Orders', 'Users', 'Addresses'],
+  tagTypes: [
+    'Products',
+    'Categories',
+    'Orders',
+    'Users',
+    'Addresses',
+    'PasswordProtected',
+  ],
   endpoints: () => ({}),
 });

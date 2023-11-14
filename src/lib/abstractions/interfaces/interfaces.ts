@@ -1,6 +1,7 @@
 import { Readable } from 'stream';
 import { JSONSchemaType } from 'ajv';
 import { NextApiRequest } from 'next';
+import { NextMiddleware } from 'next/server';
 
 // Factories
 export interface IFactory<T> {
@@ -263,3 +264,6 @@ export interface ITokenService {
   createToken(id: string, email: string, expiresIn: string): Promise<string>;
   validateToken(token: string, email: string): Promise<boolean>;
 }
+
+// Middleware
+export type MiddlewareFactory = (middleware: NextMiddleware) => NextMiddleware;
