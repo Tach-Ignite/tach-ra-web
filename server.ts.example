@@ -6,7 +6,7 @@ import { exit } from 'process';
 
 const port: number = 3000;
 const dev: boolean = process.env.NODE_ENV !== 'production';
-const app = next({ dev });
+const app = next({ dev, hostname: 'localhost', port });
 const handle = app.getRequestHandler();
 
 const httpsOptions = {
