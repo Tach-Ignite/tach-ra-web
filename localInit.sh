@@ -17,35 +17,18 @@ fi
 # Install dependencies using pnpm
 pnpm install
 
-# Check if server.js file exists, if not, create it from server.js.example
-if [ ! -f server.ts ]; then
-  cp server.ts.example server.ts
-  echo "server.js created"
-fi
+# Array of files to check and create if necessary
+files=("server.ts" ".env.local" ".env.secrets.local" ".env.dev" ".env.secrets.dev")
 
-# Check if .env.local file exists, if not, create it from .env.local.example
-if [ ! -f .env.local ]; then
-  cp .env.local.example .env.local
-  echo ".env.local created"
-fi
-
-# Check if .env.secrets.local file exists, if not, create it from .env.secrets.local.example
-if [ ! -f .env.secrets.local ]; then
-  cp .env.secrets.local.example .env.secrets.local
-  echo ".env.secrets.local created"
-fi
-
-# Check if .env.dev file exists, if not, create it from .env.dev.example
-if [ ! -f .env.dev ]; then
-  cp .env.dev.example .env.dev
-  echo ".env.dev created"
-fi
-
-# Check if .env.dev file exists, if not, create it from .env.dev.example
-if [ ! -f .env.secrets.dev ]; then
-  cp .env.secrets.dev.example .env.secrets.dev
-  echo ".env.secrets.dev created"
-fi
+# Loop through the files array
+for file in "${files[@]}"; do
+  # Check if the file exists
+  if [ ! -f "$file" ]; then
+    # Create a copy of the example file without the ".example" extension
+    cp "$file.example" "$file"
+    echo "$file created"
+  fi
+done
 
 # Check if key.pem and cert.pem files exist, if not, generate a self-signed SSL/TLS certificate
 if [ ! -f key.pem ] || [ ! -f cert.pem ]; then
