@@ -29,20 +29,20 @@ if [ ! -f .env.local ]; then
   echo ".env.local created"
 fi
 
-# Check if .env.local file exists, if not, create it from .env.local.example
+# Check if .env.secrets.local file exists, if not, create it from .env.secrets.local.example
 if [ ! -f .env.secrets.local ]; then
   cp .env.secrets.local.example .env.secrets.local
   echo ".env.secrets.local created"
 fi
 
-# Check if .env.local file exists, if not, create it from .env.local.example
+# Check if .env.dev file exists, if not, create it from .env.dev.example
 if [ ! -f .env.dev ]; then
   cp .env.dev.example .env.dev
   echo ".env.dev created"
 fi
 
-# Check if .env.local file exists, if not, create it from .env.local.example
-if [ ! -f .env.secrets.local ]; then
+# Check if .env.dev file exists, if not, create it from .env.dev.example
+if [ ! -f .env.secrets.dev ]; then
   cp .env.secrets.dev.example .env.secrets.dev
   echo ".env.secrets.dev created"
 fi
