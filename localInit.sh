@@ -1,5 +1,28 @@
 #!/bin/bash
 
+# Initialize cloud_provider variable
+cloud_provider=""
+env="local"
+
+# Loop over all arguments
+for arg in "$@"
+do
+  case $arg in
+    --cloud-provider=*)
+    cloud_provider="${arg#*=}"
+    shift # Remove --cloud-provider= from processing
+    ;;
+    --env=*)
+    env="${arg#*=}"
+    shift # Remove --env= from processing
+    ;;
+    *)
+    # Unknown option
+    shift # Remove generic argument from processing
+    ;;
+  esac
+done
+
 # Check if openssl is installed
 if ! command -v openssl &> /dev/null
 then
@@ -39,5 +62,37 @@ fi
 
 # Set NODE_ENV to development
 export NODE_ENV=development
+
+##### Helper Functions #####
+
+# Function to setup AWS
+setup_aws() {
+    # Get the file name and keys from the function arguments
+    local file=$1  # Get the first argument as the file name
+    local keys=("${@:2}")  # Get all arguments starting from the second as the keys
+
+    # Loop over the keys
+    for key in "${keys[@]}"; do
+        # Prompt the user for the value
+        read -p "$key: " value
+
+        # Replace the value in the file
+        sed -i "s/^$key=.*/$key=$value/" $file
+    done
+}
+
+##### AWS Setup #####
+
+# Check if the cloud provider is AWS
+if [ "$cloud_provider" == "aws" ]; then
+    echo "Enter AWS settings:"
+
+    # Call the setup_aws function with the file name and keys
+    setup_aws ".env.${env}" "TACH_AWS_ACCESS_KEY_ID" "TACH_AWS_ACCOUNT_ID" "TACH_AWS_AMPLIFY_APP_ID" "TACH_AWS_BUCKET_NAME" "TACH_AWS_PROFILE" "TACH_AWS_REGION"
+    
+    setup_aws ".env.secrets.${env}" "TACH_AWS_SECRET_ACCESS_KEY"
+else
+    echo "Cloud provider is not AWS. Please pass '--cloud-provider=aws' to update settings."
+fi
 
 echo "Remember to update your configuration in the .env.local file."
