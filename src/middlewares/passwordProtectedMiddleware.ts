@@ -10,6 +10,10 @@ export const passwordProtectedMiddlewareFactory: MiddlewareFactory = (
   next: NextMiddleware,
 ) =>
   async function middleware(request: NextRequest, _next: NextFetchEvent) {
+<<<<<<< HEAD
+=======
+    const baseUrl = request.nextUrl.origin;
+>>>>>>> internal-fork/main
     const path = request.nextUrl.pathname;
 
     if (
@@ -24,6 +28,7 @@ export const passwordProtectedMiddlewareFactory: MiddlewareFactory = (
 
     if (!request.cookies.has('__Secure-password-protected.session-token')) {
       return NextResponse.redirect(
+<<<<<<< HEAD
         `${process.env.NEXT_PUBLIC_BASE_URL}/passwordProtected?returnUrl=${process.env.NEXT_PUBLIC_BASE_URL}${path}`,
       );
     }
@@ -50,6 +55,30 @@ export const passwordProtectedMiddlewareFactory: MiddlewareFactory = (
       }
     } catch (e) {
       console.log(e);
+=======
+        `${baseUrl}/passwordProtected?returnUrl=${request.url}`,
+      );
+    }
+
+    const validateTokenResponse = await fetch(
+      `${baseUrl}/api/passwordProtected/validateToken`,
+      {
+        headers: { Cookie: request.cookies.toString() },
+      },
+    );
+    if (!validateTokenResponse.ok) {
+      return NextResponse.redirect(
+        `${baseUrl}/passwordProtected?returnUrl=${request.url}`,
+      );
+    }
+
+    const validateTokenResult = await validateTokenResponse.json();
+
+    if (!validateTokenResult.valid) {
+      return NextResponse.redirect(
+        `${baseUrl}/passwordProtected?returnUrl=${request.url}`,
+      );
+>>>>>>> internal-fork/main
     }
 
     return next(request, _next);
