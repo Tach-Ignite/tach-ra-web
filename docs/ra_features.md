@@ -19,3 +19,4 @@ Here are some of the capabilities that are included:
 - [Tach Configuration](/docs/tach_configuration.md)
 - [Secrets](/docs/secrets.md)
 - [Infrastructure](/docs/infrastructure.md)
+- [Password Protection](/docs/password_protection.md)

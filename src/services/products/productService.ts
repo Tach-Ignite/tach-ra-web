@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import {
   FileLike,
   IFactory,
-  IFileStorageService,
+  IPublicFileStorageService,
   IImageStorageService,
   ILoggerFactory,
   IMapper,
@@ -42,7 +42,7 @@ export class ProductService implements IProductService {
 
   private _categoryService: ICategoryService;
 
-  private _fileStorageServiceFactory: IFactory<IFileStorageService>;
+  private _fileStorageServiceFactory: IFactory<IPublicFileStorageService>;
 
   private _imageStorageService: IImageStorageService;
 
@@ -57,7 +57,7 @@ export class ProductService implements IProductService {
     productCommandRepository: IProductCommandRepository,
     categoryService: ICategoryService,
     imageStorageService: IImageStorageService,
-    fileStorageServiceFactory: IFactory<IFileStorageService>,
+    fileStorageServiceFactory: IFactory<IPublicFileStorageService>,
     automapperProvider: IProvider<IMapper>,
     loggerFactory: ILoggerFactory<INpmLogger>,
     validator: IValidator,
@@ -102,7 +102,7 @@ export class ProductService implements IProductService {
         const innerPromiseArray: Promise<string>[] = [];
         for (let j = 0; j < productDtos[i].imageStorageKeys.length; j++) {
           innerPromiseArray.push(
-            fileStorageService.getSignedUrl(productDtos[i].imageStorageKeys[j]),
+            fileStorageService.getPublicUrl(productDtos[i].imageStorageKeys[j]),
           );
         }
         imageUrlPromises.push(Promise.all(innerPromiseArray));
@@ -159,7 +159,7 @@ export class ProductService implements IProductService {
       const fileStorageService = this._fileStorageServiceFactory.create();
       for (let i = 0; i < product.imageStorageKeys.length; i++) {
         imageUrlPromises.push(
-          fileStorageService.getSignedUrl(product.imageStorageKeys[i]),
+          fileStorageService.getPublicUrl(product.imageStorageKeys[i]),
         );
       }
     }
@@ -218,7 +218,7 @@ export class ProductService implements IProductService {
         const innerPromiseArray: Promise<string>[] = [];
         for (let j = 0; j < productDtos[i].imageStorageKeys.length; j++) {
           innerPromiseArray.push(
-            fileStorageService.getSignedUrl(productDtos[i].imageStorageKeys[j]),
+            fileStorageService.getPublicUrl(productDtos[i].imageStorageKeys[j]),
           );
         }
         imageUrlPromises.push(Promise.all(innerPromiseArray));

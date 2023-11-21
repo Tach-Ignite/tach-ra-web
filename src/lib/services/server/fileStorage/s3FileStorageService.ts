@@ -11,12 +11,12 @@ import {
   IAsyncMultiProvider,
   IFactory,
   IFileMetadata,
-  IFileStorageService,
+  IPublicFileStorageService,
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
 
 @Injectable('s3FileStorageService', 'secretsProviderFactory')
-export class S3FileStorageService implements IFileStorageService {
+export class S3FileStorageService implements IPublicFileStorageService {
   private _secretsProvider: IAsyncMultiProvider<string | undefined>;
 
   constructor(
@@ -71,7 +71,7 @@ export class S3FileStorageService implements IFileStorageService {
     await s3Client.send(command);
   }
 
-  async getSignedUrl(key: string): Promise<string> {
+  async getPublicUrl(key: string): Promise<string> {
     const awsSecretAccessKey = (await this._secretsProvider.provide(
       'TACH_AWS_SECRET_ACCESS_KEY',
     ))!;

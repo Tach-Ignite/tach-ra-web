@@ -7,6 +7,11 @@ import { IMapper, IProvider } from '@/lib/abstractions';
 import '@/mappingProfiles/pages/p/[friendlyId]/i/[id]/mappingProfile';
 import { ModuleResolver } from '@/lib/ioc/';
 import { ProductsModule } from '@/modules/pages/p/products.module';
+import {
+  GetServerSideProps,
+  GetServerSidePropsContext,
+  NextPageContext,
+} from 'next';
 
 const revalidate = 60;
 const dynamic = 'force-dynamic';
@@ -23,11 +28,14 @@ function ProductDetailsPage({ product }: PageProps) {
   return <div>No Product Found.</div>;
 }
 
-export async function getStaticProps({ params }: any) {
+export const getServerSideProps: GetServerSideProps<PageProps> = async ({
+  params,
+}) => {
   try {
+    const id = params!.id as string;
     const m = new ModuleResolver().resolve(ProductsModule);
     const productService = m.resolve<IProductService>('productService');
-    const product = await productService.getProductById(params.id);
+    const product = await productService.getProductById(id);
 
     const automapperProvider =
       m.resolve<IProvider<IMapper>>('automapperProvider');
@@ -40,12 +48,36 @@ export async function getStaticProps({ params }: any) {
     );
 
     const scrubbedViewModel = JSON.parse(JSON.stringify(viewModel));
-    return { props: { product: scrubbedViewModel }, revalidate: 60 };
+    return { props: { product: scrubbedViewModel } };
   } catch (error) {
-    console.log(`\nSkipping static page generation: ${error}`);
-    return { props: { product: null }, revalidate: 60 };
+    console.log(`\nUnable to load product: ${error}`);
+    return { props: { product: null } };
   }
-}
+};
+
+// export async function getStaticProps({ params }: any) {
+//   try {
+//     const m = new ModuleResolver().resolve(ProductsModule);
+//     const productService = m.resolve<IProductService>('productService');
+//     const product = await productService.getProductById(params.id);
+
+//     const automapperProvider =
+//       m.resolve<IProvider<IMapper>>('automapperProvider');
+//     const mapper = automapperProvider.provide();
+
+//     const viewModel = mapper.map<IProduct, ProductViewModel>(
+//       product,
+//       'IProduct',
+//       'ProductViewModel',
+//     );
+
+//     const scrubbedViewModel = JSON.parse(JSON.stringify(viewModel));
+//     return { props: { product: scrubbedViewModel }, revalidate: 60 };
+//   } catch (error) {
+//     console.log(`\nSkipping static page generation: ${error}`);
+//     return { props: { product: null }, revalidate: 60 };
+//   }
+// }
 
 ProductDetailsPage.getLayout = function getLayout(
   page: ReactElement,
@@ -58,20 +90,20 @@ ProductDetailsPage.getLayout = function getLayout(
   );
 };
 
-export async function getStaticPaths() {
-  try {
-    const m = new ModuleResolver().resolve(ProductsModule);
-    const productService = m.resolve<IProductService>('productService');
-    const products = await productService.getAllProducts();
+// export async function getStaticPaths() {
+//   try {
+//     const m = new ModuleResolver().resolve(ProductsModule);
+//     const productService = m.resolve<IProductService>('productService');
+//     const products = await productService.getAllProducts();
 
-    const paths = products.map((product) => ({
-      params: { id: product._id, friendlyId: product.friendlyId },
-    }));
-    return { paths, fallback: 'blocking' };
-  } catch (e) {
-    console.log(`\nSkipping static page generation: ${e}`);
-    return { paths: [], fallback: 'blocking' };
-  }
-}
+//     const paths = products.map((product) => ({
+//       params: { id: product._id, friendlyId: product.friendlyId },
+//     }));
+//     return { paths, fallback: 'blocking' };
+//   } catch (e) {
+//     console.log(`\nSkipping static page generation: ${e}`);
+//     return { paths: [], fallback: 'blocking' };
+//   }
+// }
 
 export default ProductDetailsPage;

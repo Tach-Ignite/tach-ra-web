@@ -27,10 +27,10 @@ export default {
     };
   },
   async stacks(app) {
-    if (fs.existsSync(`./.env.secrets.local`)) {
-      const sf = fs.readFileSync(`./.env.secrets.local`);
-      process.env.secrets = JSON.stringify(dotenv.parse(sf));
-    }
+    // if (fs.existsSync(`./.env.secrets.local`)) {
+    //   const sf = fs.readFileSync(`./.env.secrets.local`);
+    //   process.env.secrets = JSON.stringify(dotenv.parse(sf));
+    // }
 
     app.stack(({ stack }) => {
       GithubActionsStack(
@@ -62,8 +62,18 @@ export default {
         process.env.TACH_AWS_BUCKET_NAME!,
         {
           name: process.env.TACH_AWS_BUCKET_NAME!,
+          blockPublicACLs: false,
         },
       );
+
+      fileStorageBucket.attachPermissions([
+        new iam.PolicyStatement({
+          actions: ['s3:GetObject'],
+          effect: iam.Effect.ALLOW,
+          principals: [new iam.StarPrincipal()],
+          resources: [`arn:aws:s3:::${process.env.TACH_AWS_BUCKET_NAME}/*`],
+        }),
+      ]);
 
       const site = new NextjsSite(stack, 'site', {
         cdk: {
@@ -73,7 +83,8 @@ export default {
         memorySize: '2048 MB',
         // customDomain: {
         //   isExternalDomain: false,
-        //   domainName: 'example.com',
+        //   domainName: 'www.example.com',
+        //   hostedZone: 'example.com',
         //   cdk: {
         //     certificate,
         //   },
@@ -91,6 +102,19 @@ export default {
           resources: [
             `arn:aws:ssm:${process.env.TACH_AWS_REGION}:${process.env.TACH_AWS_ACCOUNT_ID}:parameter/sst/${process.env.TACH_SST_APP_NAME}/${app.stage}/Secret/*`,
           ],
+        }),
+      ]);
+
+      site.attachPermissions([
+        new iam.PolicyStatement({
+          actions: [
+            's3:GetObject',
+            's3:PutObject',
+            's3:DeleteObject',
+            's3:ListObjects',
+          ],
+          effect: iam.Effect.ALLOW,
+          resources: [`arn:aws:s3:::${process.env.TACH_AWS_BUCKET_NAME}/*`],
         }),
       ]);
 

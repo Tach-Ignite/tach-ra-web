@@ -122,7 +122,7 @@ export type IFileMetadata = {
   contentType: string;
 };
 
-export interface IFileStorageService {
+export interface IPublicFileStorageService {
   /**
    * Uploads a file to the storage mechanism defined in tach.config.js
    * @param {string} fileName - The name the file will be saved with.
@@ -143,7 +143,7 @@ export interface IFileStorageService {
    * @param {string} key - The key of the file to retrieve. This is usually the full path of the file.
    * @returns {Promise<string>} - A signed url that can be used to download the file.
    */
-  getSignedUrl(key: string): Promise<string>;
+  getPublicUrl(key: string): Promise<string>;
 
   getDownloadStream(key: string): Promise<Readable>;
   getFileMetadata(key: string): Promise<IFileMetadata>;

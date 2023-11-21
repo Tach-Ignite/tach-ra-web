@@ -3,14 +3,14 @@ import { Readable } from 'stream';
 import got from 'got';
 import {
   IFileMetadata,
-  IFileStorageService,
+  IPublicFileStorageService,
   ILoggerFactory,
   INpmLogger,
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
 
 @Injectable('dummyFileStorageService', 'loggerFactory')
-export class DummyFileStorageService implements IFileStorageService {
+export class DummyFileStorageService implements IPublicFileStorageService {
   private _loggerFactory: ILoggerFactory<INpmLogger>;
 
   constructor(loggerFactory: ILoggerFactory<INpmLogger>) {
@@ -28,7 +28,7 @@ export class DummyFileStorageService implements IFileStorageService {
     logger.info('dummy file deleted.');
   }
 
-  async getSignedUrl(key: string): Promise<string> {
+  async getPublicUrl(key: string): Promise<string> {
     const seed = crypto.randomUUID().replace(/-/g, '');
 
     return `https://picsum.photos/seed/${seed}/300/300`;

@@ -6,7 +6,7 @@ import { IProduct, ProductDto } from '@/models';
 import {
   FileLike,
   IFactory,
-  IFileStorageService,
+  IPublicFileStorageService,
   IImageStorageService,
   ILoggerFactory,
   IMapper,
@@ -25,7 +25,9 @@ describe('ProductService', () => {
   let productQueryRepository: jest.Mocked<IQueryRepository<ProductDto>>;
   let productCommandRepository: jest.Mocked<IProductCommandRepository>;
   let categoryService: jest.Mocked<ICategoryService>;
-  let fileStorageServiceFactory: jest.Mocked<IFactory<IFileStorageService>>;
+  let fileStorageServiceFactory: jest.Mocked<
+    IFactory<IPublicFileStorageService>
+  >;
   let loggerFactory: ILoggerFactory<INpmLogger>;
   let validator: jest.Mocked<IValidator>;
   let testProduct: IProduct;
@@ -34,14 +36,14 @@ describe('ProductService', () => {
   let mockBuffer: Buffer;
   let testBlob1: {};
   let testBlob2: {};
-  let fileStorageService: jest.Mocked<IFileStorageService>;
+  let fileStorageService: jest.Mocked<IPublicFileStorageService>;
   let mockLogger: jest.Mocked<INpmLogger>;
 
   beforeEach(() => {
     fileStorageService = {
       uploadFile: jest.fn(),
       deleteFile: jest.fn(),
-      getSignedUrl: jest.fn(),
+      getPublicUrl: jest.fn(),
       getDownloadStream: jest.fn(),
       getFileMetadata: jest.fn(),
     };
@@ -216,7 +218,7 @@ describe('ProductService', () => {
       expect(automapperProvider.provide).toHaveBeenCalled();
       expect(productQueryRepository.list).toHaveBeenCalled();
       expect(categoryService.getAllCategories).toHaveBeenCalled();
-      expect(fileStorageService.getSignedUrl).toHaveBeenCalledTimes(4);
+      expect(fileStorageService.getPublicUrl).toHaveBeenCalledTimes(4);
     });
 
     it('should return an empty array if no products exist', async () => {
@@ -352,7 +354,7 @@ describe('ProductService', () => {
       expect(automapperProvider.provide).toHaveBeenCalled();
       expect(productQueryRepository.find).toHaveBeenCalled();
       expect(categoryService.getAllCategories).toHaveBeenCalled();
-      expect(fileStorageService.getSignedUrl).toHaveBeenCalledTimes(4);
+      expect(fileStorageService.getPublicUrl).toHaveBeenCalledTimes(4);
     });
 
     it('should return an empty array if no products exist', async () => {

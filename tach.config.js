@@ -28,6 +28,6 @@ module.exports = {
     default: 'light',
   },
   secrets: {
-    provider: 'env',
+    provider: 'ssm',
   },
 };
