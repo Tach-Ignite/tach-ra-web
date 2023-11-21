@@ -46,7 +46,6 @@ export async function getServerSideProps() {
     console.log(`\nUnable to load products: ${e}`);
     return { props: { products: [] } };
   }
-  }
 }
 
 // export async function getStaticProps() {
