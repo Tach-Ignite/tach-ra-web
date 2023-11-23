@@ -171,7 +171,7 @@ const addEnvVarsToAmplify = async () => {
 
 const addSecretsToSSM = async () => {
   exec(
-    'aws sts get-caller-identity --query "Account" --profile tachignite-dev',
+    `aws sts get-caller-identity --query "Account" --profile  ${envVars.TACH_AWS_PROFILE}`,
     (error, stdout, stderr) => {
       if (error) {
         console.log(`error: ${error.message}`);

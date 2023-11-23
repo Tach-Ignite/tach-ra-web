@@ -11,7 +11,6 @@ import { Button, CenterContainer, Input } from '@/components/ui';
 import { useForm } from 'react-hook-form';
 import { JSONSchemaType } from 'ajv';
 import { ajvResolver } from '@hookform/resolvers/ajv';
-import { CognitoUserPoolsAuthorizer } from 'aws-cdk-lib/aws-apigateway';
 
 type PwpForm = {
   username: string;
@@ -106,8 +105,19 @@ function PasswordProtectedPage() {
   return (
     <CenterContainer>
       <form>
-        <Input type="text" name="username" register={register} />
-        <Input type="password" name="password" register={register} />
+        <div>Password Protected</div>
+        <Input
+          label="Username"
+          type="text"
+          name="username"
+          register={register}
+        />
+        <Input
+          label="Password"
+          type="password"
+          name="password"
+          register={register}
+        />
         <Button onClick={handleSubmit(onSubmit, onErrors)}>Submit</Button>
         <div className="text-red">{submitError}</div>
       </form>

@@ -60,6 +60,7 @@ export default {
       const fileStorageBucket = new Bucket(
         stack,
         process.env.TACH_AWS_BUCKET_NAME!,
+
         {
           name: process.env.TACH_AWS_BUCKET_NAME!,
           blockPublicACLs: false,
