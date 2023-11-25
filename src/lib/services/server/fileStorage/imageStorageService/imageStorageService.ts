@@ -1,16 +1,16 @@
 import path from 'path';
 import {
   IFactory,
-  IFileStorageService,
+  IPublicFileStorageService,
   IImageStorageService,
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
 
 @Injectable('imageStorageService', 'fileStorageServiceFactory')
 export class ImageStorageService implements IImageStorageService {
-  private _fileStorageServiceFactory: IFactory<IFileStorageService>;
+  private _fileStorageServiceFactory: IFactory<IPublicFileStorageService>;
 
-  constructor(fileStorageServiceFactory: IFactory<IFileStorageService>) {
+  constructor(fileStorageServiceFactory: IFactory<IPublicFileStorageService>) {
     this._fileStorageServiceFactory = fileStorageServiceFactory;
   }
 

@@ -3,14 +3,14 @@ import { promisify } from 'util';
 import { GridFSBucket, MongoClient, ObjectId } from 'mongodb';
 import {
   IFactory,
-  IFileStorageService,
+  IPublicFileStorageService,
   IFileMetadata,
 } from '@/lib/abstractions';
 import { ErrorWithStatusCode } from '@/lib/errors';
 import { Injectable } from '@/lib/ioc/injectable';
 
 @Injectable('mongodbFileStorageService', 'mongoClientFactory')
-export class MongodbFileStorageService implements IFileStorageService {
+export class MongodbFileStorageService implements IPublicFileStorageService {
   private _mongoClientFactory: IFactory<Promise<MongoClient>>;
 
   private _pipeline: any;
@@ -56,7 +56,7 @@ export class MongodbFileStorageService implements IFileStorageService {
     await bucket.delete(new ObjectId(file[0]._id));
   }
 
-  async getSignedUrl(key: string): Promise<string> {
+  async getPublicUrl(key: string): Promise<string> {
     return `${process.env.NEXT_PUBLIC_API_URL}/static/${key}`;
   }
 

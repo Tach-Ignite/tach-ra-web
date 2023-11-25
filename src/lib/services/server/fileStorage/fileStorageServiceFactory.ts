@@ -1,6 +1,6 @@
 import {
   IFactory,
-  IFileStorageService,
+  IPublicFileStorageService,
   IFileStorageConfiguration,
   IOptions,
   IServiceResolver,
@@ -13,7 +13,7 @@ import { Injectable } from '@/lib/ioc/injectable';
   'serviceResolver',
 )
 export class FileStorageServiceFactory
-  implements IFactory<IFileStorageService>
+  implements IFactory<IPublicFileStorageService>
 {
   private _fileStorageConfiguration: IFileStorageConfiguration;
 
@@ -27,18 +27,18 @@ export class FileStorageServiceFactory
     this._serviceResolver = serviceResolver;
   }
 
-  create(): IFileStorageService {
+  create(): IPublicFileStorageService {
     switch (this._fileStorageConfiguration.provider) {
       case 's3':
-        return this._serviceResolver.resolve<IFileStorageService>(
+        return this._serviceResolver.resolve<IPublicFileStorageService>(
           's3FileStorageService',
         );
       case 'dummy':
-        return this._serviceResolver.resolve<IFileStorageService>(
+        return this._serviceResolver.resolve<IPublicFileStorageService>(
           'dummyFileStorageService',
         );
       case 'mongodb':
-        return this._serviceResolver.resolve<IFileStorageService>(
+        return this._serviceResolver.resolve<IPublicFileStorageService>(
           'mongodbFileStorageService',
         );
       default:

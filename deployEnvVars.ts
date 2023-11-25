@@ -11,7 +11,7 @@ let rawSecrets: { [key: string]: string } = {};
 const f = fs.readFileSync(`./.env.secrets.dev`);
 rawSecrets = dotenv.parse(f);
 
-// Read environment variables from .env.local
+// Read environment variables from .env.dev
 const _envVars = fs.readFileSync('.env.dev', 'utf8').split('\n');
 const envVars: { [key: string]: string } = {};
 
@@ -171,7 +171,7 @@ const addEnvVarsToAmplify = async () => {
 
 const addSecretsToSSM = async () => {
   exec(
-    'aws sts get-caller-identity --query "Account" --profile tachignite-dev',
+    `aws sts get-caller-identity --query "Account" --profile  ${envVars.TACH_AWS_PROFILE}`,
     (error, stdout, stderr) => {
       if (error) {
         console.log(`error: ${error.message}`);
@@ -194,22 +194,25 @@ const addSecretsToSSM = async () => {
         }
         const value = rawSecrets[key];
 
-        exec(`npx sst secrets set ${key} ${value}`, (error, stdout, stderr) => {
-          if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-          }
-          if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-          }
-          console.log(`stdout: ${stdout}`);
-        });
+        exec(
+          `npx sst secrets set ${key} "${value}"`,
+          (error, stdout, stderr) => {
+            if (error) {
+              console.log(`error: ${error.message}`);
+              return;
+            }
+            if (stderr) {
+              console.log(`stderr: ${stderr}`);
+              return;
+            }
+            console.log(`stdout: ${stdout}`);
+          },
+        );
       }
     },
   );
 };
 
-addSecretsToGitHub();
+//addSecretsToGitHub();
 // addEnvVarsToAmplify();
 addSecretsToSSM();

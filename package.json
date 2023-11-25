@@ -20,7 +20,8 @@
     "pretty": "prettier --ignore-path .prettierignore --write \"./**/*.{js,jsx,ts,tsx,json}\"",
     "pre-commit": "pnpm pretty && pnpm lint --fix",
     "deploy-env-vars": "tsx --tsconfig ./tsconfig.json ./deployEnvVars.ts",
-    "deploy-app": "npx sst deploy"
+    "deploy-app": "npx sst deploy",
+    "remove-app": "npx sst remove"
   },
   "packageManager": "pnpm@8.6.9",
   "pnpm": {

@@ -1,5 +1,9 @@
 import fs from 'fs';
-import { IFactory, IFileStorageService, IOptions } from '@/lib/abstractions';
+import {
+  IFactory,
+  IPublicFileStorageService,
+  IOptions,
+} from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
 import { IDataLoader, ISeedConfiguration } from './abstractions';
 
@@ -11,11 +15,11 @@ import { IDataLoader, ISeedConfiguration } from './abstractions';
 export class DataLoader implements IDataLoader {
   private _seedConfiguration: ISeedConfiguration;
 
-  private _fileStorageServiceFactory: IFactory<IFileStorageService>;
+  private _fileStorageServiceFactory: IFactory<IPublicFileStorageService>;
 
   constructor(
     seedConfigurationOptions: IOptions<ISeedConfiguration>,
-    fileStorageServiceFactory: IFactory<IFileStorageService>,
+    fileStorageServiceFactory: IFactory<IPublicFileStorageService>,
   ) {
     this._seedConfiguration = seedConfigurationOptions.value;
     this._fileStorageServiceFactory = fileStorageServiceFactory;

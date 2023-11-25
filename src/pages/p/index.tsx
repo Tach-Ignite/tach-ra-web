@@ -61,7 +61,7 @@ Page.getLayout = function getLayout(page: ReactElement, session: Session) {
   );
 };
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   try {
     const m = new ModuleResolver().resolve(ProductsModule);
     const productService = m.resolve<IProductService>('productService');
@@ -79,11 +79,36 @@ export async function getStaticProps() {
     );
 
     const scrubbedViewModels = JSON.parse(JSON.stringify(viewModels));
-    return { props: { products: scrubbedViewModels }, revalidate: 60 };
+    return { props: { products: scrubbedViewModels } };
   } catch (e) {
-    console.log(`\nSkipping static page generation: ${e}`);
-    return { props: { products: [] }, revalidate: 60 };
+    console.log(`\nUnable to load products: ${e}`);
+    return { props: { products: [] } };
   }
 }
+
+// export async function getStaticProps() {
+//   try {
+//     const m = new ModuleResolver().resolve(ProductsModule);
+//     const productService = m.resolve<IProductService>('productService');
+//     const products = await productService.getAllProducts({
+//       skip: 0,
+//       limit: pageSize,
+//     });
+
+//     const mapperProvider = m.resolve<IProvider<IMapper>>('automapperProvider');
+//     const mapper = mapperProvider.provide();
+//     const viewModels = mapper.mapArray<IProduct, ProductViewModel>(
+//       products,
+//       'IProduct',
+//       'ProductViewModel',
+//     );
+
+//     const scrubbedViewModels = JSON.parse(JSON.stringify(viewModels));
+//     return { props: { products: scrubbedViewModels }, revalidate: 60 };
+//   } catch (e) {
+//     console.log(`\nSkipping static page generation: ${e}`);
+//     return { props: { products: [] }, revalidate: 60 };
+//   }
+// }
 
 export default Page;

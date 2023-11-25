@@ -1,15 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import cors from 'cors';
 import { createRouter, expressWrapper } from 'next-connect';
-import { IFactory, IFileStorageService } from '@/lib/abstractions';
+import { IFactory, IPublicFileStorageService } from '@/lib/abstractions';
 import { defaultHandler } from '@/lib/api';
 import { StaticApiModule } from '@/modules/pages/api/static/staticApi.module';
 import { ModuleResolver } from '@/lib/ioc/';
 
 const m = new ModuleResolver().resolve(StaticApiModule);
-const fileStorageServiceFactory = m.resolve<IFactory<IFileStorageService>>(
-  'fileStorageServiceFactory',
-);
+const fileStorageServiceFactory = m.resolve<
+  IFactory<IPublicFileStorageService>
+>('fileStorageServiceFactory');
 
 const router = createRouter<NextApiRequest, NextApiResponse>();
 

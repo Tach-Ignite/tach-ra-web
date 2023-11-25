@@ -50,6 +50,7 @@ function AdminCreateProduct() {
     control,
     getValues,
     watch,
+    setValue,
     formState: { errors, isValid, isSubmitting },
   } = useForm<MutateProductViewModel>({
     mode: 'onChange',
@@ -165,6 +166,19 @@ function AdminCreateProduct() {
       });
   }
 
+  // function setProductProp(
+  //   name: string,
+  //   categoryId: string,
+  //   categoryPropertyId: string,
+  //   value: string,
+  // ) {
+  //   setProductCategoryProperties((prev: any) => {
+  //     const newProductProps = { ...prev };
+  //     newProductProps[name] = { categoryId, categoryPropertyId, value };
+  //     return newProductProps;
+  //   });
+  // }
+
   function setProductProp(
     name: string,
     categoryId: string,
@@ -173,7 +187,12 @@ function AdminCreateProduct() {
   ) {
     setProductCategoryProperties((prev: any) => {
       const newProductProps = { ...prev };
-      newProductProps[name] = { categoryId, categoryPropertyId, value };
+      newProductProps[name] = {
+        categoryId,
+        categoryPropertyId,
+        value,
+      };
+      setValue('categoryPropertyValues', newProductProps);
       return newProductProps;
     });
   }
@@ -255,7 +274,11 @@ function AdminCreateProduct() {
                       <div className="basis-1/2">{cp.name}</div>
                       <select
                         className="border-tachGrey outline-none focus-visible:border-tachGreen border basis-1/2 rounded py-1 px-1.5 transition duration-300"
-                        value={productCategoryProperties[cp.name]}
+                        value={
+                          productCategoryProperties
+                            ? productCategoryProperties[cp.name].value
+                            : ''
+                        }
                         onChange={(e) =>
                           setProductProp(
                             cp.name,

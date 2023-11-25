@@ -123,3 +123,7 @@ To lint the application, run the following command:
 ```bash
 pnpm lint
 ```
+
+## Utilizing AWS Providers locally
+
+In order to utilize AWS Service Providers during local development, you will need to configure your AWS credentials. For more information, see [this guide](/docs/aws_configuration.md).
