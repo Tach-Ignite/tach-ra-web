@@ -4,7 +4,8 @@ This is a Reference Architecture (RA) based on [React](https://reactjs.org/) + [
 
 ## Table of Contents
 
-- [Quickstart](/docs/local_development_setup.md)
+- [Quickstart](/docs/quickstart.md)
+- [Local Development Setup](/docs/local_development_setup.md)
 - [RA Features](/docs/ra_features.md)
 - [Configuring External Dependencies](/docs/configuring_external_dependencies.md)
 - [Environment Variables](/docs/environment_variables.md)
