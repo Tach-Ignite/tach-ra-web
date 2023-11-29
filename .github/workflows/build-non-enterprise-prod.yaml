@@ -1,5 +1,5 @@
 name: Tach Ignite - Web Reference Architecture Build
- env:
+env:
   TACH_ENV_FILE: ${{ secrets.TACH_PROD_ENV_FILE }}
 #   AWS_SECRET_ACCESS_KEY: ${{ secrets.TACH_AWS_SECRET_ACCESS_KEY }}
 #   EXPOSE_ERROR_STACK: ${{ vars.EXPOSE_ERROR_STACK }}
