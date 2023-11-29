@@ -51,7 +51,7 @@ permissions:
   contents: read # This is required for actions/checkout
 
 on:
-  push:
+  workflow_dispatch:
 #     branches:
 # - feature/*
 # - dev
@@ -74,8 +74,7 @@ jobs:
           echo "${{ env.TACH_ENV_FILE }}" => .env
 
       - name: Load environment variables
-        id: dotenv
-        uses: ./.github/actions/dotenv-action
+        uses: falti/dotenv-action@v1.0.4
         with:
           path: .env
 
