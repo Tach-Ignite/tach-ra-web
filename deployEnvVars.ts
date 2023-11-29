@@ -531,10 +531,10 @@ const addSecretsToSSM = async (stage: 'prod' | 'dev') => {
   );
 };
 
-//addSecretsToGitHub();
+addVarsAndSecretsToGitHub();
 // addEnvVarsToAmplify();
 // addVarsAndSecretsToEnvsGitHub(devEnvVars, rawDevSecrets, 'dev');
 // addVarsAndSecretsToEnvsGitHub(prodEnvVars, rawProdSecrets, 'prod');
-addSecretsToSSM('dev');
-addSecretsToSSM('prod');
-createGithubEnvFileVariables();
+// addSecretsToSSM('dev');
+// addSecretsToSSM('prod');
+// createGithubEnvFileVariables();
