@@ -82,8 +82,6 @@ jobs:
       - name: Install dependencies
         run: |
           pnpm install
-      - name: Change Directory
-        run: cd infra/sst/apps/shared
       - name: Deploy resources
         run: |
-          npx sst deploy --stage prod
+          cd infra/sst/apps/shared && npx sst deploy --stage prod
