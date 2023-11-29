@@ -1,4 +1,4 @@
-name: Tach Ignite - Web Reference Architecture Build
+name: tach-ra-web - non-enterprise - shared-resources
 env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.TACH_AWS_SECRET_ACCESS_KEY }}
   EXPOSE_ERROR_STACK: ${{ vars.EXPOSE_ERROR_STACK }}
