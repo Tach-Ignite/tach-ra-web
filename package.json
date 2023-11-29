@@ -19,6 +19,7 @@
     "prepare": "husky install",
     "pretty": "prettier --ignore-path .prettierignore --write \"./**/*.{js,jsx,ts,tsx,json}\"",
     "pre-commit": "pnpm pretty && pnpm lint --fix",
+    "setup-git-aws-connectivity": "cd infra/sst/apps/githubAwsConnectivitySetup && npx sst deploy",
     "deploy-env-vars": "tsx --tsconfig ./tsconfig.json ./deployEnvVars.ts",
     "deploy-app": "npx sst deploy",
     "remove-app": "npx sst remove"

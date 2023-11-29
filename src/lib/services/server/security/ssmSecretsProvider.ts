@@ -20,7 +20,7 @@ class SsmSecretsProvider implements IAsyncMultiProvider<string | undefined> {
 
   constructor() {
     this._client = new SSMClient({ region: process.env.TACH_AWS_REGION });
-    this._prefix = `/sst/${process.env.TACH_SST_APP_NAME}/dev/Secret/`;
+    this._prefix = `/sst/${process.env.TACH_SST_APP_NAME}/${process.env.TACH_SST_STAGE}/Secret/`;
   }
 
   async provideAll(): Promise<{ [key: string]: string | undefined }> {

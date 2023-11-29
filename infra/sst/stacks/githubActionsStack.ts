@@ -7,7 +7,7 @@ export function GithubActionsStack(
   githubRepoOwner: string,
   githubRepoName: string,
 ) {
-  if (app.stage === 'dev') {
+  if (app.stage === 'prod') {
     const provider = new iam.OpenIdConnectProvider(stack, 'GitHub', {
       url: 'https://token.actions.githubusercontent.com',
       clientIds: ['sts.amazonaws.com'],
