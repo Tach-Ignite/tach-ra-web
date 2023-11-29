@@ -74,9 +74,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{ vars.TACH_AWS_ACCOUNT_ID }}:role/GitHub
+          role-to-assume: arn:aws:iam::163574713361:role/GitHub
           role-duration-seconds: 3600 #adjust as needed for your build time
-          aws-region: ${{ vars.TACH_AWS_REGION }}
+          aws-region: us-east-1
       - name: Install pnpm
         run: npm install -g pnpm
       - name: Change Directory
