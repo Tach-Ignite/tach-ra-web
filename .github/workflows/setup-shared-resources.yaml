@@ -79,7 +79,7 @@ jobs:
           aws-region: ${{ env.TACH_AWS_REGION }}
       - name: Install pnpm
         run: npm install -g pnpm
-      --name: Install dependencies
+      - name: Install dependencies
         run: |
           pnpm install
       - name: Change Directory
