@@ -43,7 +43,7 @@ export default {
       const certificate = acm.Certificate.fromCertificateArn(
         stack,
         'Certificate',
-        process.env.TACH_AWS_CERTIFICATE_ARN!,
+        process.env.TACH_SST_CERTIFICATE_ARN!,
       );
 
       const fileStorageBucket = new Bucket(
