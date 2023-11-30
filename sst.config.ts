@@ -18,6 +18,16 @@ if (fs.existsSync(`./.env.dev`)) {
   console.log('loaded env file');
 }
 
+function convertEnvToRecord(env: NodeJS.ProcessEnv): Record<string, string> {
+  const record: Record<string, string> = {};
+  for (const key in env) {
+    if (typeof env[key] === 'string') {
+      record[key] = env[key]!;
+    }
+  }
+  return record;
+}
+
 export default {
   config(_input) {
     return {
@@ -51,7 +61,6 @@ export default {
       const fileStorageBucket = new Bucket(
         stack,
         process.env.TACH_AWS_BUCKET_NAME!,
-
         {
           name: process.env.TACH_AWS_BUCKET_NAME!,
           blockPublicACLs: false,
@@ -84,9 +93,7 @@ export default {
             certificate,
           },
         },
-        environment: {
-          ...env,
-        },
+        environment: convertEnvToRecord(process.env),
         bind: [fileStorageBucket],
       });
 
