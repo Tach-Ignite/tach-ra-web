@@ -21,7 +21,7 @@ const _devEnvVars = fs.readFileSync('.env.dev', 'utf8').split('\n');
 const devEnvVars: { [key: string]: string } = {};
 
 // Read environment variables from .env.prod
-const _prodEnvVars = fs.readFileSync('.env.dev', 'utf8').split('\n');
+const _prodEnvVars = fs.readFileSync('.env.prod', 'utf8').split('\n');
 const prodEnvVars: { [key: string]: string } = {};
 
 for (let i = 0; i < _devEnvVars.length; i++) {
@@ -584,6 +584,6 @@ const addSecretsToSSM = async (stage: 'prod' | 'dev') => {
 // addEnvVarsToAmplify();
 //addVarsAndSecretsToEnvsGitHub(devEnvVars, rawDevSecrets, 'dev', 'dev');
 //addVarsAndSecretsToEnvsGitHub(prodEnvVars, rawProdSecrets, 'prod', 'main');
-// addSecretsToSSM('dev');
-// addSecretsToSSM('prod');
+//addSecretsToSSM('dev');
+//addSecretsToSSM('prod');
 //createGithubEnvFileVariables();
