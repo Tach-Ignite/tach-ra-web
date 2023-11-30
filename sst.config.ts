@@ -46,6 +46,8 @@ export default {
         process.env.TACH_SST_CERTIFICATE_ARN!,
       );
 
+      console.log(certificate);
+
       const fileStorageBucket = new Bucket(
         stack,
         process.env.TACH_AWS_BUCKET_NAME!,
