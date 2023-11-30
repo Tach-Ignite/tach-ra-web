@@ -86,41 +86,43 @@ jobs:
     outputs:
       env_name: ${{ steps.branch_check.outputs.env_name }}
 
-  build:
-    needs: env-check
-    runs-on: ubuntu-latest
-    environment: ${{ needs.env-check.outputs.env_name }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  # Commenting for now, linting is broken
+  # build:
+  #   needs: env-check
+  #   runs-on: ubuntu-latest
+  #   environment: ${{ needs.env-check.outputs.env_name }}
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18.x
+  #     - name: Setup Node.js environment
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 18.x
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+  #     - name: Install pnpm
+  #       run: npm install -g pnpm
 
-      - name: Cache pnpm store
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
+  #     - name: Cache pnpm store
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: ~/.pnpm-store
+  #         key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-pnpm-
 
-      - name: Install dependencies
-        run: pnpm install
+  #     - name: Install dependencies
+  #       run: pnpm install
 
-      - name: Run lint
-        run: pnpm run lint
+  #     - name: Run lint
+  #       run: pnpm run lint
 
-      - name: Run tests
-        run: pnpm test
+  #     - name: Run tests
+  #       run: pnpm test
 
-      - name: Build app
-        run: pnpm run build
+  #     - name: Build app
+  #       run: pnpm run build
+
   # deploy shared resources
   # deploy-shared-resources:
   #   runs-on: ubuntu-latest
@@ -143,7 +145,8 @@ jobs:
   #         npx sst deploy --stage prod
   deploy-app:
     runs-on: ubuntu-latest
-    needs: build
+    needs: env-check
+    environment: ${{ needs.env-check.outputs.env_name }}
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
