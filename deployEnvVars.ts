@@ -537,4 +537,4 @@ addVarsAndSecretsToGitHub();
 // addVarsAndSecretsToEnvsGitHub(prodEnvVars, rawProdSecrets, 'prod');
 // addSecretsToSSM('dev');
 // addSecretsToSSM('prod');
-// createGithubEnvFileVariables();
+createGithubEnvFileVariables();
