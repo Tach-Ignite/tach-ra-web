@@ -130,6 +130,7 @@ jobs:
           echo ${{ env.TACH_SST_APP_NAME }}
           echo ${{ env.TACH_SST_STAGE }}
           echo ${{ env.TACH_SST_DOMAIN_NAME }}
+          cat .env
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
