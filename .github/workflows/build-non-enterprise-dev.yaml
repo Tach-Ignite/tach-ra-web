@@ -1,6 +1,6 @@
 name: tach-ra-web - dev - non-enterprise - build
 env:
-  TACH_ENV_FILE: ${{ secrets.TACH_DEV_ENV_FILE }}
+  TACH_ENV_FILE: ${{ vars.TACH_DEV_ENV_FILE }}
 #   AWS_SECRET_ACCESS_KEY: ${{ secrets.TACH_AWS_SECRET_ACCESS_KEY }}
 #   EXPOSE_ERROR_STACK: ${{ vars.EXPOSE_ERROR_STACK }}
 #   NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL || 'http://localhost:3000' }}
