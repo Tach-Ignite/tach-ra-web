@@ -141,6 +141,7 @@ const addVarsAndSecretsToEnvsGitHub = async (
   envVars: any,
   rawSecrets: any,
   envName: string,
+  associatedBranch: string,
 ) => {
   const token = rawSecrets.TACH_GITHUB_API_TOKEN;
   const repoName = envVars.TACH_GITHUB_REPO_NAME;
@@ -190,6 +191,54 @@ const addVarsAndSecretsToEnvsGitHub = async (
       },
     },
   );
+
+  try {
+    const branchPolicy = await octokit.request(
+      'GET /repos/{owner}/{repo}/environments/{environment_name}/deployment-branch-policies/{branch_policy_id}',
+      {
+        owner: owner,
+        repo: repoName,
+        environment_name: envName,
+        branch_policy_id: 'BRANCH_POLICY_ID',
+        headers: {
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+      },
+    );
+    console.log(`existing branch policy: ${branchPolicy}`);
+
+    await octokit.request(
+      'PUT /repos/{owner}/{repo}/environments/{environment_name}/deployment-branch-policies/{branch_policy_id}',
+      {
+        owner: owner,
+        repo: repoName,
+        environment_name: envName,
+        branch_policy_id: branchPolicy.id,
+        name: 'release/*',
+        headers: {
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+      },
+    );
+  } catch (e) {
+    console.log(`error: ${e}`);
+    if ((e as any).status === 404) {
+      await octokit.request(
+        'POST /repos/{owner}/{repo}/environments/{environment_name}/deployment-branch-policies',
+        {
+          owner: owner,
+          repo: repoName,
+          environment_name: envName,
+          name: associatedBranch,
+          headers: {
+            'X-GitHub-Api-Version': '2022-11-28',
+          },
+        },
+      );
+    } else {
+      throw e;
+    }
+  }
 
   for (const key of Object.keys(envVars)) {
     if (!key || key.match(/^ *$/) !== null) {
@@ -533,8 +582,8 @@ const addSecretsToSSM = async (stage: 'prod' | 'dev') => {
 
 //addVarsAndSecretsToGitHub();
 // addEnvVarsToAmplify();
-//addVarsAndSecretsToEnvsGitHub(devEnvVars, rawDevSecrets, 'dev');
-//addVarsAndSecretsToEnvsGitHub(prodEnvVars, rawProdSecrets, 'prod');
+//addVarsAndSecretsToEnvsGitHub(devEnvVars, rawDevSecrets, 'dev', 'dev');
+//addVarsAndSecretsToEnvsGitHub(prodEnvVars, rawProdSecrets, 'prod', 'main');
 // addSecretsToSSM('dev');
 // addSecretsToSSM('prod');
 //createGithubEnvFileVariables();
