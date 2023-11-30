@@ -120,6 +120,16 @@ jobs:
         with:
           envFile: '.env'
           expand: true
+      - name: Echo
+        run: |
+          echo ${{ env.TACH_ENV_FILE }}
+          echo ${{ env.TACH_AWS_ACCESS_KEY_ID }}
+          echo ${{ env.TACH_AWS_SECRET_ACCESS_KEY }}
+          echo ${{ env.TACH_AWS_REGION }}
+          echo ${{ env.TACH_AWS_ACCOUNT_ID }}
+          echo ${{ env.TACH_SST_APP_NAME }}
+          echo ${{ env.TACH_SST_STAGE }}
+          echo ${{ env.TACH_SST_DOMAIN_NAME }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
