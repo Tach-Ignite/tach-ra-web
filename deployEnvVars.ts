@@ -170,17 +170,17 @@ const addVarsAndSecretsToEnvsGitHub = async (
       repo: repoName,
       environment_name: envName,
       wait_timer: 30,
-      prevent_self_review: false,
-      reviewers: [
-        {
-          type: 'User',
-          id: 1,
-        },
-        {
-          type: 'Team',
-          id: 1,
-        },
-      ],
+      //prevent_self_review: false,
+      // reviewers: [
+      //   {
+      //     type: 'User',
+      //     id: 1,
+      //   },
+      //   {
+      //     type: 'Team',
+      //     id: 1,
+      //   },
+      // ],
       deployment_branch_policy: {
         protected_branches: false,
         custom_branch_policies: true,
@@ -203,7 +203,7 @@ const addVarsAndSecretsToEnvsGitHub = async (
         `GET /repositories/{repository_id}/environments/{environment_name}/variables/{name}`,
         {
           repository_id: repositoryId,
-          environment_name: 'dev',
+          environment_name: envName,
           name: key,
           headers: {
             'X-GitHub-Api-Version': '2022-11-28',
@@ -216,7 +216,7 @@ const addVarsAndSecretsToEnvsGitHub = async (
         `PATCH /repositories/{repository_id}/environments/{environment_name}/variables/{name}`,
         {
           repository_id: repositoryId,
-          environment_name: 'dev',
+          environment_name: envName,
           name: key,
           value,
           headers: {
@@ -231,7 +231,7 @@ const addVarsAndSecretsToEnvsGitHub = async (
           `POST /repositories/{repository_id}/environments/{environment_name}/variables`,
           {
             repository_id: repositoryId,
-            environment_name: 'dev',
+            environment_name: envName,
             name: key,
             value,
             headers: {
@@ -531,10 +531,10 @@ const addSecretsToSSM = async (stage: 'prod' | 'dev') => {
   );
 };
 
-addVarsAndSecretsToGitHub();
+//addVarsAndSecretsToGitHub();
 // addEnvVarsToAmplify();
-// addVarsAndSecretsToEnvsGitHub(devEnvVars, rawDevSecrets, 'dev');
-// addVarsAndSecretsToEnvsGitHub(prodEnvVars, rawProdSecrets, 'prod');
+//addVarsAndSecretsToEnvsGitHub(devEnvVars, rawDevSecrets, 'dev');
+//addVarsAndSecretsToEnvsGitHub(prodEnvVars, rawProdSecrets, 'prod');
 // addSecretsToSSM('dev');
 // addSecretsToSSM('prod');
-createGithubEnvFileVariables();
+//createGithubEnvFileVariables();
