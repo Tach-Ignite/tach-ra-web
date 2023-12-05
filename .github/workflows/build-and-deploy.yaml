@@ -1,0 +1,176 @@
+name: Tach Ignite - Web Reference Architecture Build
+env:
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.TACH_AWS_SECRET_ACCESS_KEY }}
+  EXPOSE_ERROR_STACK: ${{ vars.EXPOSE_ERROR_STACK }}
+  NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL || 'http://localhost:3000' }}
+  NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+  NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+  NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
+  NEXT_PUBLIC_GOOGLE_RECAPTCHA_SITE_KEY: ${{ vars.NEXT_PUBLIC_GOOGLE_RECAPTCHA_SITE_KEY }}
+  NEXT_PUBLIC_HOTJAR_HJID: ${{ vars.NEXT_PUBLIC_HOTJAR_HJID }}
+  NEXT_PUBLIC_HOTJAR_HJSV: ${{ vars.NEXT_PUBLIC_HOTJAR_HJSV }}
+  NEXT_PUBLIC_PAYPAL_CLIENT_ID: ${{ vars.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+  NODE_ENV: ${{ vars.NODE_ENV }}
+  TACH_APPLICATION_NAME: ${{ vars.TACH_APPLICATION_NAME }}
+  TACH_AWS_ACCESS_KEY_ID: ${{ vars.TACH_AWS_ACCESS_KEY_ID }}
+  TACH_AWS_ACCOUNT_ID: ${{ vars.TACH_AWS_ACCOUNT_ID }}
+  TACH_AWS_AMPLIFY_APP_ID: ${{ vars.TACH_AWS_AMPLIFY_APP_ID }}
+  TACH_AWS_SECRET_ACCESS_KEY: ${{ secrets.TACH_AWS_SECRET_ACCESS_KEY }}
+  TACH_AWS_BUCKET_NAME: ${{ vars.TACH_AWS_BUCKET_NAME }}
+  TACH_AWS_REGION: ${{ vars.TACH_AWS_REGION }}
+  TACH_AZURE_AD_CLIENT_ID: ${{ vars.TACH_AZURE_AD_CLIENT_ID }}
+  TACH_AZURE_AD_CLIENT_SECRET: ${{ secrets.TACH_AZURE_AD_CLIENT_SECRET }}
+  TACH_AZURE_AD_TENANT_ID: ${{ vars.TACH_AZURE_AD_TENANT_ID }}
+  TACH_EMAIL_CONTACT_ADDRESS: ${{ vars.TACH_EMAIL_CONTACT_ADDRESS }}
+  TACH_EMAIL_SOURCE: ${{ vars.TACH_EMAIL_SOURCE }}
+  TACH_GITHUB_API_TOKEN: ${{ secrets.TACH_GITHUB_API_TOKEN }}
+  TACH_GITHUB_CLIENT_ID: ${{ vars.TACH_GITHUB_CLIENT_ID }}
+  TACH_GITHUB_CLIENT_SECRET: ${{ secrets.TACH_GITHUB_CLIENT_SECRET }}
+  TACH_GITHUB_REPO_NAME: ${{ vars.TACH_GITHUB_REPO_NAME }}
+  TACH_GITHUB_REPO_OWNER: ${{ vars.TACH_GITHUB_REPO_OWNER }}
+  TACH_GOOGLE_CLIENT_ID: ${{ vars.TACH_GOOGLE_CLIENT_ID }}
+  TACH_GOOGLE_CLIENT_SECRET: ${{ secrets.TACH_GOOGLE_CLIENT_SECRET }}
+  TACH_GOOGLE_RECAPTCHA_SECRET_KEY: ${{ secrets.TACH_GOOGLE_RECAPTCHA_SECRET_KEY }}
+  TACH_LINKEDIN_CLIENT_ID: ${{ vars.TACH_LINKEDIN_CLIENT_ID }}
+  TACH_LINKEDIN_CLIENT_SECRET: ${{ secrets.TACH_LINKEDIN_CLIENT_SECRET }}
+  TACH_MONGO_URI: ${{ secrets.TACH_MONGO_URI }}
+  TACH_NEXTAUTH_JWT_SECRET: ${{ secrets.TACH_NEXTAUTH_JWT_SECRET }}
+  TACH_PAYPAL_SECRET_KEY: ${{ secrets.TACH_PAYPAL_SECRET_KEY }}
+  TACH_STRIPE_SECRET_KEY: ${{ secrets.TACH_STRIPE_SECRET_KEY }}
+  TACH_STRIPE_WEBHOOK_SIGNATURE: ${{ secrets.TACH_STRIPE_WEBHOOK_SIGNATURE }}
+  # AWS_ACCESS_KEY_ID: ${{ vars.TACH_AWS_ACCESS_KEY_ID }}
+  TACH_SST_APP_NAME: ${{ vars.TACH_SST_APP_NAME }}
+  TACH_SST_STAGE: ${{ vars.TACH_SST_STAGE }}
+  TACH_SST_DOMAIN_NAME: ${{ vars.TACH_SST_DOMAIN_NAME }}
+
+# Concurrency group name ensures concurrent workflow runs wait for any in-progress job to finish
+concurrency:
+  group: merge-${{ github.ref }}
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+on:
+  workflow_dispatch:
+#     branches:
+# - feature/*
+# - dev
+# - main
+# pull_request:
+#   branches:
+# - feature/*
+# - dev
+# - main
+
+jobs:
+  env-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check branch name to set env_name
+        id: branch_check
+        run: |
+          echo "Running on branch ${{ github.ref }}"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "::set-output name=env_name::prod"
+          elif [ "${{ github.ref }}" = "refs/heads/dev" ]; then
+            echo "::set-output name=env_name::dev"
+          else
+             echo "::set-output name=env_name::feature"
+          fi
+
+      - name: Use variable setup in previous step
+        run: echo "using environment ${{ steps.branch_check.outputs.env_name }}"
+
+    outputs:
+      env_name: ${{ steps.branch_check.outputs.env_name }}
+
+  # Comment out until lint is fixed
+  # build:
+  #   needs: env-check
+  #   runs-on: ubuntu-latest
+  #   environment: ${{ needs.env-check.outputs.env_name }}
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
+
+  #     - name: Setup Node.js environment
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 18.x
+
+  #     - name: Install pnpm
+  #       run: npm install -g pnpm
+
+  #     - name: Cache pnpm store
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: ~/.pnpm-store
+  #         key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-pnpm-
+
+  #     - name: Install dependencies
+  #       run: pnpm install
+
+  #     - name: Run lint
+  #       run: pnpm run lint
+
+  #     - name: Run tests
+  #       run: pnpm test
+
+  #     - name: Build app
+  #       run: pnpm run build
+
+  # deploy shared resources
+  # deploy-shared-resources:
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - name: Git clone the repository
+  #       uses: actions/checkout@v3
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v2
+  #       with:
+  #         role-to-assume: arn:aws:iam::${{ vars.TACH_AWS_ACCOUNT_ID }}:role/GitHub
+  #         role-duration-seconds: 3600 #adjust as needed for your build time
+  #         aws-region: ${{ vars.TACH_AWS_REGION }}
+  #     - name: Install pnpm
+  #       run: npm install -g pnpm
+  #     - name: Change Directory
+  #       run: cd infra/sst/apps/shared
+  #     - name: Deploy resources
+  #       run: |
+  #         npx sst deploy --stage prod
+  deploy-app:
+    runs-on: ubuntu-latest
+    needs: env-check
+    environment: ${{ needs.env-check.outputs.env_name }}
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.TACH_AWS_ACCOUNT_ID }}:role/GitHub
+          role-duration-seconds: 3600 #adjust as needed for your build time
+          aws-region: ${{ vars.TACH_AWS_REGION }}
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Install dependencies
+        run: pnpm install
+      - name: override node_env then reset it
+        id: node_env
+        run: |
+          echo "::set-output name=original_node_env::${{ env.NODE_ENV }}"
+          echo "NODE_ENV=development" >> $GITHUB_ENV
+
+      - name: Use variable setup in previous step
+        run: echo "using environment ${{ steps.branch_check.outputs.env_name }}"
+      - name: set node_env to ${{ steps.branch_check.outputs.env_name }}
+        run: |
+          echo "NODE_ENV=${{ steps.node_env.outputs.original_node_env }}" >> $GITHUB_ENV
+      - name: Deploy app
+        run: |
+          pnpm deploy-app

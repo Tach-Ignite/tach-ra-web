@@ -1,4 +1,4 @@
-name: Tach Ignite - Web Reference Architecture Build
+name: tach-ra-web - non-enterprise - shared-resources
 env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.TACH_AWS_SECRET_ACCESS_KEY }}
   EXPOSE_ERROR_STACK: ${{ vars.EXPOSE_ERROR_STACK }}
@@ -53,48 +53,35 @@ permissions:
   contents: read # This is required for actions/checkout
 
 on:
-  push:
-    branches:
-      - feature/*
-      - dev
-      - main
-  pull_request:
-    branches:
-      - feature/*
-      - dev
-      - main
+  workflow_dispatch:
+#     branches:
+# - feature/*
+# - dev
+# - main
+# pull_request:
+#   branches:
+# - feature/*
+# - dev
+# - main
 
 jobs:
-  build:
+  deploy:
+    # deploy shared resources
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Git clone the repository
         uses: actions/checkout@v3
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          node-version: 18.x
-
+          role-to-assume: arn:aws:iam::${{ env.TACH_AWS_ACCOUNT_ID }}:role/GitHub
+          role-duration-seconds: 3600 #adjust as needed for your build time
+          aws-region: ${{ env.TACH_AWS_REGION }}
       - name: Install pnpm
         run: npm install -g pnpm
-
-      - name: Cache pnpm store
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
       - name: Install dependencies
-        run: pnpm install
-
-      - name: Run lint
-        run: pnpm run lint
-
-      - name: Run tests
-        run: pnpm test
-
-      - name: Build app
-        run: pnpm run build
+        run: |
+          pnpm install
+      - name: Deploy resources
+        run: |
+          cd infra/sst/apps/shared && npx sst deploy --stage prod

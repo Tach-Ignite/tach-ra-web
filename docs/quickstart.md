@@ -43,22 +43,26 @@ Modify the `tach.config.js` file to prepare for running the application in the c
 - the `files.provider` setting from `mongodb` to `s3`
 - the `secrets.provider` setting from `env` to `ssm`
 
-## 4. AWS Configuration
+## 4. GitHub Repo
+
+Once you've created a GitHub repo for your project, you will need to set the `TACH_GITHUB_REPO` and `TACH_GITHUB_REPO_OWNER` variables in the `.env.local` and `.env.dev` files to your repo name. These are used to create the OpenID Link between GitHub and AWS to allow for GitHub Actions to deploy your application.
+
+## 5. AWS Configuration
 
 We must configure AWS to deploy the application. Once you have created an AWS account, you'll need to fill in the following environment variables in the `.env.local` and `.env.dev` files:
 
 - TACH_AWS_ACCOUNT_ID
 - TACH_AWS_REGION
 
-### 4.1 Service Account Configuration
+### 5.1 Service Account Configuration
 
 The service account has the permissions necessary to run basic AWS services like SES and S3.
 
-#### 4.1.1 Pick an S3 Bucket Name
+#### 5.1.1 Pick an S3 Bucket Name
 
 You will need to pick a bucket name to use for public file storage. Fill in the `TACH_AWS_BUCKET_NAME` variable in the `.env.local` and `.env.dev` files with the desired bucket name.
 
-#### 4.1.2 Create a Service User
+#### 5.1.2 Create a Service User
 
 Create a service user and user group in IAM with the following policy attached. Make sure to replace tokens with your chosen bucket name:
 
@@ -88,13 +92,21 @@ Create a service user and user group in IAM with the following policy attached. 
 }
 ```
 
-### 4.1.3 Service User Access Key
+### 5.1.3 Service User Access Key
 
 You will need to create an access key for the service user and apply the access. See [this guide](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey) to learn about creating an access key. The relevant section is `To create, modify, or delete the access keys of another IAM user (console)`. The `local code` use case makes the most sense. Once you have the `Access Key` and `Secret Access Key`, apply these to the `TACH_AWS_ACCESS_KEY_ID` variable in the `.env.local` and `.env.dev` files, and the `TACH_AWS_ACCESS_KEY_SECRET` variable in the `.env.secrets.local` and `.env.secrets.dev` files.
 
 ![Create Access Key](images/service-user.png 'Create Access Key')
 
-### 4.2 Route 53 Configuration
+#### 5.1.4 Set up Github Actions Access
+
+We will setup an Open Id Connect provider in IAM so Github has the permissions necessary to release our infradstructure and code:
+
+```bash
+pnpm setup-git-aws-connectivity
+```
+
+### 5.2 Route 53 Configuration
 
 Ideally you are using route 53 to manage your domain. If you aren't, you will need to manually add DNS records to:
 
@@ -104,7 +116,7 @@ Ideally you are using route 53 to manage your domain. If you aren't, you will ne
 
 For more information on how to set this up, see the [Route 53 docs](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html). If your domain is already hosted somewhere else, see [this guide](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/MigratingDNS.html) for how to migrate your DNS to Route 53.
 
-### 4.3 Simple Email Service (SES) Configuration
+### 5.3 Simple Email Service (SES) Configuration
 
 The RA uses SES to send emails for registration, password reset, and contact forms. You will need to configure SES to send emails from your domain. For more information on how to set this up, see the [SES docs](https://docs.aws.amazon.com/ses/latest/dg/setting-up.html). To send emails in sandbox mode, you will need to do the following:
 
@@ -113,7 +125,7 @@ The RA uses SES to send emails for registration, password reset, and contact for
 
 Once done, set the `TACH_EMAIL_CONTACT_ADDRESS` and `TACH_EMAIL_SOURCE` variables in the `.env.local` and `.env.dev` files to the email address(es) you verified.
 
-## 5. MongoDB Setup
+## 6. MongoDB Setup
 
 We recommend using MongoDB Atlas for your database. You can use a free tier cluster for development and a paid tier cluster for production. For more information on how to set this up, see the [MongoDB docs](https://docs.atlas.mongodb.com/getting-started/). Be sure to configure the database to use AWS in your preferred region. Eventually we will setup an AWS PrivateLink for more security. In the meantime, you can setup network access to whitelist all IP addresses (0.0.0.0/0). You will also need to setup a user for access.
 
@@ -125,23 +137,19 @@ To seed the database, run the following command:
 pnpm data:seed:dev
 ```
 
-## 6. Recaptcha Setup
+## 7. Recaptcha Setup
 
 Recaptcha is used to protect the site from DDOS or other bot attacks in conjunction with public-facing forms. The Recaptcha site will walk you through account creation [here](https://www.google.com/recaptcha/admin/enterprise). Once you have created an account, you will need to create a site key and secret key. You will need to set the `TACH_RECAPTCHA_SITE_KEY` variable in the `.env.local` and `.env.dev` files to your site key, and the `TACH_RECAPTCHA_SECRET_KEY` variable in the `.env.secrets.local` and `.env.secrets.dev` files to your secret key.
 
-## 7. Hotjar Setup (Optional)
+## 8. Hotjar Setup (Optional)
 
 The RA uses HotJar to track user behavior. You can create a free account [here](https://www.hotjar.com/). Once you have created an account, you will need to create a site id. You will need to set the `TACH_HOTJAR_SITE_ID` variable in the `.env.local` and `.env.dev` files to your site id.
 
-## 8. Stripe Setup
+## 9. Stripe Setup
 
 We recommend Stripe for payment processing. Create a stripe account at https://www.stripe.com and navigate to the dashboard. Test mode is fine for now. Navigate to the [API keys](https://dashboard.stripe.com/test/apikeys) section and create a standard API key. You will need to set the `TACH_STRIPE_PUBLISHABLE_KEY` variable in the `env.local` and `.env.dev` files to your publishable key and the `TACH_STRIPE_SECRET_KEY` variable in the `.env.secrets.local` and `.env.secrets.dev` files to your secret key.
 
 Once you're ready to move to production, you will need a webhook signature to validate webhook calls. See the [webhooks](https://dashboard.stripe.com/test/webhooks) section in the dashboard. You will need to set the `TACH_STRIPE_WEBHOOK_SIGNATURE` variable in the `.env.secrets.dev` file to your webhook secret.
-
-## 9. GitHub Repo
-
-Once you've created a GitHub repo for your project, you will need to set the `TACH_GITHUB_REPO` and `TACH_GITHUB_REPO_OWNER` variables in the `.env.local` and `.env.dev` files to your repo name. These are used to create the OpenID Link between GitHub and AWS to allow for GitHub Actions to deploy your application.
 
 ## 10. Password Protection
 
