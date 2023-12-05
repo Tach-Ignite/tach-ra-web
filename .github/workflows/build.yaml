@@ -54,15 +54,15 @@ permissions:
 
 on:
   push:
-     branches:
-    - feature/*
-    - dev
-    - main
+    branches:
+      - feature/*
+      - dev
+      - main
   pull_request:
     branches:
-    - feature/*
-    - dev
-    - main
+      - feature/*
+      - dev
+      - main
 
 jobs:
   env-check:
