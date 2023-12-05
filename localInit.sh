@@ -41,7 +41,7 @@ fi
 pnpm install
 
 # Array of files to check and create if necessary
-files=("server.ts" ".env.local" ".env.secrets.local" ".env.dev" ".env.secrets.dev")
+files=("server.ts" ".env.local" ".env.secrets.local" ".env.dev" ".env.secrets.dev" ".env.prod" ".env.secrets.prod")
 
 # Loop through the files array
 for file in "${files[@]}"; do

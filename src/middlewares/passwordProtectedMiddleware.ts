@@ -10,7 +10,6 @@ export const passwordProtectedMiddlewareFactory: MiddlewareFactory = (
   next: NextMiddleware,
 ) =>
   async function middleware(request: NextRequest, _next: NextFetchEvent) {
-    const baseUrl = request.nextUrl.origin;
     const path = request.nextUrl.pathname;
 
     if (

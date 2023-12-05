@@ -21,7 +21,13 @@ if (fs.existsSync(`./.env.dev`)) {
 function convertEnvToRecord(env: NodeJS.ProcessEnv): Record<string, string> {
   const record: Record<string, string> = {};
   for (const key in env) {
-    if (typeof env[key] === 'string') {
+    if (
+      typeof env[key] === 'string' &&
+      (key.startsWith('TACH_') ||
+        key.startsWith('NEXT_') ||
+        key.startsWith('NEXTAUTH') ||
+        ['EXPOSE_ERROR_STACK', 'NODE_ENV'].includes(key))
+    ) {
       record[key] = env[key]!;
     }
   }
