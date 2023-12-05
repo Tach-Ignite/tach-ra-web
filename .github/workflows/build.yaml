@@ -65,112 +65,36 @@ on:
       - main
 
 jobs:
-  env-check:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: check branch name to set env_name
-        id: branch_check
-        run: |
-          echo "Running on branch ${{ github.ref }}"
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "::set-output name=env_name::prod"
-          elif [ "${{ github.ref }}" = "refs/heads/dev" ]; then
-            echo "::set-output name=env_name::dev"
-          else
-             echo "::set-output name=env_name::feature"
-          fi
-
-      - name: Use variable setup in previous step
-        run: echo "using environment ${{ steps.branch_check.outputs.env_name }}"
-
-    outputs:
-      env_name: ${{ steps.branch_check.outputs.env_name }}
-
-  # Comment out until lint is fixed
-  # build:
-  #   needs: env-check
-  #   runs-on: ubuntu-latest
-  #   environment: ${{ needs.env-check.outputs.env_name }}
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
-
-  #     - name: Setup Node.js environment
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 18.x
-
-  #     - name: Install pnpm
-  #       run: npm install -g pnpm
-
-  #     - name: Cache pnpm store
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ~/.pnpm-store
-  #         key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-pnpm-
-
-  #     - name: Install dependencies
-  #       run: pnpm install
-
-  #     - name: Run lint
-  #       run: pnpm run lint
-
-  #     - name: Run tests
-  #       run: pnpm test
-
-  #     - name: Build app
-  #       run: pnpm run build
-
-  # deploy shared resources
-  # deploy-shared-resources:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   steps:
-  #     - name: Git clone the repository
-  #       uses: actions/checkout@v3
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v2
-  #       with:
-  #         role-to-assume: arn:aws:iam::${{ vars.TACH_AWS_ACCOUNT_ID }}:role/GitHub
-  #         role-duration-seconds: 3600 #adjust as needed for your build time
-  #         aws-region: ${{ vars.TACH_AWS_REGION }}
-  #     - name: Install pnpm
-  #       run: npm install -g pnpm
-  #     - name: Change Directory
-  #       run: cd infra/sst/apps/shared
-  #     - name: Deploy resources
-  #       run: |
-  #         npx sst deploy --stage prod
-  deploy-app:
-    runs-on: ubuntu-latest
-    needs: env-check
-    environment: ${{ needs.env-check.outputs.env_name }}
-    steps:
-      - name: Git clone the repository
+      - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
         with:
-          role-to-assume: arn:aws:iam::${{ vars.TACH_AWS_ACCOUNT_ID }}:role/GitHub
-          role-duration-seconds: 3600 #adjust as needed for your build time
-          aws-region: ${{ vars.TACH_AWS_REGION }}
+          node-version: 18.x
+
       - name: Install pnpm
         run: npm install -g pnpm
+
+      - name: Cache pnpm store
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
       - name: Install dependencies
         run: pnpm install
-      - name: override node_env then reset it
-        id: node_env
-        run: |
-          echo "::set-output name=original_node_env::${{ env.NODE_ENV }}"
-          echo "NODE_ENV=development" >> $GITHUB_ENV
 
-      - name: Use variable setup in previous step
-        run: echo "using environment ${{ steps.branch_check.outputs.env_name }}"
-      - name: set node_env to ${{ steps.branch_check.outputs.env_name }}
-        run: |
-          echo "NODE_ENV=${{ steps.node_env.outputs.original_node_env }}" >> $GITHUB_ENV
-      - name: Deploy app
-        run: |
-          pnpm deploy-app
+      - name: Run lint
+        run: pnpm run lint
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Build app
+        run: pnpm run build
