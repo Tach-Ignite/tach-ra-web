@@ -2,6 +2,7 @@ import { NextApiRequest } from 'next';
 import {
   IAsyncMultiProvider,
   IConfirmPaymentIntentRequest,
+  ICreateCheckoutSessionResponse,
   ICreatePaymentIntentRequest,
   IFactory,
   IFormParser,
@@ -37,7 +38,7 @@ export class PayPalPaymentService implements IPaymentService {
   async createCheckoutSession(
     request: ICreatePaymentIntentRequest,
     mapper: IMapper,
-  ): Promise<string> {
+  ): Promise<ICreateCheckoutSessionResponse> {
     const accessToken = await this.generateAccessToken();
     const url = `${this._baseURL.sandbox}/v2/checkout/orders`;
 
@@ -55,7 +56,10 @@ export class PayPalPaymentService implements IPaymentService {
       body: JSON.stringify(paypalRequest),
     });
     const data = await response.json();
-    return data.id;
+    return {
+      checkoutSessionId: data.id,
+      checkoutSessionUrl: data.links.find((x: any) => x.rel === 'approve').href,
+    };
   }
 
   async confirmCheckoutSession(

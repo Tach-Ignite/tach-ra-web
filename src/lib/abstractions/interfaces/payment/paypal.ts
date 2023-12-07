@@ -49,7 +49,7 @@ export interface IPaypalPurchaseUnit {
   application_context: IPaypalPurchaseUnitApplicationContext;
   amount: IPaypalPurchaseUnitAmount;
   items: IPaypalPurchaseUnitItem[];
-  shipping: IPaypalPurchaseUnitShipping;
+  shipping?: IPaypalPurchaseUnitShipping;
 }
 
 export interface IPaypalCreateOrderRequest {

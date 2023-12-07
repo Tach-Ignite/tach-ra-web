@@ -185,11 +185,13 @@ export class PaypalPaymentServiceMappingProfile implements ITachMappingProfile {
         forMember(
           (d) => d.shipping,
           mapFrom((s) =>
-            mapper.map<IShippingInformation, IPaypalPurchaseUnitShipping>(
-              s.shippingInformation,
-              'IShippingInformation',
-              'IPaypalPurchaseUnitShipping',
-            ),
+            s.shippingInformation
+              ? mapper.map<IShippingInformation, IPaypalPurchaseUnitShipping>(
+                  s.shippingInformation,
+                  'IShippingInformation',
+                  'IPaypalPurchaseUnitShipping',
+                )
+              : undefined,
           ),
         ),
       );

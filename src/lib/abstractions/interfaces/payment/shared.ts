@@ -291,6 +291,7 @@ export interface IPriceData {
   currency: Extract<keyof ICurrencyCodeEnum, string>;
   unitAmount: number;
   productData: IProductData;
+  taxBehavior?: string;
 }
 
 export interface ILineItem {
@@ -305,7 +306,7 @@ export interface IShippingInformation {
 
 export interface ICreatePaymentIntentRequest {
   paymentMethodTypes: PaymentMethodType[];
-  shippingInformation: IShippingInformation;
+  shippingInformation?: IShippingInformation;
   customerEmail: string;
   lineItems: ILineItem[];
   mode: string;
@@ -334,11 +335,16 @@ export interface IConfirmPaymentIntentRequest {
   paymentProvider: string;
 }
 
+export interface ICreateCheckoutSessionResponse {
+  checkoutSessionId: string;
+  checkoutSessionUrl: string | null;
+}
+
 export interface IPaymentService {
   createCheckoutSession(
     request: ICreatePaymentIntentRequest,
     mapper: IMapper,
-  ): Promise<string>;
+  ): Promise<ICreateCheckoutSessionResponse>;
   confirmCheckoutSession(
     request: IConfirmPaymentIntentRequest,
     mapper: IMapper,
