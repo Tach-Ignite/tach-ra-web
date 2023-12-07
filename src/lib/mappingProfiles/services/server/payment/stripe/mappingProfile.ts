@@ -82,13 +82,18 @@ export class StripePaymentServiceMappingProfile implements ITachMappingProfile {
         'IStripeCheckoutSessionCreateRequest',
         forMember(
           (d) => d.shipping_address_collection,
-          mapFrom((s) =>
-            mapper.map<IShippingInformation, IStripeShippingAddressCollection>(
-              s.shippingInformation,
-              'IShippingInformation',
-              'IStripeShippingAddressCollection',
-            ),
-          ),
+          mapFrom((s) => {
+            return s.shippingInformation
+              ? mapper.map<
+                  IShippingInformation,
+                  IStripeShippingAddressCollection
+                >(
+                  s.shippingInformation,
+                  'IShippingInformation',
+                  'IStripeShippingAddressCollection',
+                )
+              : undefined;
+          }),
         ),
         forMember(
           (d) => d.metadata,

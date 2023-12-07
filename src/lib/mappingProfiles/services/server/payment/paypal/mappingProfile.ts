@@ -184,13 +184,15 @@ export class PaypalPaymentServiceMappingProfile implements ITachMappingProfile {
         ),
         forMember(
           (d) => d.shipping,
-          mapFrom((s) =>
-            mapper.map<IShippingInformation, IPaypalPurchaseUnitShipping>(
-              s.shippingInformation,
-              'IShippingInformation',
-              'IPaypalPurchaseUnitShipping',
-            ),
-          ),
+          mapFrom((s) => {
+            return s.shippingInformation
+              ? mapper.map<IShippingInformation, IPaypalPurchaseUnitShipping>(
+                  s.shippingInformation,
+                  'IShippingInformation',
+                  'IPaypalPurchaseUnitShipping',
+                )
+              : undefined;
+          }),
         ),
       );
       createMap<ICreatePaymentIntentRequest, IPaypalCreateOrderRequest>(

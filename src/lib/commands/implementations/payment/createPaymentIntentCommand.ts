@@ -4,6 +4,7 @@ import {
   IPaymentService,
   IProvider,
   CreatePaymentIntentCommandPayload,
+  ICreateCheckoutSessionResponse,
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
 import { Command } from '../../command';
@@ -16,7 +17,7 @@ import { Command } from '../../command';
 )
 export class CreatePaymentIntentCommand extends Command<
   CreatePaymentIntentCommandPayload,
-  string
+  ICreateCheckoutSessionResponse
 > {
   private _paymentServiceFactory: IFactory<IPaymentService>;
 

@@ -3,6 +3,7 @@ import {
   ConfirmCheckoutSessionCommandPayload,
   CreatePaymentIntentCommandPayload,
   ParseConfirmCheckoutSessionCommandPayload,
+  SendEmailCommandPayload,
   ValidateRecaptchaTokenCommandPayload,
 } from '@/lib/abstractions';
 
@@ -31,4 +32,10 @@ export function createLibCommandPayloadMetadata() {
       recaptchaToken: String,
     },
   );
+  PojosMetadataMap.create<SendEmailCommandPayload>('SendEmailCommandPayload', {
+    toEmail: String,
+    fromEmail: String,
+    subject: String,
+    body: String,
+  });
 }

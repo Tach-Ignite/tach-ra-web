@@ -3,6 +3,7 @@ import { NextApiRequest } from 'next';
 import {
   IAsyncMultiProvider,
   IConfirmPaymentIntentRequest,
+  ICreateCheckoutSessionResponse,
   ICreatePaymentIntentRequest,
   IFactory,
   IFormParser,
@@ -40,7 +41,7 @@ export class StripePaymentService implements IPaymentService {
   async createCheckoutSession(
     request: ICreatePaymentIntentRequest,
     mapper: IMapper,
-  ): Promise<string> {
+  ): Promise<ICreateCheckoutSessionResponse> {
     const sessionCreateRequest = mapper.map<
       ICreatePaymentIntentRequest,
       IStripeCheckoutSessionCreateRequest
@@ -53,7 +54,10 @@ export class StripePaymentService implements IPaymentService {
     const stripe = await this._stripeClientFactory.create();
     const session = await stripe.checkout.sessions.create(sessionCreateRequest);
 
-    return session.id;
+    return {
+      checkoutSessionId: session.id,
+      checkoutSessionUrl: session.url,
+    };
   }
 
   async confirmCheckoutSession(request: any): Promise<void> {
