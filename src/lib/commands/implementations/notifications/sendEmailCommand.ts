@@ -3,7 +3,7 @@ import { Injectable } from '@/lib/ioc/injectable';
 import { Command } from '../../command';
 
 @Injectable('sendEmailCommand', 'emailService', 'payload')
-export class SendEmailCommand2 extends Command<SendEmailCommandPayload, void> {
+export class SendEmailCommand extends Command<SendEmailCommandPayload, void> {
   private _emailService: IEmailService;
 
   constructor(emailService: IEmailService, payload: SendEmailCommandPayload) {
