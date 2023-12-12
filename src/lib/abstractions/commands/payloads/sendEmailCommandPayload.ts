@@ -3,4 +3,5 @@ export type SendEmailCommandPayload = {
   toEmail: string;
   subject: string;
   body: string;
+  replyToEmail?: string;
 };

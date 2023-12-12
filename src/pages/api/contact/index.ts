@@ -60,7 +60,9 @@ router.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (!validateRecaptchaResponse.success) {
     throw new ErrorWithStatusCode(
-      'The validateRecaptchaTokenCommand invocation did not return a successful result.',
+      `The validateRecaptchaTokenCommand invocation did not return a successful result: ${JSON.stringify(
+        validateRecaptchaResponse,
+      )}`,
       400,
       'Invalid Captcha',
     );

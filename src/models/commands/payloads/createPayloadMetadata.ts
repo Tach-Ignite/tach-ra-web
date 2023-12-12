@@ -1,4 +1,5 @@
 import { createCategoryPayloadMetadata } from './categories/createCategoryPayloadMetadata';
+import { createInterestListCommandPayloadMetadata } from './interestLists/createInterestListCommandPayloadMetadata';
 import { createOrderPayloadMetadata } from './orders/createOrderPayloadMetadata';
 import { createProductPayloadMetadata } from './products/createProductPayloadMetadata';
 import { createUserAddressPayloadMetadata } from './userAddresses/createUserAddressPayloadMetadata';
@@ -10,4 +11,5 @@ export function createPayloadMetadata() {
   createProductPayloadMetadata();
   createOrderPayloadMetadata();
   createUserCommandPayloadMetadata();
+  createInterestListCommandPayloadMetadata();
 }

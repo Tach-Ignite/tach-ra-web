@@ -19,7 +19,7 @@ export const defaultHandler = {
         friendlyMessage = err.friendlyMessage;
       }
 
-      logger.error(error.message, status, error.stack);
+      logger.error(error.message, { status, stack: error.stack });
       res.status(status).end(friendlyMessage);
     });
   },

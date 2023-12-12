@@ -1,13 +1,16 @@
-import { ErrorWithStatusCode } from '@/lib/errors';
 import { Module, ModuleClass } from '@/lib/ioc/module';
 import { SESEmailService } from '@/lib/services/server/notifications/SESEmailService';
 import { SecretsModule } from '../security/secrets.module';
+import { FakeConsoleEmailService } from '@/lib/services/server/notifications/fakeConsoleEmailService';
+import { EmailServiceFactory } from '@/lib/services/server/notifications/emailServiceFactory';
 
 @Module
 export class EmailServiceModule extends ModuleClass {
   constructor() {
     const tachEmailSource = process.env.TACH_EMAIL_SOURCE ?? '';
     const nextPublicBaseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? '';
+    const tachEmailContactAddress =
+      process.env.TACH_EMAIL_CONTACT_ADDRESS ?? '';
 
     super({
       imports: [SecretsModule],
@@ -17,12 +20,24 @@ export class EmailServiceModule extends ModuleClass {
           useValue: tachEmailSource,
         },
         {
+          provide: 'tachEmailContactAddress',
+          useValue: tachEmailContactAddress,
+        },
+        {
           provide: 'nextPublicBaseUrl',
           useValue: nextPublicBaseUrl,
         },
         {
-          provide: 'emailService',
+          provide: 'sesEmailService',
           useClass: SESEmailService,
+        },
+        {
+          provide: 'fakeConsoleEmailService',
+          useClass: FakeConsoleEmailService,
+        },
+        {
+          provide: 'emailServiceFactory',
+          useClass: EmailServiceFactory,
         },
       ],
     });

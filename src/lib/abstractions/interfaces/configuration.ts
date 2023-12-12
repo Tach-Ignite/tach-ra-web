@@ -44,3 +44,12 @@ export interface IDarkModeConfiguration extends IConfigurationSection {
 export interface ISecretsConfiguration extends IConfigurationSection {
   provider: 'env' | 'ssm';
 }
+
+export interface INotificationsEmailConfiguration
+  extends IConfigurationSection {
+  provider: 'ses' | 'console';
+}
+
+export interface INotificationsConfiguration extends IConfigurationSection {
+  email: INotificationsEmailConfiguration;
+}

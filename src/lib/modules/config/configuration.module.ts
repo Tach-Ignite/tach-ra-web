@@ -5,6 +5,7 @@ import {
   IDataStorageConfiguration,
   IFileStorageConfiguration,
   ILoggingConfiguration,
+  INotificationsConfiguration,
   IPaymentConfiguration,
   ISecretsConfiguration,
   IServiceResolver,
@@ -128,6 +129,22 @@ export class ConfigurationModule extends ModuleClass {
             const configFile = serviceResolver.resolve<any>('configFile');
             const config = factory.create(configFile);
             const section = config.getSection<ISecretsConfiguration>('secrets');
+            if (!section) {
+              return null;
+            }
+            return new Options(section);
+          },
+        },
+        {
+          provide: 'notificationsConfigurationOptions',
+          useFactory: (serviceResolver: IServiceResolver) => {
+            const factory = serviceResolver.resolve<IConfigurationFactory>(
+              'configurationFactory',
+            );
+            const configFile = serviceResolver.resolve<any>('configFile');
+            const config = factory.create(configFile);
+            const section =
+              config.getSection<INotificationsConfiguration>('notifications');
             if (!section) {
               return null;
             }

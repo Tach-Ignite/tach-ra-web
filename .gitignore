@@ -52,4 +52,4 @@ server.ts
 
 # sst
 .open-next
-.sst
+**/.sst
