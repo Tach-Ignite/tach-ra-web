@@ -7,7 +7,11 @@ import {
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc';
 
-@Injectable('emailServiceFactory', 'notificationsConfigurationOptions')
+@Injectable(
+  'emailServiceFactory',
+  'notificationsConfigurationOptions',
+  'serviceResolver',
+)
 export class EmailServiceFactory implements IFactory<IEmailService> {
   private _config: INotificationsConfiguration;
 

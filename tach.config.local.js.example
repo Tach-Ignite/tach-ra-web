@@ -4,7 +4,7 @@ module.exports = {
       provider: 'mongodb', //mongodb
     },
     files: {
-      provider: 's3', //mongodb, s3
+      provider: 'mongodb', //mongodb, s3
     },
     seed: {
       data: [
@@ -28,11 +28,11 @@ module.exports = {
     default: 'light', //light, dark
   },
   secrets: {
-    provider: 'ssm', //env, ssm
+    provider: 'env', //env, ssm
   },
   notifications: {
     email: {
-      provider: 'ses', //ses, console
+      provider: 'console', //ses, console
     },
   },
 };

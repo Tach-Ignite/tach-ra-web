@@ -3,8 +3,6 @@ import { Injectable } from '@/lib/ioc';
 
 @Injectable('fakeConsoleEmailService')
 export class FakeConsoleEmailService implements IEmailService {
-  constructor() {}
-
   async sendEmail(
     fromEmail: string,
     toEmail: string,

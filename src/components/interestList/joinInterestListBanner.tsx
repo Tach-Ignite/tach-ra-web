@@ -6,12 +6,11 @@ import { useAddUserToInterestListMutation } from '@/rtk';
 import { ajvResolver } from '@hookform/resolvers/ajv';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input } from '../ui';
 import { useReCaptcha } from 'next-recaptcha-v3';
+import { Button, Input } from '../ui';
 
 export function JoinInterestListBanner() {
-  const [useAddUserToInterestList, useAddUserToInterestListResult] =
-    useAddUserToInterestListMutation();
+  const [addUserToInterestList] = useAddUserToInterestListMutation();
   const { executeRecaptcha } = useReCaptcha();
   const [submitError, setSubmitError] = useState<string>('');
   const [sendingRequest, setSendingRequest] = useState(false);
@@ -51,7 +50,7 @@ export function JoinInterestListBanner() {
     }
     form.recaptchaToken = recaptchaToken;
 
-    useAddUserToInterestList(form)
+    addUserToInterestList(form)
       .then((result) => {
         setUserAdded(true);
       })
@@ -67,7 +66,7 @@ export function JoinInterestListBanner() {
       }
       form.recaptchaToken = recaptchaToken;
 
-      useAddUserToInterestList({ ...form, interestListFriendlyId: 'global' })
+      addUserToInterestList({ ...form, interestListFriendlyId: 'global' })
         .then((result) => {
           setUserAdded(true);
         })

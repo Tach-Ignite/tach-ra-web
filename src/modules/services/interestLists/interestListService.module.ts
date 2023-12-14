@@ -8,7 +8,7 @@ import { InterestListService } from '@/services/interestLists/interestListServic
 
 @Module
 export class InterestListServiceModule extends ModuleClass {
-  //private _ajv: Ajv;
+  // private _ajv: Ajv;
 
   constructor() {
     // const ajv = new Ajv({
@@ -35,6 +35,6 @@ export class InterestListServiceModule extends ModuleClass {
       ],
     });
 
-    //this._ajv = ajv;
+    // this._ajv = ajv;
   }
 }

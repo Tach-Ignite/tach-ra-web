@@ -47,6 +47,7 @@ export class InterestListService implements IInterestListService {
     this._interestListItemQueryRepository = interestListItemQueryRepository;
     this._automapperProvider = automapperProvider;
   }
+
   public async createInterestList(
     interestList: IInterestList,
   ): Promise<IInterestList> {
@@ -76,6 +77,7 @@ export class InterestListService implements IInterestListService {
 
     return createdInterestList;
   }
+
   public async createInterestListItem(
     interestListItem: IInterestListItem,
   ): Promise<IInterestListItem> {
@@ -123,7 +125,7 @@ export class InterestListService implements IInterestListService {
       friendlyId,
     });
 
-    if (interestListDto.length == 0) {
+    if (interestListDto.length === 0) {
       return null;
     }
 
@@ -135,6 +137,7 @@ export class InterestListService implements IInterestListService {
 
     return interestList;
   }
+
   public async getInterestListItem(
     interestListFriendlyId: string,
     email: string,
@@ -147,7 +150,7 @@ export class InterestListService implements IInterestListService {
         email,
       });
 
-    if (interestListItemDto.length == 0) {
+    if (interestListItemDto.length === 0) {
       return null;
     }
 

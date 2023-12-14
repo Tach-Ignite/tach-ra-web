@@ -1,8 +1,8 @@
 import { Module, ModuleClass } from '@/lib/ioc/module';
 import { SESEmailService } from '@/lib/services/server/notifications/SESEmailService';
-import { SecretsModule } from '../security/secrets.module';
 import { FakeConsoleEmailService } from '@/lib/services/server/notifications/fakeConsoleEmailService';
 import { EmailServiceFactory } from '@/lib/services/server/notifications/emailServiceFactory';
+import { SecretsModule } from '../security/secrets.module';
 
 @Module
 export class EmailServiceModule extends ModuleClass {

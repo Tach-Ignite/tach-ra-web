@@ -1,6 +1,6 @@
 import { QueryReturnValue } from '@/lib/utils';
-import { emptyAppApi } from './emptyAppApi';
 import { AddUserToInterestListViewModel } from '@/models/viewModels/interestLists';
+import { emptyAppApi } from './emptyAppApi';
 
 const baseUrl = 'interestLists';
 

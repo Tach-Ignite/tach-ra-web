@@ -13,6 +13,7 @@ import {
 import { ConfigurationFactory, Options } from '@/lib/config';
 import { Module, ModuleClass } from '@/lib/ioc/module';
 import tc from '~/tach.config';
+import tcLocal from '~/tach.config.local';
 
 @Module
 export class ConfigurationModule extends ModuleClass {
@@ -21,7 +22,7 @@ export class ConfigurationModule extends ModuleClass {
       providers: [
         {
           provide: 'configFile',
-          useValue: tc,
+          useValue: Object.keys(tcLocal).length === 0 ? tc : tcLocal,
         },
         {
           provide: 'configurationFactory',
