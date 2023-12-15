@@ -8,6 +8,6 @@ export interface IInterestList extends PartialIdModelAndTimestampModel {
 
 export interface IInterestListItem extends PartialIdModelAndTimestampModel {
   email: string;
-  phone?: string;
+  phoneNumber?: string;
   interestList: IInterestList;
 }

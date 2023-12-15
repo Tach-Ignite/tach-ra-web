@@ -33,6 +33,8 @@ export type UserDto = {
   emailVerified?: Date;
   roles: Extract<keyof IUserRolesEnum, string>[];
   email: string;
+  phoneNumber?: string;
+  agreedToReceiveSmsNotifications: boolean;
   defaultUserAddressId?: string | null;
   addresses: UserAddressDto[];
   token?: string;
@@ -114,6 +116,8 @@ export function createDtoMetadata() {
     emailVerified: Date,
     roles: String,
     email: String,
+    phoneNumber: String,
+    agreedToReceiveSmsNotifications: Boolean,
     defaultUserAddressId: String,
     addresses: 'UserAddressDto',
     token: String,
@@ -182,7 +186,7 @@ export function createDtoMetadata() {
     ...idModelMetadata,
     ...timeStampedModelMetadata,
     email: String,
-    phone: String,
+    phoneNumber: String,
     interestListId: String,
   });
 }

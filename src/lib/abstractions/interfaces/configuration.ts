@@ -50,6 +50,11 @@ export interface INotificationsEmailConfiguration
   provider: 'ses' | 'console';
 }
 
+export interface INotificationsSmsConfiguration extends IConfigurationSection {
+  provider: 'sns' | 'twilio' | 'console';
+}
+
 export interface INotificationsConfiguration extends IConfigurationSection {
   email: INotificationsEmailConfiguration;
+  sms: INotificationsSmsConfiguration;
 }

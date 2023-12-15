@@ -87,6 +87,11 @@ Create a service user and user group in IAM with the following policy attached. 
       "Effect": "Allow",
       "Action": ["ses:SendEmail", "ses:SendTemplatedEmail", "ses:SendRawEmail"],
       "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["sns:Publish", "sns:Receive"],
+      "Resource": "*"
     }
   ]
 }

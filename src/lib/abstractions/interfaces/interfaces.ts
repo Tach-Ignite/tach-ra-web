@@ -2,6 +2,7 @@ import { Readable } from 'stream';
 import { JSONSchemaType } from 'ajv';
 import { NextApiRequest } from 'next';
 import { NextMiddleware } from 'next/server';
+import { P } from 'pino';
 
 // Factories
 export interface IFactory<T> {
@@ -165,6 +166,10 @@ export interface IEmailService {
     body: string,
     replyToEmail?: string,
   ): Promise<void>;
+}
+
+export interface ISmsService {
+  sendSms(phoneNumber: string, message: string): Promise<void>;
 }
 
 export type RecaptchaValidationResponse = {

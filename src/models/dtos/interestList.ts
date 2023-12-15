@@ -2,7 +2,7 @@ import { PartialIdModelAndTimestampModel } from '@/lib/abstractions';
 
 export type InterestListItemDto = {
   email: string;
-  phone?: string;
+  phoneNumber?: string;
   interestListId: string;
 } & PartialIdModelAndTimestampModel;
 

@@ -22,6 +22,7 @@ import {
   UserRolesEnum,
 } from '../enums';
 import { AddUserToInterestListViewModel } from './interestLists';
+import { StringListParameter } from 'aws-cdk-lib/aws-ssm';
 
 export type FileLike = {
   name: string;
@@ -596,6 +597,8 @@ export type DarkModeConfigurationViewModel = {
 
 export type MutateUserProfileViewModel = {
   name: string;
+  phoneNumber: string;
+  agreedToReceiveSmsNotifications: boolean;
 };
 
 export const mutateUserProfileViewModelSchema: JSONSchemaType<MutateUserProfileViewModel> =
@@ -603,6 +606,10 @@ export const mutateUserProfileViewModelSchema: JSONSchemaType<MutateUserProfileV
     type: 'object',
     properties: {
       name: { type: 'string' },
+      phoneNumber: { type: 'string', format: 'phone' },
+      agreedToReceiveSmsNotifications: {
+        type: 'boolean',
+      },
     },
     required: ['name'],
   };
@@ -771,7 +778,7 @@ export function createViewModelMetadata() {
     'AddUserToInterestListViewModel',
     {
       email: String,
-      phone: String,
+      phoneNumber: String,
       interestListFriendlyId: String,
       optedInToGenericNotifications: Boolean,
       agreedToPrivacyPolicyAndTerms: Boolean,

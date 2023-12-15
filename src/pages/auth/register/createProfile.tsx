@@ -67,7 +67,14 @@ function Page() {
       <h1>Create User Profile</h1>
       <p>This information is necessary to complete the registration process.</p>
       <form>
-        <Input register={register} label="Full Name" name="name" />
+        <Input register={register} required label="Full Name" name="name" />
+        <Input register={register} label="Phone" name="phone" />
+        <Input
+          register={register}
+          type="checkbox"
+          label="I agree to receive SMS/text messages"
+          name="smsOptIn"
+        />
         <Button
           onClick={handleSubmit(onSubmit)}
           disabled={!isValid}

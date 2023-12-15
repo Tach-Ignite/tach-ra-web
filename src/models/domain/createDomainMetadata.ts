@@ -101,7 +101,7 @@ export function createDomainMetadata() {
     ...idModelMetadata,
     ...timeStampedModelMetadata,
     email: String,
-    phone: String,
+    phoneNumber: String,
     interestList: 'IInterestList',
   });
 }

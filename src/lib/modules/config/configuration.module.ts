@@ -13,7 +13,6 @@ import {
 import { ConfigurationFactory, Options } from '@/lib/config';
 import { Module, ModuleClass } from '@/lib/ioc/module';
 import tc from 'tach.config';
-import fs from 'fs';
 // @ts-ignore
 let tcLocal = require('tach.config.local');
 

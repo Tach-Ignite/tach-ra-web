@@ -8,6 +8,8 @@ export interface IUser {
   emailVerified?: Date | null;
   roles: Extract<keyof IUserRolesEnum, string>[];
   email: string;
+  phoneNumber?: string;
+  agreedToReceiveSmsNotifications: boolean;
   defaultUserAddressId?: string | null;
   addresses: IUserAddress[];
 }

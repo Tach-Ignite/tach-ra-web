@@ -12,7 +12,7 @@ export type InterestListViewModel = {
 
 export type AddUserToInterestListViewModel = {
   email: string;
-  phone?: string;
+  phoneNumber?: string;
   interestListFriendlyId: string;
   optedInToGenericNotifications: boolean;
   agreedToPrivacyPolicyAndTerms: boolean;
@@ -22,7 +22,7 @@ export type AddUserToInterestListViewModel = {
 export type InterestListItemViewModel = {
   _id: string;
   email: string;
-  phone?: string;
+  phoneNumber?: string;
   interestListFriendlyId: string;
   createdOn: Date;
   updatedOn: Date;
@@ -33,7 +33,7 @@ export const addUserToInterestListViewModelSchema: JSONSchemaType<AddUserToInter
     type: 'object',
     properties: {
       email: { type: 'string' },
-      phone: { type: 'string', nullable: true },
+      phoneNumber: { type: 'string', nullable: true },
       interestListFriendlyId: { type: 'string' },
       optedInToGenericNotifications: { type: 'boolean' },
       agreedToPrivacyPolicyAndTerms: { type: 'boolean' },
