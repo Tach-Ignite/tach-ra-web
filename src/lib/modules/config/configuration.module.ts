@@ -16,6 +16,7 @@ import tc from 'tach.config';
 import fs from 'fs';
 // @ts-ignore
 let tcLocal = require('tach.config.local');
+
 if (!tcLocal) tcLocal = {};
 
 @Module
@@ -26,7 +27,7 @@ export class ConfigurationModule extends ModuleClass {
         {
           provide: 'configFile',
           useValue: Object.keys(tcLocal).length === 0 ? tc : tcLocal,
-          //useValue: tc,
+          // useValue: tc,
         },
         {
           provide: 'configurationFactory',
