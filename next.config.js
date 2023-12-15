@@ -39,7 +39,7 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
-      '~/tach.config.local': false,
+      'tach.config.local': false,
     };
     return config;
   },
