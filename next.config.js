@@ -1,6 +1,10 @@
 const fs = require('fs');
 const dotenv = require('dotenv');
-const tc = require('./tach.config');
+let tc = require('./tach.config');
+
+if (fs.existsSync('./tach.config.local.js')) {
+  tc = require('./tach.config.local');
+}
 
 let rawSecrets = {};
 let secrets = '{}';
@@ -31,6 +35,14 @@ const headers = [
 const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
+  webpack5: true,
+  webpack: (config) => {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      'tach.config.local': false,
+    };
+    return config;
+  },
   env: {
     secrets: process.env.secrets,
     ALLOWED_NEXT_AUTH_URLS: [

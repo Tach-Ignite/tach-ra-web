@@ -33,8 +33,17 @@ module.exports = {
   secrets: {
     provider: 'env',
   },
+  notifications: {
+    email: {
+      provider: 'ses',
+    },
+  },
 };
 ```
+
+## Local Configuration Override
+
+Often for local development, we would like to avoid relying on external services such as AWS. However, we would like to maintain these services in dev and production. To allow for this, the `tach.config.local.js` file will be loaded if it exists. This file should **not** be checked into source control. This file is automatically created when running `./localInit.sh`.
 
 ## Storage Configuration
 
@@ -70,7 +79,7 @@ This section allows you to configure your chosen router provider.
 
 ## Authentication Configuration
 
-This section allows you to defined which authentication providers to activate. The following providers are available:
+This section allows you to define which authentication providers to activate. The following providers are available:
 
 - credentials
 - google
@@ -82,7 +91,7 @@ The auth pages will automatically update to reflect the providers that are enabl
 
 ## Payment Configuration
 
-This section allows you to defined which payment providers to activate. The following providers are available:
+This section allows you to define which payment providers to activate. The following providers are available:
 
 - stripe
 - paypal
@@ -93,9 +102,18 @@ This optional section allows you to set a dark mode override. This is useful if 
 
 ## Secrets Configuration
 
-This section allows you to defined which secrets provider to activate. The following providers are available:
+This section allows you to define which secrets provider to activate. The following providers are available:
 
 - env
 - ssm
 
 For more information on how to use the secrets provider, please see the documentation on [secrets](/docs/secrets.md).
+
+## Notifications Configuration
+
+This section allows you configure the provider for notification services. The following providers are available for `email` notifications:
+
+- ses
+- console
+
+The `console` provider is ideal for local development; it simple logs the email to the console instead of sending an email.

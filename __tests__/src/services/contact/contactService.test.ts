@@ -1,6 +1,7 @@
 import {
   ICommandRepository,
   IEmailService,
+  IFactory,
   IMapper,
   IProvider,
 } from '@/lib/abstractions';
@@ -12,10 +13,12 @@ describe('contactService', () => {
   let contactRequestCommandRepository: jest.Mocked<
     ICommandRepository<ContactRequestDto>
   >;
+  let emailServiceFactory: IFactory<jest.Mocked<IEmailService>>;
   let emailService: jest.Mocked<IEmailService>;
   let automapperProvider: IProvider<IMapper>;
   const tachEmailSource: string = 'source@test.com';
   const nextPublicBaseUrl: string = 'https://test.com';
+  const tachEmailContactAddress: string = 'contact@test.com';
   const mapMock = jest.fn();
   const mapArrayMock = jest.fn();
 
@@ -26,8 +29,11 @@ describe('contactService', () => {
       delete: jest.fn(),
       generateId: jest.fn(),
     };
-    emailService = {
-      sendEmail: jest.fn(),
+    emailService = { sendEmail: jest.fn() };
+    emailServiceFactory = {
+      create: () => {
+        return emailService;
+      },
     };
     automapperProvider = {
       provide: () => ({ map: mapMock, mapArray: mapArrayMock }),
@@ -35,9 +41,10 @@ describe('contactService', () => {
 
     service = new ContactService(
       contactRequestCommandRepository,
-      emailService,
+      emailServiceFactory,
       automapperProvider,
       tachEmailSource,
+      tachEmailContactAddress,
       nextPublicBaseUrl,
     );
   });
@@ -59,6 +66,7 @@ describe('contactService', () => {
         agreedToPrivacyPolicy: true,
       };
 
+      const emailService = emailServiceFactory.create();
       mapMock.mockReturnValueOnce(contactRequestDto);
       contactRequestCommandRepository.create.mockResolvedValueOnce('123');
 
@@ -71,10 +79,11 @@ describe('contactService', () => {
       );
       expect(emailService.sendEmail).toBeCalledTimes(1);
       expect(emailService.sendEmail).toBeCalledWith(
-        contactRequest.email,
         tachEmailSource,
+        tachEmailContactAddress,
         `[Contact Us] message from ${contactRequest.email} on ${nextPublicBaseUrl}`,
         `<p>Sender Name: ${contactRequest.name}</p><p>Sender Email: ${contactRequest.email}</p><p>Message:<br />${contactRequest.message}</p>`,
+        contactRequest.email,
       );
     });
   });

@@ -34,7 +34,8 @@
     "**/*.js",
     "**/*.jsx",
     ".next/types/**/*.ts",
-    "tach.config.js"
+    "tach.config.js",
+    "src/commands/interestLists/createInterestListItemCommandts"
   ],
   "exclude": ["node_modules", "tach_extra"]
 }

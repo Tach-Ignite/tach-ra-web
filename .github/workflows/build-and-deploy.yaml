@@ -1,6 +1,5 @@
 name: Tach Ignite - Web Reference Architecture Build
 env:
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.TACH_AWS_SECRET_ACCESS_KEY }}
   EXPOSE_ERROR_STACK: ${{ vars.EXPOSE_ERROR_STACK }}
   NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL || 'http://localhost:3000' }}
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
@@ -18,6 +17,7 @@ env:
   TACH_AWS_AMPLIFY_APP_ID: ${{ vars.TACH_AWS_AMPLIFY_APP_ID }}
   TACH_AWS_SECRET_ACCESS_KEY: ${{ secrets.TACH_AWS_SECRET_ACCESS_KEY }}
   TACH_AWS_BUCKET_NAME: ${{ vars.TACH_AWS_BUCKET_NAME }}
+  TACH_AWS_PROFILE: ${{ vars.TACH_AWS_PROFILE }}
   TACH_AWS_REGION: ${{ vars.TACH_AWS_REGION }}
   TACH_AZURE_AD_CLIENT_ID: ${{ vars.TACH_AZURE_AD_CLIENT_ID }}
   TACH_AZURE_AD_CLIENT_SECRET: ${{ secrets.TACH_AZURE_AD_CLIENT_SECRET }}
@@ -27,6 +27,7 @@ env:
   TACH_GITHUB_API_TOKEN: ${{ secrets.TACH_GITHUB_API_TOKEN }}
   TACH_GITHUB_CLIENT_ID: ${{ vars.TACH_GITHUB_CLIENT_ID }}
   TACH_GITHUB_CLIENT_SECRET: ${{ secrets.TACH_GITHUB_CLIENT_SECRET }}
+  TACH_GITHUB_REPO_ID: ${{ vars.TACH_GITHUB_REPO_ID }}
   TACH_GITHUB_REPO_NAME: ${{ vars.TACH_GITHUB_REPO_NAME }}
   TACH_GITHUB_REPO_OWNER: ${{ vars.TACH_GITHUB_REPO_OWNER }}
   TACH_GOOGLE_CLIENT_ID: ${{ vars.TACH_GOOGLE_CLIENT_ID }}
@@ -34,15 +35,18 @@ env:
   TACH_GOOGLE_RECAPTCHA_SECRET_KEY: ${{ secrets.TACH_GOOGLE_RECAPTCHA_SECRET_KEY }}
   TACH_LINKEDIN_CLIENT_ID: ${{ vars.TACH_LINKEDIN_CLIENT_ID }}
   TACH_LINKEDIN_CLIENT_SECRET: ${{ secrets.TACH_LINKEDIN_CLIENT_SECRET }}
+  TACH_PASSWORD_PROTECTED: ${{ vars.TACH_PASSWORD_PROTECTED }}
   TACH_MONGO_URI: ${{ secrets.TACH_MONGO_URI }}
   TACH_NEXTAUTH_JWT_SECRET: ${{ secrets.TACH_NEXTAUTH_JWT_SECRET }}
+  TACH_PASSWORD_PROTECTED_USERNAME: ${{ vars.TACH_PASSWORD_PROTECTED_USERNAME }}
+  TACH_PASSWORD_PROTECTED_PASSWORD: ${{ secrets.TACH_PASSWORD_PROTECTED_PASSWORD }}
   TACH_PAYPAL_SECRET_KEY: ${{ secrets.TACH_PAYPAL_SECRET_KEY }}
   TACH_STRIPE_SECRET_KEY: ${{ secrets.TACH_STRIPE_SECRET_KEY }}
   TACH_STRIPE_WEBHOOK_SIGNATURE: ${{ secrets.TACH_STRIPE_WEBHOOK_SIGNATURE }}
-  # AWS_ACCESS_KEY_ID: ${{ vars.TACH_AWS_ACCESS_KEY_ID }}
   TACH_SST_APP_NAME: ${{ vars.TACH_SST_APP_NAME }}
   TACH_SST_STAGE: ${{ vars.TACH_SST_STAGE }}
   TACH_SST_DOMAIN_NAME: ${{ vars.TACH_SST_DOMAIN_NAME }}
+  TACH_SST_CERTIFICATE_ARN: ${{ vars.TACH_SST_CERTIFICATE_ARN }}
 
 # Concurrency group name ensures concurrent workflow runs wait for any in-progress job to finish
 concurrency:
@@ -122,27 +126,6 @@ jobs:
 
   #     - name: Build app
   #       run: pnpm run build
-
-  # deploy shared resources
-  # deploy-shared-resources:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   steps:
-  #     - name: Git clone the repository
-  #       uses: actions/checkout@v3
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v2
-  #       with:
-  #         role-to-assume: arn:aws:iam::${{ vars.TACH_AWS_ACCOUNT_ID }}:role/GitHub
-  #         role-duration-seconds: 3600 #adjust as needed for your build time
-  #         aws-region: ${{ vars.TACH_AWS_REGION }}
-  #     - name: Install pnpm
-  #       run: npm install -g pnpm
-  #     - name: Change Directory
-  #       run: cd infra/sst/apps/shared
-  #     - name: Deploy resources
-  #       run: |
-  #         npx sst deploy --stage prod
   deploy-app:
     runs-on: ubuntu-latest
     needs: env-check
@@ -160,17 +143,8 @@ jobs:
         run: npm install -g pnpm
       - name: Install dependencies
         run: pnpm install
-      - name: override node_env then reset it
-        id: node_env
-        run: |
-          echo "::set-output name=original_node_env::${{ env.NODE_ENV }}"
-          echo "NODE_ENV=development" >> $GITHUB_ENV
-
-      - name: Use variable setup in previous step
-        run: echo "using environment ${{ steps.branch_check.outputs.env_name }}"
-      - name: set node_env to ${{ steps.branch_check.outputs.env_name }}
-        run: |
-          echo "NODE_ENV=${{ steps.node_env.outputs.original_node_env }}" >> $GITHUB_ENV
+        env:
+          NODE_ENV: development
       - name: Deploy app
         run: |
           pnpm deploy-app

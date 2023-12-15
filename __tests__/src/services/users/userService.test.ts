@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import {
   ICommandRepository,
   IEmailService,
+  IFactory,
   IIdOmitter,
   IMapper,
   IProvider,
@@ -27,6 +28,7 @@ describe('UserService', () => {
   let accountCommandRepository: jest.Mocked<ICommandRepository<AccountDto>>;
   let accountQueryRepository: jest.Mocked<IQueryRepository<AccountDto>>;
   let userAddressService: jest.Mocked<IUserAddressService>;
+  let emailServiceFactory: IFactory<jest.Mocked<IEmailService>>;
   let emailService: jest.Mocked<IEmailService>;
   let tokenService: jest.Mocked<ITokenService>;
   let idOmitter: jest.Mocked<IIdOmitter>;
@@ -74,8 +76,11 @@ describe('UserService', () => {
     automapperProvider = {
       provide: () => ({ map: mapMock, mapArray: mapArrayMock }),
     } as unknown as IProvider<IMapper>;
-    emailService = {
-      sendEmail: jest.fn(),
+    emailService = { sendEmail: jest.fn() };
+    emailServiceFactory = {
+      create: () => {
+        return emailService;
+      },
     };
     tokenService = {
       createToken: jest.fn(),
@@ -96,7 +101,7 @@ describe('UserService', () => {
       accountCommandRepository,
       userAddressService,
       automapperProvider,
-      emailService,
+      emailServiceFactory,
       tokenService,
       idOmitter,
       tachEmailSource,
@@ -144,6 +149,7 @@ describe('UserService', () => {
       };
       const password = 'password123';
       const token = 'someToken';
+      const emailService = emailServiceFactory.create();
       bcrypt.hash = jest.fn().mockResolvedValue('hashedPassword');
       mapMock.mockReturnValueOnce(userDtoWithoutId);
       userCommandRepository.create.mockResolvedValueOnce(userId);
@@ -217,6 +223,7 @@ describe('UserService', () => {
         ...userDto,
         _id: userId,
       };
+      const emailService = emailServiceFactory.create();
 
       userQueryRepository.find.mockResolvedValueOnce([userDtoWithId]);
       tokenService.createToken.mockResolvedValueOnce(createdToken);
@@ -274,6 +281,7 @@ describe('UserService', () => {
         provider: 'credentials',
         providerAccountId: userId,
       };
+      const emailService = emailServiceFactory.create();
 
       userQueryRepository.find.mockResolvedValueOnce([userDtoWithId]);
       accountQueryRepository.find.mockResolvedValueOnce([accountDto]);
@@ -339,6 +347,7 @@ describe('UserService', () => {
         provider: 'credentials',
         providerAccountId: userId,
       };
+      const emailService = emailServiceFactory.create();
 
       userQueryRepository.find.mockResolvedValueOnce([userDtoWithId]);
       accountQueryRepository.find.mockResolvedValueOnce([accountDto]);

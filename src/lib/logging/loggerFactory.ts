@@ -20,16 +20,16 @@ export class LoggerFactory implements ILoggerFactory<INpmLogger> {
   }
 
   createPinoLogger(config: any, namespace: string): PinoLogger {
-    if (Array.isArray(config.default)) {
-      const pinoLogger: any = pino(...config.default);
+    if (Array.isArray(config)) {
+      const pinoLogger: any = pino(...config);
       return new PinoLogger(pinoLogger, namespace);
     }
-    const pinoLogger: any = pino(config.default);
+    const pinoLogger: any = pino(config);
     return new PinoLogger(pinoLogger, namespace);
   }
 
   createWinstonLogger(config: any, namespace: string): WinstonLogger {
-    const winstonLogger = createLogger(config.default);
+    const winstonLogger = createLogger(config);
     return new WinstonLogger(winstonLogger, namespace);
   }
 

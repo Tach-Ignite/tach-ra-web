@@ -5,13 +5,19 @@ import {
   IDataStorageConfiguration,
   IFileStorageConfiguration,
   ILoggingConfiguration,
+  INotificationsConfiguration,
   IPaymentConfiguration,
   ISecretsConfiguration,
   IServiceResolver,
 } from '@/lib/abstractions';
 import { ConfigurationFactory, Options } from '@/lib/config';
 import { Module, ModuleClass } from '@/lib/ioc/module';
-import tc from '~/tach.config';
+import tc from 'tach.config';
+import fs from 'fs';
+// @ts-ignore
+let tcLocal = require('tach.config.local');
+
+if (!tcLocal) tcLocal = {};
 
 @Module
 export class ConfigurationModule extends ModuleClass {
@@ -20,7 +26,8 @@ export class ConfigurationModule extends ModuleClass {
       providers: [
         {
           provide: 'configFile',
-          useValue: tc,
+          useValue: Object.keys(tcLocal).length === 0 ? tc : tcLocal,
+          // useValue: tc,
         },
         {
           provide: 'configurationFactory',
@@ -128,6 +135,22 @@ export class ConfigurationModule extends ModuleClass {
             const configFile = serviceResolver.resolve<any>('configFile');
             const config = factory.create(configFile);
             const section = config.getSection<ISecretsConfiguration>('secrets');
+            if (!section) {
+              return null;
+            }
+            return new Options(section);
+          },
+        },
+        {
+          provide: 'notificationsConfigurationOptions',
+          useFactory: (serviceResolver: IServiceResolver) => {
+            const factory = serviceResolver.resolve<IConfigurationFactory>(
+              'configurationFactory',
+            );
+            const configFile = serviceResolver.resolve<any>('configFile');
+            const config = factory.create(configFile);
+            const section =
+              config.getSection<INotificationsConfiguration>('notifications');
             if (!section) {
               return null;
             }

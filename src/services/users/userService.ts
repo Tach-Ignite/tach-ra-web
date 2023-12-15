@@ -3,6 +3,7 @@ import { IUserAddressService, IUserService } from '@/abstractions';
 import {
   ICommandRepository,
   IEmailService,
+  IFactory,
   IIdOmitter,
   IMapper,
   IProvider,
@@ -29,7 +30,7 @@ import { Injectable } from '@/lib/ioc/injectable';
   'accountCommandRepository',
   'userAddressService',
   'automapperProvider',
-  'emailService',
+  'emailServiceFactory',
   'tokenService',
   'idOmitter',
   'tachEmailSource',
@@ -65,7 +66,7 @@ export class UserService implements IUserService {
     accountCommandRepository: ICommandRepository<AccountDto>,
     userAddressService: IUserAddressService,
     automapperProvider: IProvider<IMapper>,
-    emailService: IEmailService,
+    emailServiceFactory: IFactory<IEmailService>,
     tokenService: ITokenService,
     idOmitter: IIdOmitter,
     tachEmailSource: string,
@@ -79,7 +80,7 @@ export class UserService implements IUserService {
     this._accountCommandRepository = accountCommandRepository;
     this._userAddressService = userAddressService;
     this._automapperProvider = automapperProvider;
-    this._emailService = emailService;
+    this._emailService = emailServiceFactory.create();
     this._tokenService = tokenService;
     this._idOmitter = idOmitter;
   }

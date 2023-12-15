@@ -163,6 +163,7 @@ export interface IEmailService {
     toEmail: string,
     subject: string,
     body: string,
+    replyToEmail?: string,
   ): Promise<void>;
 }
 

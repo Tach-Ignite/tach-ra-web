@@ -12,6 +12,7 @@ import { IOrder } from './order';
 import { IUser } from './user';
 
 import { IContactRequest } from './contactRequest';
+import { IInterestList, IInterestListItem } from './interestList';
 
 export function createDomainMetadata() {
   PojosMetadataMap.create<IAddress>('IAddress', {
@@ -88,5 +89,19 @@ export function createDomainMetadata() {
     message: String,
     optedInToEmailAlerts: Boolean,
     agreedToPrivacyPolicy: Boolean,
+  });
+  PojosMetadataMap.create<IInterestList>('IInterestList', {
+    ...idModelMetadata,
+    ...timeStampedModelMetadata,
+    friendlyId: String,
+    name: String,
+    description: String,
+  });
+  PojosMetadataMap.create<IInterestListItem>('IInterestListItem', {
+    ...idModelMetadata,
+    ...timeStampedModelMetadata,
+    email: String,
+    phone: String,
+    interestList: 'IInterestList',
   });
 }

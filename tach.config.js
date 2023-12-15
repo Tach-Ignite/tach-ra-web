@@ -1,10 +1,10 @@
 module.exports = {
   storage: {
     data: {
-      provider: 'mongodb',
+      provider: 'mongodb', //mongodb
     },
     files: {
-      provider: 'mongodb',
+      provider: 's3', //mongodb, s3
     },
     seed: {
       data: [
@@ -16,18 +16,23 @@ module.exports = {
     },
   },
   auth: {
-    providers: ['credentials', 'github'],
+    providers: ['credentials', 'github'], //credentials, github, google, linkedin, azuread
   },
   logging: {
-    provider: 'winston',
+    provider: 'winston', //winston, pino
   },
   payment: {
-    provider: 'stripe',
+    provider: 'stripe', //stripe, paypal
   },
   darkMode: {
-    default: 'light',
+    default: 'light', //light, dark
   },
   secrets: {
-    provider: 'env',
+    provider: 'ssm', //env, ssm
+  },
+  notifications: {
+    email: {
+      provider: 'ses', //ses, console
+    },
   },
 };

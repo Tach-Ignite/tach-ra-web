@@ -6,3 +6,4 @@ export * from './ordersApi';
 export * from './productsApi';
 export * from './usersApi';
 export * from './passwordProtectedApi';
+export * from './interestListsApi';

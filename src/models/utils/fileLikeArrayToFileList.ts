@@ -1,4 +1,4 @@
-import { FileLike } from '../viewModels';
+import { FileLike } from '../viewModels/shared';
 
 export function fileLikeArrayToFileList(fileLikeArray: FileLike[]): FileList {
   function iterator(this: any) {

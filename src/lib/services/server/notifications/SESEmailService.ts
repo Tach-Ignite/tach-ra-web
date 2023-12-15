@@ -10,7 +10,7 @@ import {
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc';
 
-@Injectable('emailService', 'secretsProviderFactory')
+@Injectable('sesEmailService', 'secretsProviderFactory')
 export class SESEmailService implements IEmailService {
   private _secretsProvider: IAsyncMultiProvider<string | undefined>;
 
@@ -25,6 +25,7 @@ export class SESEmailService implements IEmailService {
     toEmail: string,
     subject: string,
     body: string,
+    replyToEmail: string | undefined = undefined,
   ): Promise<void> {
     const awsSecretAccessKey = (await this._secretsProvider.provide(
       'TACH_AWS_SECRET_ACCESS_KEY',
@@ -36,7 +37,7 @@ export class SESEmailService implements IEmailService {
         secretAccessKey: awsSecretAccessKey,
       },
     });
-    const emailParams: SendEmailCommandInput = {
+    let emailParams: SendEmailCommandInput = {
       Destination: {
         ToAddresses: [toEmail],
       },
@@ -54,6 +55,13 @@ export class SESEmailService implements IEmailService {
       },
       Source: fromEmail,
     };
+
+    if (replyToEmail) {
+      emailParams = {
+        ...emailParams,
+        ReplyToAddresses: [replyToEmail],
+      };
+    }
 
     const emailResult = await client.send(new SendEmailCommand(emailParams));
     if (emailResult.MessageId === undefined) {

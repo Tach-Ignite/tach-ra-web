@@ -40,7 +40,7 @@ export async function getLoggingConfig() {
   const consoleLogTransport = new transports.Console({
     level: process.env.LOG_LEVEL,
     handleExceptions: false,
-    format: format.printf((info) => `${info.message}`),
+    format: format.printf((info) => `${JSON.stringify(info)}`),
   });
 
   // const cloudwatchTransport = new WinstonCloudwatch({
@@ -60,9 +60,7 @@ export async function getLoggingConfig() {
   // t.push(fileLogTransport);
   // t.push(cloudwatchTransport);
 
-  if (process.env.NODE_ENV !== 'production') {
-    t.push(consoleLogTransport);
-  }
+  t.push(consoleLogTransport);
 
   const winstonConfig = {
     level: 'silly',
