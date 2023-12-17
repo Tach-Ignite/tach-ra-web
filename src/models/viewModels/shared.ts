@@ -772,6 +772,8 @@ export function createViewModelMetadata() {
     'MutateUserProfileViewModel',
     {
       name: String,
+      phoneNumber: String,
+      agreedToReceiveSmsNotifications: Boolean,
     },
   );
   PojosMetadataMap.create<AddUserToInterestListViewModel>(

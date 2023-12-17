@@ -32,6 +32,12 @@ export function createDomainMetadata() {
     roles: String,
     email: String,
     defaultUserAddressId: String,
+    phoneNumber: String,
+    agreedToReceiveSmsNotifications: String,
+    smsOptInConfirmedViaSms: Boolean,
+    smsOptInConfirmedViaSmsDate: Date,
+    smsOptedOutViaSms: Boolean,
+    smsOptedOutViaSmsDate: Date,
     addresses: ['IUserAddress'],
   });
   PojosMetadataMap.create<ICategoryProperty>('ICategoryProperty', {

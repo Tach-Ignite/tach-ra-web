@@ -34,5 +34,8 @@ module.exports = {
     email: {
       provider: 'ses', //ses, console
     },
+    sms: {
+      provider: 'sns', //sns, twilio, console
+    },
   },
 };

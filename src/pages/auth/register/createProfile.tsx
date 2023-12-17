@@ -68,12 +68,12 @@ function Page() {
       <p>This information is necessary to complete the registration process.</p>
       <form>
         <Input register={register} required label="Full Name" name="name" />
-        <Input register={register} label="Phone" name="phone" />
+        <Input register={register} label="Phone" name="phoneNumber" />
         <Input
           register={register}
           type="checkbox"
           label="I agree to receive SMS/text messages"
-          name="smsOptIn"
+          name="agreedToReceiveSmsNotifications"
         />
         <Button
           onClick={handleSubmit(onSubmit)}
