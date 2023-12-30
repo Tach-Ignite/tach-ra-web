@@ -15,6 +15,7 @@ import {
 } from '@/lib/abstractions';
 import { TokenServiceModule } from '@/lib/modules/services/server/security/tokenService.module';
 import { UserAddressServiceModule } from '../userAddresses/userAddressService.module';
+import { ProductServiceModule } from '../products/productService.module';
 
 @Module
 export class UserServiceModule extends ModuleClass {
@@ -22,6 +23,7 @@ export class UserServiceModule extends ModuleClass {
     super({
       imports: [
         UserAddressServiceModule,
+        ProductServiceModule,
         AutomapperModule,
         EmailServiceModule,
         DataProvidersModule,

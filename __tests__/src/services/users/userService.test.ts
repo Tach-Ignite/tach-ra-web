@@ -19,7 +19,7 @@ import {
   UserDto,
   UserRolesEnum,
 } from '@/models';
-import { IUserAddressService } from '@/abstractions';
+import { IUserAddressService, IProductService } from '@/abstractions';
 
 describe('UserService', () => {
   let service: UserService;
@@ -28,6 +28,7 @@ describe('UserService', () => {
   let accountCommandRepository: jest.Mocked<ICommandRepository<AccountDto>>;
   let accountQueryRepository: jest.Mocked<IQueryRepository<AccountDto>>;
   let userAddressService: jest.Mocked<IUserAddressService>;
+  let productService: jest.Mocked<IProductService>;
   let emailServiceFactory: IFactory<jest.Mocked<IEmailService>>;
   let emailService: jest.Mocked<IEmailService>;
   let tokenService: jest.Mocked<ITokenService>;
@@ -73,6 +74,16 @@ describe('UserService', () => {
       editUserAddress: jest.fn(),
       deleteUserAddress: jest.fn(),
     };
+    productService = {
+      getProductById: jest.fn(),
+      getProductsByIds: jest.fn(),
+      getAllProducts: jest.fn(),
+      createProduct: jest.fn(),
+      editProduct: jest.fn(),
+      deleteProduct: jest.fn(),
+      searchProducts: jest.fn(),
+    };
+
     automapperProvider = {
       provide: () => ({ map: mapMock, mapArray: mapArrayMock }),
     } as unknown as IProvider<IMapper>;
@@ -100,6 +111,7 @@ describe('UserService', () => {
       accountQueryRepository,
       accountCommandRepository,
       userAddressService,
+      productService,
       automapperProvider,
       emailServiceFactory,
       tokenService,
@@ -121,6 +133,7 @@ describe('UserService', () => {
         email: 'jdoe@test.com',
         roles: [],
         addresses: [],
+        cart: { items: [] },
       };
       const userDto: UserDto = {
         _id: userId,
@@ -130,6 +143,7 @@ describe('UserService', () => {
         addresses: [],
         password: 'hashedPassword',
         emailVerified: undefined,
+        cart: { items: [] },
       };
       const userDtoWithId: UserDto & IdModel = {
         ...userDto,
@@ -142,6 +156,7 @@ describe('UserService', () => {
         addresses: [],
         password: 'hashedPassword',
         emailVerified: undefined,
+        cart: { items: [] },
       };
       const userWithId: IUser = {
         ...user,
@@ -218,6 +233,7 @@ describe('UserService', () => {
         addresses: [],
         password: 'hashedPassword',
         emailVerified: undefined,
+        cart: { items: [] },
       };
       const userDtoWithId: UserDto & IdModel = {
         ...userDto,
@@ -269,6 +285,7 @@ describe('UserService', () => {
         addresses: [],
         password: 'hashedPassword',
         emailVerified: undefined,
+        cart: { items: [] },
       };
       const userDtoWithId: UserDto & IdModel = {
         ...userDto,
@@ -335,6 +352,7 @@ describe('UserService', () => {
         addresses: [],
         password: 'hashedPassword',
         emailVerified: undefined,
+        cart: { items: [] },
       };
       const userDtoWithId: UserDto & IdModel = {
         ...userDto,
@@ -397,6 +415,7 @@ describe('UserService', () => {
         addresses: [],
         password: 'hashedPassword',
         emailVerified: undefined,
+        cart: { items: [] },
       };
       const userDtoWithId: UserDto & IdModel = {
         ...userDto,
@@ -437,6 +456,7 @@ describe('UserService', () => {
         addresses: [],
         password: 'hashedPassword',
         emailVerified: undefined,
+        cart: { items: [] },
       };
       const userDtoWithId: UserDto & IdModel = {
         ...userDto,
@@ -447,6 +467,7 @@ describe('UserService', () => {
         email: 'jdoe@test.com',
         roles: [],
         addresses: [],
+        cart: { items: [] },
       };
       const userWithId: IUser = {
         ...user,
@@ -488,6 +509,7 @@ describe('UserService', () => {
         addresses: [],
         password: 'hashedPassword',
         emailVerified: undefined,
+        cart: { items: [] },
       };
       const userDtoWithId: UserDto & IdModel = {
         ...userDto,
@@ -547,6 +569,7 @@ describe('UserService', () => {
         email: 'jdoe@test.com',
         roles: [],
         addresses: userAddresses,
+        cart: { items: [] },
       };
       const userWithId: IUser = {
         ...user,
@@ -588,6 +611,7 @@ describe('UserService', () => {
         addresses: [],
         password: 'hashedPassword',
         emailVerified: undefined,
+        cart: { items: [] },
       };
       const userDtoWithId: UserDto & IdModel = {
         ...userDto,
@@ -601,6 +625,7 @@ describe('UserService', () => {
         addresses: [],
         password: 'hashedPassword',
         emailVerified: undefined,
+        cart: { items: [] },
       };
       const userDtoWithId2: UserDto & IdModel = {
         ...userDto,
@@ -673,6 +698,7 @@ describe('UserService', () => {
         email: 'jdoe@test.com',
         roles: [],
         addresses: userAddresses,
+        cart: { items: [] },
       };
       const userWithId2: IUser = {
         ...user2,
@@ -683,6 +709,7 @@ describe('UserService', () => {
         email: 'jdoe@test.com',
         roles: [],
         addresses: userAddresses,
+        cart: { items: [] },
       };
       const userWithId: IUser = {
         ...user,

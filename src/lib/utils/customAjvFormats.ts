@@ -39,5 +39,5 @@ export const customFormats: { [x: string]: Format | undefined } = {
     /(^$|^https:\/\/(www\.)?facebook.com\/[a-zA-Z0-9_.]{1,60}\/?$)/i,
   'web-uri-or-empty':
     /(^$|^((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/{1}[a-zA-Z0-9#]+)*\/?$)/,
-  phone: /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im,
+  phone: /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im,
 };

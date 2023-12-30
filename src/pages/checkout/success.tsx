@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import Link from 'next/link';
-import { clearCart } from '@/rtk';
+import { useClearCartMutation } from '@/rtk/apis/cartApi';
 
 function SuccessPage() {
-  const dispatch = useDispatch();
+  const [clearCart] = useClearCartMutation();
 
   useEffect(() => {
-    dispatch(clearCart());
-  }, [dispatch]);
+    clearCart();
+  }, [clearCart]);
 
   return (
     <div className="flex flex-col gap-3 items-center justify-center py-20">

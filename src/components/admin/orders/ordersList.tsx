@@ -65,7 +65,7 @@ export function OrdersList({ orders }: OrdersListProps) {
                 <p className={dataClassName}>
                   <Price
                     amount={line_items.reduce(
-                      (a, b) => a + (b.priceData.unitAmount * b.quantity) / 100,
+                      (a, b) => a + b.priceData.unitAmount * b.quantity,
                       0,
                     )}
                   />

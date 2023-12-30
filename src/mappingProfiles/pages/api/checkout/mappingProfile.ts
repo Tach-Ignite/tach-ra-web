@@ -21,7 +21,10 @@ import {
   CartItemViewModel,
   CheckoutViewModel,
   CreateOrderCommandPayload,
+  ICart,
+  ICartItem,
   IOrder,
+  IUser,
   IUserAddress,
   OrderStatusEnum,
   ProductViewModel,
@@ -89,9 +92,9 @@ export class CheckoutApiMappingProfile implements ITachMappingProfile {
         ),
         forMember(
           (d) => d.lineItems,
-          mapFrom((s) =>
-            mapper.mapArray<CartItemViewModel, ILineItem>(
-              s.cart,
+          mapWithArguments((s, { user }) =>
+            mapper.mapArray<ICartItem, ILineItem>(
+              (user as IUser).cart.items,
               'CartItemViewModel',
               'ILineItem',
             ),

@@ -1,4 +1,5 @@
 import { IUserRolesEnum } from '../enums';
+import { ICart } from './cart';
 import { IUserAddress } from './userAddress';
 
 export interface IUser {
@@ -16,4 +17,5 @@ export interface IUser {
   smsOptedOutViaSmsDate?: Date;
   defaultUserAddressId?: string | null;
   addresses: IUserAddress[];
+  cart: ICart;
 }

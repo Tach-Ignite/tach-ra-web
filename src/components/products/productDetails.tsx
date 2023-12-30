@@ -1,8 +1,9 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { IoMdHeart, IoMdHeartDislike } from 'react-icons/io';
 import { IoCartOutline } from 'react-icons/io5';
-import { addToCart, toggleFavorites, RootState } from '@/rtk';
+import { toggleFavorites, RootState } from '@/rtk';
 import { ProductViewModel } from '@/models';
+import { useAddItemToCartMutation } from '@/rtk/apis/cartApi';
 import { Price } from '../price';
 
 export type ProductDetailsProps = {
@@ -25,6 +26,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     price,
     categoryPropertyValues,
   } = product;
+  const [addToCart] = useAddItemToCartMutation();
 
   return (
     <div key={friendlyId} className="flex flex-col sm:flex-row gap-8">
@@ -65,7 +67,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={() => dispatch(addToCart(product))}
+            onClick={() => addToCart({ productId: _id, quantity: 1 })}
             className="h-10 px-4 font-medium bg-tachGrey rounded hover:bg-tachPurple duration-300"
           >
             <div className="text-white flex-none flex items-center justify-center gap-3">

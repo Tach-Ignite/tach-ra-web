@@ -6,12 +6,13 @@ import { useSelector } from 'react-redux';
 import { loadStripe } from '@stripe/stripe-js';
 import { RootState } from '@/rtk';
 import { CheckoutViewModel } from '@/models';
+import { useGetCartQuery } from '@/rtk/apis/cartApi';
 import { Price } from '../price';
 
 export function StripeCartPayment() {
   const { status } = useSession();
   const router = useRouter();
-  const cartItems = useSelector((state: RootState) => state.cart.cartItems);
+  const { data: cart, isLoading: cartIsLoading } = useGetCartQuery();
   const { userAddress } = useSelector((state: RootState) => state.userAddress);
   const [totalPrice, setTotalPrice] = useState(0);
 
@@ -20,12 +21,16 @@ export function StripeCartPayment() {
   );
 
   useEffect(() => {
+    if (cartIsLoading || !cart) {
+      return;
+    }
+
     let total = 0;
-    cartItems.forEach((item) => {
+    cart.items.forEach((item) => {
       total += item.product.price * item.quantity;
     });
     setTotalPrice(total);
-  }, [cartItems, setTotalPrice]);
+  }, [cart, setTotalPrice, cartIsLoading]);
 
   async function paymentHandler() {
     if (status === 'authenticated') {
@@ -37,7 +42,6 @@ export function StripeCartPayment() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          cart: cartItems,
           userAddress,
         } as CheckoutViewModel),
       });
@@ -47,7 +51,7 @@ export function StripeCartPayment() {
       }
       const checkoutSession = await response.json();
       const result = await stripe!.redirectToCheckout({
-        sessionId: checkoutSession.id,
+        sessionId: checkoutSession.createPaymentIntentResult.checkoutSessionId,
       });
       if (result.error) {
         alert(result.error.message);

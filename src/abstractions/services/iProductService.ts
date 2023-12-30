@@ -4,6 +4,10 @@ import { IProduct } from '@/models';
 export interface IProductService {
   getAllProducts(queryOptions?: QueryOptions): Promise<IProduct[]>;
   getProductById(productId: string): Promise<IProduct>;
+  getProductsByIds(
+    productIds: string[],
+    queryOptions?: QueryOptions,
+  ): Promise<IProduct[]>;
   searchProducts(
     searchTerm: string,
     queryOptions?: QueryOptions,

@@ -8,8 +8,11 @@ import {
 } from '@jersmart/automapper-core';
 import { ITachMappingProfile } from '@/lib/abstractions';
 import {
+  CartItemViewModel,
+  CartViewModel,
   CreateUserCommandPayload,
   CreateUserViewModel,
+  IProduct,
   IUser,
   MutateUserProfileViewModel,
   ResendEmailAddressVerificationCommandPayload,
@@ -22,11 +25,19 @@ import {
 } from '@/models';
 import { TachMappingProfileClass, forMemberId } from '@/lib/mapping';
 import '../addresses/currentUser/mappingProfile';
+import '../products/mappingProfile';
+import { ICart, ICartItem } from '@/models/domain/cart';
 
 @TachMappingProfileClass('pages/api/users/mappingProfile')
 export class UserApiIdMappingProfile implements ITachMappingProfile {
   getMappingProfile(): MappingProfile {
     return (mapper: Mapper) => {
+      createMap<ICartItem, CartItemViewModel>(
+        mapper,
+        'ICartItem',
+        'CartItemViewModel',
+      );
+      createMap<ICart, CartViewModel>(mapper, 'ICart', 'CartViewModel');
       createMap<IUser, UserViewModel>(
         mapper,
         'IUser',
@@ -37,6 +48,10 @@ export class UserApiIdMappingProfile implements ITachMappingProfile {
         mapper,
         'CreateUserViewModel',
         'IUser',
+        forMember(
+          (d) => d.cart,
+          mapFrom((s) => ({ items: [] })),
+        ),
       );
       createMap<CreateUserViewModel, CreateUserCommandPayload>(
         mapper,

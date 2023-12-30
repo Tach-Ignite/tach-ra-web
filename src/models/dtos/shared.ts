@@ -16,6 +16,7 @@ import {
 } from '@/lib/mapping/automapperTypescript/metadata';
 import { IOrderStatusEnum, IUserRolesEnum } from '../enums';
 import { InterestListDto, InterestListItemDto } from './interestList';
+import { CartDto, CartItemDto } from './cart';
 
 export type AddressDto = Partial<IdModel> &
   IAddress & {
@@ -43,6 +44,7 @@ export type UserDto = {
   addresses: UserAddressDto[];
   token?: string;
   passwordResetToken?: string;
+  cart: CartDto;
 } & Partial<IdModel>;
 
 export type AccountDto = {} & Account;
@@ -112,6 +114,13 @@ export function createDtoMetadata() {
     addressId: String,
     recipientName: String,
   });
+  PojosMetadataMap.create<CartItemDto>('CartItemDto', {
+    productId: String,
+    quantity: Number,
+  });
+  PojosMetadataMap.create<CartDto>('CartDto', {
+    items: ['CartItemDto'],
+  });
   PojosMetadataMap.create<UserDto>('UserDto', {
     ...idModelMetadata,
     name: String,
@@ -130,6 +139,7 @@ export function createDtoMetadata() {
     addresses: 'UserAddressDto',
     token: String,
     passwordResetToken: String,
+    cart: 'CartDto',
   });
   PojosMetadataMap.create<AccountDto>('AccountDto', {
     ...idModelMetadata,

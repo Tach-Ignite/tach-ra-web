@@ -122,7 +122,11 @@ export class MongoDatabaseClient implements IDatabaseClient {
         }
       });
     } else if (filter._id && typeof filter._id === 'string') {
-      filter._id = new ObjectId(filter._id);
+      try {
+        filter._id = new ObjectId(filter._id);
+      } catch (e) {
+        // ignore
+      }
     }
     const options: FindOptions<Document> = queryOptions
       ? { ...queryOptions }

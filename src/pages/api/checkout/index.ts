@@ -8,6 +8,7 @@ import {
   IInvoker,
   IServerIdentity,
   CreatePaymentIntentCommandPayload,
+  ICreateCheckoutSessionResponse,
 } from '@/lib/abstractions';
 import '@/mappingProfiles/pages/api/checkout/mappingProfile';
 import { CheckoutViewModel, CreateOrderCommandPayload, IOrder } from '@/models';
@@ -74,7 +75,7 @@ router.post(async (req: NextApiRequest, res: NextApiResponse): Promise<any> => {
 
   const createPaymentIntentCommand = commandFactory.create<
     CreatePaymentIntentCommandPayload,
-    string
+    ICreateCheckoutSessionResponse
   >('createPaymentIntentCommand', createPaymentIntentCommandPayload);
 
   const createPaymentIntentResult = await invoker.invoke(
@@ -89,7 +90,7 @@ router.post(async (req: NextApiRequest, res: NextApiResponse): Promise<any> => {
     );
   }
 
-  return res.status(200).json({ id: createPaymentIntentResult });
+  return res.status(200).json({ createPaymentIntentResult });
 });
 
 export default router.handler(defaultHandler);

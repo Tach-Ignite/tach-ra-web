@@ -13,7 +13,6 @@ import { emptyAppApi } from './apis/emptyAppApi';
 import {
   userAddressReducer,
   favoritesReducer,
-  cartReducer,
   cookiesConsentSettingsReducer,
   darkModeSettingsSliceReducer,
   hydrateReducer,
@@ -39,7 +38,6 @@ const persistedReducer = persistReducer(
   combineReducers({
     [emptyAppApi.reducerPath]: emptyAppApi.reducer,
     cookiesConsentSettings: cookiesConsentSettingsReducer,
-    cart: cartReducer,
     favorites: favoritesReducer,
     userAddress: userAddressReducer,
     darkModeSettings: darkModeSettingsSliceReducer,

@@ -1,4 +1,4 @@
-name: Tach Ignite - Web Reference Architecture Build
+name: Build - Tach Ignite - Web Reference Architecture
 env:
   EXPOSE_ERROR_STACK: ${{ vars.EXPOSE_ERROR_STACK }}
   NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL || 'http://localhost:3000' }}
