@@ -420,6 +420,27 @@ export class UserService implements IUserService {
     });
   }
 
+  async getUserByPhoneNumber(phoneNumber: string): Promise<IUser> {
+    const userDto = await this._userQueryRepository.find({ phoneNumber });
+
+    if (userDto.length === 0) {
+      throw new ErrorWithStatusCode(
+        `User with phone number '${phoneNumber}' not found.`,
+        404,
+        'User not found.',
+      );
+    }
+
+    const userAddresses = await this._userAddressService.getAllUserAddresses(
+      userDto[0]._id,
+    );
+
+    const mapper = this._automapperProvider.provide();
+    return mapper.map<UserDto, IUser>(userDto[0], 'UserDto', 'IUser', {
+      extraArgs: () => ({ userAddresses }),
+    });
+  }
+
   async getAllUsers(): Promise<IUser[]> {
     const userDtos = await this._userQueryRepository.list();
 
