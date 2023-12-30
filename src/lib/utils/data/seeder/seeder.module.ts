@@ -1,12 +1,16 @@
 import { Module, ModuleClass } from '@/lib/ioc/module';
 import { DataProvidersModule } from '@/lib/modules/services/server/data/providers/dataProviders.module';
 import { FileStorageServiceModule } from '@/lib/modules/services/server/fileStorage/fileStorageService.module';
-import tc from '~/tach.config';
 import { ConfigurationFactory, Options } from '@/lib/config';
 import { IConfigurationFactory, IServiceResolver } from '@/lib/abstractions';
+import tc from 'tach.config';
 import { DataLoader } from './dataLoader';
 import { Seeder } from './seeder';
 import { ISeedConfiguration } from './abstractions';
+// @ts-ignore
+let tcLocal = require('tach.config.local');
+
+if (!tcLocal) tcLocal = {};
 
 @Module
 class SeederModule extends ModuleClass {
@@ -16,7 +20,7 @@ class SeederModule extends ModuleClass {
       providers: [
         {
           provide: 'configFile',
-          useValue: tc,
+          useValue: Object.keys(tcLocal).length === 0 ? tc : tcLocal,
         },
         {
           provide: 'configurationFactory',

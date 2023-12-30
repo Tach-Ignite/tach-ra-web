@@ -15,6 +15,7 @@ import {
   timeStampedModelMetadata,
   iAddressMetadata,
 } from '@/lib/mapping/automapperTypescript/metadata';
+import { StringListParameter } from 'aws-cdk-lib/aws-ssm';
 import {
   IOrderStatusEnum,
   IUserRolesEnum,
@@ -596,6 +597,8 @@ export type DarkModeConfigurationViewModel = {
 
 export type MutateUserProfileViewModel = {
   name: string;
+  phoneNumber: string;
+  agreedToReceiveSmsNotifications: boolean;
 };
 
 export const mutateUserProfileViewModelSchema: JSONSchemaType<MutateUserProfileViewModel> =
@@ -603,6 +606,10 @@ export const mutateUserProfileViewModelSchema: JSONSchemaType<MutateUserProfileV
     type: 'object',
     properties: {
       name: { type: 'string' },
+      phoneNumber: { type: 'string', format: 'phone' },
+      agreedToReceiveSmsNotifications: {
+        type: 'boolean',
+      },
     },
     required: ['name'],
   };
@@ -765,13 +772,15 @@ export function createViewModelMetadata() {
     'MutateUserProfileViewModel',
     {
       name: String,
+      phoneNumber: String,
+      agreedToReceiveSmsNotifications: Boolean,
     },
   );
   PojosMetadataMap.create<AddUserToInterestListViewModel>(
     'AddUserToInterestListViewModel',
     {
       email: String,
-      phone: String,
+      phoneNumber: String,
       interestListFriendlyId: String,
       optedInToGenericNotifications: Boolean,
       agreedToPrivacyPolicyAndTerms: Boolean,

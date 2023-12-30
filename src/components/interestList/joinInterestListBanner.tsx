@@ -103,7 +103,7 @@ export function JoinInterestListBanner() {
             type="text"
             required
             register={register}
-            errorMessage={errors.phone && errors.phone.message}
+            errorMessage={errors.phoneNumber && errors.phoneNumber.message}
           />
           <Input
             name="optedInToGenericNotifications"

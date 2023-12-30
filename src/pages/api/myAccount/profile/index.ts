@@ -4,10 +4,12 @@ import { createRouter, expressWrapper } from 'next-connect';
 import { IOrderService, IUserService } from '@/abstractions';
 import {
   ICommandFactory,
+  IFactory,
   IInvoker,
   IMapper,
   IProvider,
   IServerIdentity,
+  ISmsService,
 } from '@/lib/abstractions';
 import { defaultHandler } from '@/lib/api';
 import {
@@ -22,9 +24,11 @@ import { MyAccountApiModule } from '@/modules/pages/api/myAccount/orders/myAccou
 import { ErrorWithStatusCode } from '@/lib/errors';
 import { UsersApiModule } from '@/modules/pages/api/users/usersApi.module';
 
-const m = new ModuleResolver().resolve(UsersApiModule);
+const m = new ModuleResolver().resolve(MyAccountApiModule);
 const serverIdentity = m.resolve<IServerIdentity>('serverIdentity');
 const userService = m.resolve<IUserService>('userService');
+const smsServiceFactory = m.resolve<IFactory<ISmsService>>('smsServiceFactory');
+const smsService = smsServiceFactory.create();
 const commandFactory = m.resolve<ICommandFactory>('commandFactory');
 const invoker = m.resolve<IInvoker>('invoker');
 const automapperProvider = m.resolve<IProvider<IMapper>>('automapperProvider');
@@ -71,6 +75,13 @@ router.patch(async (req: NextApiRequest, res: NextApiResponse) => {
     'IUser',
     'UserViewModel',
   );
+
+  if (payload.agreedToReceiveSmsNotifications && payload.phoneNumber) {
+    await smsService.sendSms(
+      payload.phoneNumber,
+      'Welcome to Tach Ignite! You have opted in to receive SMS messages from us. Reply IN to confirm or STOP to opt out.',
+    );
+  }
 
   return res.status(200).json(userViewModel);
 });

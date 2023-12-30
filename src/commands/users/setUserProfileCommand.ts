@@ -22,6 +22,9 @@ export class SetUserProfileCommand extends Command<
   async execute(): Promise<void> {
     this.result = await this._userService.editUser(this._payload.userId, {
       name: this._payload.name,
+      phoneNumber: this._payload.phoneNumber,
+      agreedToReceiveSmsNotifications:
+        this._payload.agreedToReceiveSmsNotifications,
     });
   }
 }

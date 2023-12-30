@@ -86,4 +86,15 @@ router.get(async (req: NextApiRequest, res: NextApiResponse) => {
   return res.status(200).json(allUserAddressesViewModel);
 });
 
+/**
+ * @swagger
+ * /api/addresses/currentUser:
+ *   get:
+ *     description: get all saved addresses for the current user.
+ *     responses:
+ *       200:
+ *         description: returns all saved addresses for the current user.
+ *       403:
+ *         description: no user logged in.
+ */
 export default router.handler(defaultHandler);

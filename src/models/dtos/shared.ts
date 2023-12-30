@@ -33,6 +33,12 @@ export type UserDto = {
   emailVerified?: Date;
   roles: Extract<keyof IUserRolesEnum, string>[];
   email: string;
+  phoneNumber?: string;
+  agreedToReceiveSmsNotifications?: boolean;
+  smsOptInConfirmedViaSms?: boolean;
+  smsOptInConfirmedViaSmsDate?: Date;
+  smsOptedOutViaSms?: boolean;
+  smsOptedOutViaSmsDate?: Date;
   defaultUserAddressId?: string | null;
   addresses: UserAddressDto[];
   token?: string;
@@ -114,6 +120,12 @@ export function createDtoMetadata() {
     emailVerified: Date,
     roles: String,
     email: String,
+    phoneNumber: String,
+    agreedToReceiveSmsNotifications: Boolean,
+    smsOptInConfirmedViaSms: Boolean,
+    smsOptInConfirmedViaSmsDate: Date,
+    smsOptedOutViaSms: Boolean,
+    smsOptedOutViaSmsDate: Date,
     defaultUserAddressId: String,
     addresses: 'UserAddressDto',
     token: String,
@@ -182,7 +194,7 @@ export function createDtoMetadata() {
     ...idModelMetadata,
     ...timeStampedModelMetadata,
     email: String,
-    phone: String,
+    phoneNumber: String,
     interestListId: String,
   });
 }

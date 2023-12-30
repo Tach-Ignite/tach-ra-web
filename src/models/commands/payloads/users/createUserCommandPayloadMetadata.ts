@@ -54,6 +54,8 @@ export function createUserCommandPayloadMetadata() {
     {
       userId: String,
       name: String,
+      phoneNumber: String,
+      agreedToReceiveSmsNotifications: Boolean,
     },
   );
 }

@@ -8,6 +8,12 @@ export interface IUser {
   emailVerified?: Date | null;
   roles: Extract<keyof IUserRolesEnum, string>[];
   email: string;
+  phoneNumber?: string;
+  agreedToReceiveSmsNotifications?: boolean;
+  smsOptInConfirmedViaSms?: boolean;
+  smsOptInConfirmedViaSmsDate?: Date;
+  smsOptedOutViaSms?: boolean;
+  smsOptedOutViaSmsDate?: Date;
   defaultUserAddressId?: string | null;
   addresses: IUserAddress[];
 }
