@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 import { IDatabaseClient, IFactory, InsertResponse } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
 import fs from 'fs';
-import { IDataLoader, ISeeder } from './abstractions';
 import tc from 'tach.config';
+import { IDataLoader, ISeeder } from './abstractions';
 // @ts-ignore
 let tcLocal = require('tach.config.local');
 

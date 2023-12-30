@@ -3,10 +3,10 @@ import { DataProvidersModule } from '@/lib/modules/services/server/data/provider
 import { FileStorageServiceModule } from '@/lib/modules/services/server/fileStorage/fileStorageService.module';
 import { ConfigurationFactory, Options } from '@/lib/config';
 import { IConfigurationFactory, IServiceResolver } from '@/lib/abstractions';
+import tc from 'tach.config';
 import { DataLoader } from './dataLoader';
 import { Seeder } from './seeder';
 import { ISeedConfiguration } from './abstractions';
-import tc from 'tach.config';
 // @ts-ignore
 let tcLocal = require('tach.config.local');
 

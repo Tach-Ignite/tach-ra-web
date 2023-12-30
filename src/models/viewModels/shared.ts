@@ -15,6 +15,7 @@ import {
   timeStampedModelMetadata,
   iAddressMetadata,
 } from '@/lib/mapping/automapperTypescript/metadata';
+import { StringListParameter } from 'aws-cdk-lib/aws-ssm';
 import {
   IOrderStatusEnum,
   IUserRolesEnum,
@@ -22,7 +23,6 @@ import {
   UserRolesEnum,
 } from '../enums';
 import { AddUserToInterestListViewModel } from './interestLists';
-import { StringListParameter } from 'aws-cdk-lib/aws-ssm';
 
 export type FileLike = {
   name: string;
