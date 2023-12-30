@@ -3,13 +3,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/rtk';
+import { useGetCartQuery } from '@/rtk/apis/cartApi';
 
 export function DropdownUserSection() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const numberOfItemsInCart = useSelector(
-    (state: RootState) => state.cart.cartItems.length,
-  );
+  const { data: cart, isLoading: cartIsLoading } = useGetCartQuery();
 
   return (
     <>
@@ -61,7 +60,7 @@ export function DropdownUserSection() {
         href="/cart"
         className="underline underline-offset-4 hover:text-tachPurple transition duration-300"
       >
-        Cart({numberOfItemsInCart})
+        Cart({!cartIsLoading && cart ? cart.items.length : 0})
       </Link>
     </>
   );

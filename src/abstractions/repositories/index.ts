@@ -1,5 +1,11 @@
 import { ICommandRepository, IQueryRepository } from '@/lib/abstractions';
-import { AddressDto, CategoryDto, ProductDto, UserDto } from '@/models';
+import {
+  AddressDto,
+  CartDto,
+  CategoryDto,
+  ProductDto,
+  UserDto,
+} from '@/models';
 
 export interface IProductCommandRepository
   extends ICommandRepository<ProductDto> {
@@ -44,4 +50,8 @@ export interface IUserAddressQueryRepository extends IQueryRepository<UserDto> {
     addressId: string,
     recipientName: string,
   ): Promise<boolean>;
+}
+
+export interface ICartQueryRepository {
+  getCart(id: string): Promise<CartDto | null>;
 }

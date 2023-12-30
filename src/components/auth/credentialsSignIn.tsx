@@ -26,7 +26,7 @@ export function CredentialsSignIn({ returnUrl }: UseCredentialsProps) {
     resolver: ajvResolver(credentialsViewModelSchema, { $data: true }),
   });
 
-  const handleSignup = async (values: CredentialsViewModel, event: any) => {
+  const handleSignIn = async (values: CredentialsViewModel, event: any) => {
     event.preventDefault();
     try {
       const response = await signIn('credentials', {
@@ -41,7 +41,7 @@ export function CredentialsSignIn({ returnUrl }: UseCredentialsProps) {
         setError(response?.error);
       }
     } catch (error) {
-      setError('Error signing up. Please try again later.');
+      setError('Error signing in. Please try again later.');
     }
   };
 
@@ -54,7 +54,7 @@ export function CredentialsSignIn({ returnUrl }: UseCredentialsProps) {
         </div>
       )}
       <div className="text-xl mb-4">Sign in with an existing account</div>
-      <form onSubmit={handleSubmit(handleSignup)}>
+      <form onSubmit={handleSubmit(handleSignIn)}>
         <Input
           label="Email Address"
           name="email"

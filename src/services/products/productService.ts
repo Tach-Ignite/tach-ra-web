@@ -178,6 +178,79 @@ export class ProductService implements IProductService {
     });
   }
 
+  async getProductsByIds(
+    productIds: string[],
+    queryOptions?: QueryOptions,
+  ): Promise<IProduct[]> {
+    const validationResult = this._validator.validate(
+      queryOptions,
+      queryOptionsSchema,
+      true,
+    );
+
+    if (!validationResult.valid) {
+      throw new ErrorWithStatusCode(
+        `query options are invalid: ${JSON.stringify(validationResult.errors)}`,
+        400,
+        'query options were invalid.',
+      );
+    }
+
+    const promises: Promise<any>[] = [];
+    promises.push(
+      this._productQueryRepository.find(
+        {
+          _id: { $in: productIds },
+        },
+        queryOptions,
+      ),
+    );
+    promises.push(this._categoryService.getAllCategories());
+
+    const [productDtos, categories] = await Promise.all(promises);
+    const imageUrlPromises: Promise<string[]>[] = [];
+
+    const fileStorageService = this._fileStorageServiceFactory.create();
+    for (let i = 0; i < productDtos.length; i++) {
+      if (!productDtos[i].imageStorageKeys) {
+        imageUrlPromises.push(Promise.resolve([]));
+      } else {
+        const innerPromiseArray: Promise<string>[] = [];
+        for (let j = 0; j < productDtos[i].imageStorageKeys.length; j++) {
+          innerPromiseArray.push(
+            fileStorageService.getPublicUrl(productDtos[i].imageStorageKeys[j]),
+          );
+        }
+        imageUrlPromises.push(Promise.all(innerPromiseArray));
+      }
+    }
+
+    const urlResults: string[][] = await Promise.all(imageUrlPromises);
+
+    const mapper = this._automapperProvider.provide();
+    const products: IProduct[] = [];
+    for (let i = 0; i < productDtos.length; i++) {
+      const product = mapper.map<ProductDto, IProduct>(
+        productDtos[i],
+        'ProductDto',
+        'IProduct',
+        {
+          extraArgs: () => ({
+            categories: productDtos[i].categoryIds
+              ? categories.filter((c: ICategory) =>
+                  productDtos[i].categoryIds.includes(c._id),
+                )
+              : [],
+            imageUrls: urlResults[i],
+          }),
+        },
+      );
+      products.push(product);
+    }
+
+    return products;
+  }
+
   async searchProducts(
     searchTerm: string,
     queryOptions?: QueryOptions,

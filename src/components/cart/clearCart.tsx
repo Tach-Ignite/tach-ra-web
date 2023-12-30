@@ -1,16 +1,16 @@
+import { useClearCartMutation } from '@/rtk/apis/cartApi';
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { clearCart } from '@/rtk';
 
 export function ClearCart() {
-  const dispatch = useDispatch();
+  const [clearCart] = useClearCartMutation();
 
   function handleClearCart() {
     const confirmReset = window.confirm(
       'Are you sure you want to clear all items from your cart?',
     );
     if (confirmReset) {
-      dispatch(clearCart());
+      clearCart();
     }
   }
 

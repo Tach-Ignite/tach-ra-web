@@ -2,8 +2,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { IoMdHeart, IoMdHeartDislike } from 'react-icons/io';
 import { IoCartOutline } from 'react-icons/io5';
 import Link from 'next/link';
-import { RootState, addToCart, toggleFavorites } from '@/rtk';
+import { RootState, toggleFavorites } from '@/rtk';
 import { ProductViewModel } from '@/models';
+import { useAddItemToCartMutation } from '@/rtk/apis/cartApi';
 import { Price } from '../price';
 
 export type ProductGridProps = {
@@ -15,6 +16,7 @@ export function ProductGrid({ products }: ProductGridProps) {
   const favorites = useSelector(
     (state: RootState) => state.favorites.favorites,
   );
+  const [addToCart] = useAddItemToCartMutation();
 
   return (
     <div className="w-full px-6 grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -82,7 +84,7 @@ export function ProductGrid({ products }: ProductGridProps) {
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    onClick={() => dispatch(addToCart(product))}
+                    onClick={() => addToCart({ productId: _id, quantity: 1 })}
                     className="flex-grow h-10 bg-tachGrey text-white font-medium rounded hover:bg-tachPurple duration-300"
                   >
                     <div className="flex items-center justify-center gap-3">

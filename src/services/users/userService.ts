@@ -1,5 +1,9 @@
 import bcrypt from 'bcryptjs';
-import { IUserAddressService, IUserService } from '@/abstractions';
+import {
+  IProductService,
+  IUserAddressService,
+  IUserService,
+} from '@/abstractions';
 import {
   ICommandRepository,
   IEmailService,
@@ -29,6 +33,7 @@ import { Injectable } from '@/lib/ioc/injectable';
   'accountQueryRepository',
   'accountCommandRepository',
   'userAddressService',
+  'productService',
   'automapperProvider',
   'emailServiceFactory',
   'tokenService',
@@ -46,6 +51,8 @@ export class UserService implements IUserService {
   private _accountCommandRepository: ICommandRepository<AccountDto>;
 
   private _userAddressService: IUserAddressService;
+
+  private _productService: IProductService;
 
   private _automapperProvider: IProvider<IMapper>;
 
@@ -65,6 +72,7 @@ export class UserService implements IUserService {
     accountQueryRepository: IQueryRepository<AccountDto>,
     accountCommandRepository: ICommandRepository<AccountDto>,
     userAddressService: IUserAddressService,
+    productService: IProductService,
     automapperProvider: IProvider<IMapper>,
     emailServiceFactory: IFactory<IEmailService>,
     tokenService: ITokenService,
@@ -79,6 +87,7 @@ export class UserService implements IUserService {
     this._accountQueryRepository = accountQueryRepository;
     this._accountCommandRepository = accountCommandRepository;
     this._userAddressService = userAddressService;
+    this._productService = productService;
     this._automapperProvider = automapperProvider;
     this._emailService = emailServiceFactory.create();
     this._tokenService = tokenService;
@@ -144,6 +153,7 @@ export class UserService implements IUserService {
   }
 
   async editUser(userId: string, user: Partial<IUser>): Promise<IUser> {
+    user = this._idOmitter.omitId(user);
     const mapper = this._automapperProvider.provide();
     let userDto = mapper.map<Partial<IUser>, Partial<UserDto>>(
       user,
@@ -379,9 +389,13 @@ export class UserService implements IUserService {
       userId,
     );
 
+    const products = await this._productService.getProductsByIds(
+      userDto.cart.items.map((e) => e.productId),
+    );
+
     const mapper = this._automapperProvider.provide();
     return mapper.map<UserDto, IUser>(userDto, 'UserDto', 'IUser', {
-      extraArgs: () => ({ userAddresses }),
+      extraArgs: () => ({ userAddresses, products }),
     });
   }
 

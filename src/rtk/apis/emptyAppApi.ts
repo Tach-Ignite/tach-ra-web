@@ -13,6 +13,7 @@ export const emptyAppApi = createApi({
     'Users',
     'Addresses',
     'PasswordProtected',
+    'Cart',
   ],
   endpoints: () => ({}),
 });

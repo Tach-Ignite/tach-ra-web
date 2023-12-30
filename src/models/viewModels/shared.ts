@@ -23,6 +23,18 @@ import {
   UserRolesEnum,
 } from '../enums';
 import { AddUserToInterestListViewModel } from './interestLists';
+import { CartItemViewModel, CartViewModel } from './cart';
+import {
+  CategoryPropertyViewModel,
+  CategoryViewModel,
+  MutateCategoryPropertyViewModel,
+  MutateCategoryViewModel,
+} from './category';
+import {
+  MutateProductViewModel,
+  ProductViewModel,
+  productViewModelBaseMetadata,
+} from './product';
 
 export type FileLike = {
   name: string;
@@ -120,278 +132,6 @@ export const mutateUserAddressViewModelSchema: JSONSchemaType<MutateUserAddressV
     required: ['setAsDefault', ...userAddressViewModelSchema.required],
   };
 
-export type CategoryPropertyViewModel = {
-  name: string;
-  values: string[];
-} & IdModel;
-
-export const categoryPropertyViewModelSchema: JSONSchemaType<CategoryPropertyViewModel> =
-  {
-    type: 'object',
-    properties: {
-      ...idModelSchema.properties,
-      name: { type: 'string' },
-      values: {
-        type: 'array',
-        items: { type: 'string' },
-      },
-    },
-    required: ['name', 'values'],
-  };
-
-export type CategoryViewModel = {
-  name: string;
-  parent?: CategoryViewModel;
-  categoryProperties: CategoryPropertyViewModel[];
-} & IdModel;
-
-export const categoryViewModelSchema: JSONSchemaType<CategoryViewModel> = {
-  type: 'object',
-  properties: {
-    ...idModelSchema.properties,
-    name: { type: 'string' },
-    parent: {
-      $ref: '#',
-    },
-    categoryProperties: {
-      type: 'array',
-      items: categoryPropertyViewModelSchema,
-    },
-  },
-  required: ['name', 'categoryProperties'],
-  additionalProperties: false,
-};
-
-export type MutateCategoryPropertyViewModel = {
-  name: string;
-  values: string;
-} & Partial<IdModel>;
-
-export const mutateCategoryPropertyViewModelSchema: JSONSchemaType<MutateCategoryPropertyViewModel> =
-  {
-    type: 'object',
-    properties: {
-      ...idModelSchema.properties,
-      name: { type: 'string' },
-      values: {
-        type: 'string',
-      },
-    },
-    required: ['name', 'values'],
-  };
-
-export type MutateCategoryViewModel = {
-  name: string;
-  parentId?: string;
-  categoryProperties?: MutateCategoryPropertyViewModel[];
-};
-
-export const mutateCategoryViewModelSchema: JSONSchemaType<MutateCategoryViewModel> =
-  {
-    type: 'object',
-    properties: {
-      ...idModelSchema.properties,
-      name: { type: 'string' },
-      parentId: { type: 'string', nullable: true },
-      categoryProperties: {
-        type: 'array',
-        nullable: true,
-        items: mutateCategoryPropertyViewModelSchema,
-      },
-    },
-    required: ['name'],
-    additionalProperties: false,
-  };
-
-export type CategoryPropertyValueViewModel = {
-  categoryId: string;
-  categoryPropertyId: string;
-  value: string;
-};
-
-export const categoryPropertyValueViewModelSchema: JSONSchemaType<CategoryPropertyValueViewModel> =
-  {
-    type: 'object',
-    properties: {
-      categoryId: {
-        type: 'string',
-      },
-      categoryPropertyId: {
-        type: 'string',
-      },
-      value: {
-        type: 'string',
-      },
-    },
-    required: ['categoryId', 'categoryPropertyId', 'value'],
-  };
-
-type ProductViewModelBase = {
-  friendlyId: string;
-  brand: string;
-  name: string;
-  description: string;
-  isNew: boolean;
-  oldPrice: number;
-  price: number;
-  quantity: number;
-  categoryPropertyValues?: { [key: string]: CategoryPropertyValueViewModel };
-};
-const productViewModelBaseMetadata = {
-  friendlyId: String,
-  brand: String,
-  name: String,
-  description: String,
-  isNew: Boolean,
-  oldPrice: Number,
-  price: Number,
-  quantity: Number,
-  categoryPropertyValues: Object,
-};
-
-const productViewModelBaseSchema: JSONSchemaType<ProductViewModelBase> = {
-  type: 'object',
-  properties: {
-    friendlyId: {
-      type: 'string',
-      minLength: 1,
-      errorMessage: { minLength: 'Friendly Id is required.' },
-    },
-    brand: {
-      type: 'string',
-      minLength: 1,
-      errorMessage: { minLength: 'Brand is required.' },
-    },
-    name: {
-      type: 'string',
-      minLength: 1,
-      errorMessage: { minLength: 'Name is required.' },
-    },
-    description: {
-      type: 'string',
-      minLength: 1,
-      errorMessage: { minLength: 'Description is required.' },
-    },
-    isNew: {
-      type: 'boolean',
-    },
-    oldPrice: {
-      type: 'number',
-      minimum: 0,
-      multipleOf: 0.01,
-      errorMessage: { nullable: 'Price is required.' },
-    },
-    price: {
-      type: 'number',
-      minimum: 0,
-      multipleOf: 0.01,
-      errorMessage: { nullable: 'Price is required.' },
-    },
-    quantity: {
-      type: 'integer',
-      errorMessage: { const: 'Quantity is required.' },
-    },
-    categoryPropertyValues: {
-      type: 'object',
-      nullable: true,
-      patternProperties: {
-        '^[a-zA-Z0-9]*$': categoryPropertyValueViewModelSchema,
-      },
-      required: [],
-    },
-  },
-  required: [
-    'friendlyId',
-    'name',
-    'description',
-    'brand',
-    'isNew',
-    'price',
-    'quantity',
-  ],
-};
-
-export type ProductViewModel = {
-  categories: CategoryViewModel[];
-  imageUrls: string[];
-} & ProductViewModelBase &
-  IdModel &
-  TimeStampedModel;
-
-export const productViewModelSchema: JSONSchemaType<ProductViewModel> = {
-  type: 'object',
-  properties: {
-    ...idModelSchema.properties,
-    ...timeStampedModelSchema.properties,
-    ...productViewModelBaseSchema.properties,
-    categories: {
-      type: 'array',
-      items: categoryViewModelSchema,
-    },
-    imageUrls: {
-      type: 'array',
-      items: {
-        type: 'string',
-        format: 'uri',
-      },
-    },
-  },
-  required: [
-    ...idModelSchema.required,
-    ...timeStampedModelSchema.required,
-    ...productViewModelBaseSchema.required,
-    'categories',
-    'imageUrl',
-  ],
-  additionalProperties: false,
-};
-
-export type MutateProductViewModel = {
-  categoryIds: string[];
-  imageFiles?: FileList;
-} & ProductViewModelBase;
-
-export const mutateProductViewModelSchema: JSONSchemaType<MutateProductViewModel> =
-  {
-    type: 'object',
-    properties: {
-      ...productViewModelBaseSchema.properties!,
-      categoryIds: {
-        type: 'array',
-        items: {
-          type: 'string',
-          minLength: 1,
-          errorMessage: {
-            minLength: 'Category Ids cannot be empty, null, or undefined.',
-          },
-        },
-      },
-      imageFiles: {
-        type: 'object',
-        nullable: true,
-        required: ['item', 'length'],
-      },
-    },
-    required: [...productViewModelBaseSchema.required, 'categoryIds'],
-    additionalProperties: false,
-  };
-
-export type DeleteProductViewModel = {
-  confirmationMessage: string;
-};
-
-export const deleteProductViewModelSchema: JSONSchemaType<DeleteProductViewModel> =
-  {
-    type: 'object',
-    properties: {
-      confirmationMessage: {
-        type: 'string',
-        const: 'permanently delete',
-      },
-    },
-    required: ['confirmationMessage'],
-  };
-
 export type UserViewModel = {
   name: string;
   image: string;
@@ -400,6 +140,7 @@ export type UserViewModel = {
   email: string;
   defaultUserAddressId: string | null;
   addresses: UserAddressViewModel[];
+  cart: CartViewModel;
 } & IdModel &
   Partial<TimeStampedModel>;
 
@@ -548,13 +289,7 @@ export const updateOrderStatusViewModelSchema: JSONSchemaType<UpdateOrderStatusV
     required: ['orderStatus'],
   };
 
-export type CartItemViewModel = {
-  product: ProductViewModel;
-  quantity: number;
-};
-
 export type CheckoutViewModel = {
-  cart: CartItemViewModel[];
   userAddress: UserAddressViewModel;
 };
 
@@ -700,6 +435,7 @@ export function createViewModelMetadata() {
     email: String,
     defaultUserAddressId: String,
     addresses: ['UserAddressViewModel'],
+    cart: 'CartViewModel',
   });
   PojosMetadataMap.create<CreateUserViewModel>('CreateUserViewModel', {
     name: String,
@@ -750,8 +486,10 @@ export function createViewModelMetadata() {
     product: 'ProductViewModel',
     quantity: Number,
   });
+  PojosMetadataMap.create<CartViewModel>('CartViewModel', {
+    items: ['CartItemViewModel'],
+  });
   PojosMetadataMap.create<CheckoutViewModel>('CheckoutViewModel', {
-    cart: ['CartItemViewModel'],
     userAddress: 'UserAddressViewModel',
   });
   PojosMetadataMap.create<ContactRequestViewModel>('ContactRequestViewModel', {

@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { useSelector } from 'react-redux';
 import { useSession } from 'next-auth/react';
 import {
   CartPayment,
@@ -7,15 +6,15 @@ import {
   ClearCart,
   CaptureAddress,
 } from '@/components';
-import { RootState } from '@/rtk';
+import { useGetCartQuery } from '@/rtk/apis/cartApi';
 
 function CartPage() {
   const { status } = useSession();
-  const { cartItems } = useSelector((state: RootState) => state.cart);
+  const { data: cart, isLoading: cartIsLoading } = useGetCartQuery();
 
   return (
     <div>
-      {cartItems.length > 0 ? (
+      {cart && cart.items.length > 0 ? (
         <div className="px-6 flex flex-col md:flex-row gap-6 py-4">
           <div>
             <div className="flex items-center flex-col lg:flex-row justify-between border-b border-tachGrey pb-1">
@@ -23,7 +22,7 @@ function CartPage() {
               <p className="text-lg font-semibold">Subtitle</p>
             </div>
             <div className="pt-2 flex flex-col gap-3">
-              {cartItems.map((cartItem) => (
+              {cart.items.map((cartItem) => (
                 <div
                   key={cartItem.product._id}
                   className="pt-2 flex flex-col gap-3"

@@ -6,6 +6,7 @@ import { HiBars3 } from 'react-icons/hi2';
 import { useSession } from 'next-auth/react';
 import { RootState } from '@/rtk';
 import { DarkModeToggle } from '@/components/darkModeToggle';
+import { useGetCartQuery } from '@/rtk/apis/cartApi';
 import CounterBubble from '../../counterBubble';
 import { HeaderLogo } from './logo';
 import { SearchBar } from './searchBar';
@@ -14,9 +15,7 @@ import { UserInfo } from './userInfo';
 
 export function Header() {
   const { status } = useSession();
-  const numberOfItemsInCart = useSelector(
-    (state: RootState) => state.cart.cartItems.length,
-  );
+  const { data: cart, isLoading: cartIsLoading } = useGetCartQuery();
   const [expanded, setExpanded] = useState(false);
 
   function dropdownClickHandler() {
@@ -50,7 +49,9 @@ export function Header() {
                 Cart
               </p>
               <div className="absolute left-[31px] top-[8px]">
-                <CounterBubble quantity={numberOfItemsInCart} />
+                {!cartIsLoading && cart && (
+                  <CounterBubble quantity={cart.items.length} />
+                )}
               </div>
             </Link>
           </div>

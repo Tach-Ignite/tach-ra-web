@@ -1,10 +1,10 @@
 module.exports = {
   failOnErrors: false,
-  apiFolder: 'src/pages/api', // define api folder under app folder
+  apiFolder: 'src/pages/api',
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Next Swagger API Example',
+      title: 'Tach Color Store API',
       version: '1.0',
     },
     components: {

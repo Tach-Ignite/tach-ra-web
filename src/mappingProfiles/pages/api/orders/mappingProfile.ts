@@ -12,6 +12,10 @@ import {
   ITachMappingProfile,
 } from '@/lib/abstractions';
 import {
+  CartItemViewModel,
+  CartViewModel,
+  ICart,
+  ICartItem,
   IOrder,
   LineItemViewModel,
   OrderViewModel,
@@ -28,6 +32,12 @@ import '../users/mappingProfile';
 export class OrderApiIdMappingProfile implements ITachMappingProfile {
   getMappingProfile(): MappingProfile {
     return (mapper: Mapper) => {
+      createMap<ICartItem, CartItemViewModel>(
+        mapper,
+        'ICartItem',
+        'CartItemViewModel',
+      );
+      createMap<ICart, CartViewModel>(mapper, 'ICart', 'CartViewModel');
       createMap<IProductData, ProductDataViewModel>(
         mapper,
         'IProductData',

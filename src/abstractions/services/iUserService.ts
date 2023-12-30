@@ -1,4 +1,5 @@
 import { IUser, IUserRolesEnum } from '@/models';
+import { ICartItem } from '@/models/domain/cart';
 
 export interface IUserService {
   createUser(user: IUser, password: string): Promise<IUser>;

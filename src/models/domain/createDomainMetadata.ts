@@ -13,6 +13,7 @@ import { IUser } from './user';
 
 import { IContactRequest } from './contactRequest';
 import { IInterestList, IInterestListItem } from './interestList';
+import { ICart, ICartItem } from './cart';
 
 export function createDomainMetadata() {
   PojosMetadataMap.create<IAddress>('IAddress', {
@@ -23,6 +24,13 @@ export function createDomainMetadata() {
     ...idModelMetadata,
     recipientName: String,
     address: 'IAddress',
+  });
+  PojosMetadataMap.create<ICartItem>('ICartItem', {
+    product: 'IProduct',
+    quantity: Number,
+  });
+  PojosMetadataMap.create<ICart>('ICart', {
+    items: ['ICartItem'],
   });
   PojosMetadataMap.create<IUser>('IUser', {
     ...idModelMetadata,
@@ -39,6 +47,7 @@ export function createDomainMetadata() {
     smsOptedOutViaSms: Boolean,
     smsOptedOutViaSmsDate: Date,
     addresses: ['IUserAddress'],
+    cart: 'ICart',
   });
   PojosMetadataMap.create<ICategoryProperty>('ICategoryProperty', {
     ...idModelMetadata,

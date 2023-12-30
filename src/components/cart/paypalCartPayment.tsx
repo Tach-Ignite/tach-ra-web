@@ -5,24 +5,29 @@ import { useSession } from 'next-auth/react';
 import { useSelector } from 'react-redux';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { RootState } from '@/rtk';
+import { useGetCartQuery } from '@/rtk/apis/cartApi';
 import { Price } from '../price';
 
 export function PayPalCartPayment() {
   const { status } = useSession();
   const router = useRouter();
-  const cartItems = useSelector((state: RootState) => state.cart.cartItems);
+  const { data: cart, isLoading: cartIsLoading } = useGetCartQuery();
   const [totalPrice, setTotalPrice] = useState(0);
   const [{ isPending }] = usePayPalScriptReducer();
   const { userAddress } = useSelector((state: RootState) => state.userAddress);
   const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/checkout`;
 
   useEffect(() => {
+    if (cartIsLoading || !cart) {
+      return;
+    }
+
     let total = 0;
-    cartItems.forEach((item) => {
+    cart.items.forEach((item) => {
       total += item.product.price * item.quantity;
     });
     setTotalPrice(total);
-  }, [cartItems, setTotalPrice]);
+  }, [cart, setTotalPrice, cartIsLoading]);
 
   const createOrder = useCallback((): Promise<string> => {
     if (status === 'authenticated' && userAddress) {
@@ -31,13 +36,13 @@ export function PayPalCartPayment() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ cart: cartItems, address: userAddress }),
+        body: JSON.stringify({ address: userAddress }),
       })
         .then((response) => response.json())
         .then((order) => order.id);
     }
     throw new Error('User is not authenticated');
-  }, [status, userAddress, cartItems, apiUrl]);
+  }, [status, userAddress, apiUrl]);
 
   const onApprove = useCallback(
     (data: any) =>
