@@ -187,14 +187,14 @@ export const requestPasswordResetViewModelSchema: JSONSchemaType<RequestPassword
     required: ['email'],
   };
 
-export type ResetPasswordViewModel = {
+export type UnauthenticatedResetPasswordViewModel = {
   email: string;
   token: string;
   password: string;
   confirmPassword: string;
 };
 
-export const resetPasswordViewModelSchema: JSONSchemaType<ResetPasswordViewModel> =
+export const unauthenticatedResetPasswordViewModelSchema: JSONSchemaType<UnauthenticatedResetPasswordViewModel> =
   {
     type: 'object',
     properties: {
@@ -204,6 +204,24 @@ export const resetPasswordViewModelSchema: JSONSchemaType<ResetPasswordViewModel
       confirmPassword: { type: 'string' },
     },
     required: ['email', 'token', 'password', 'confirmPassword'],
+    additionalProperties: false,
+  };
+
+export type AuthenticatedProfileResetPasswordViewModel = {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+};
+
+export const authenticatedResetPasswordViewModelSchema: JSONSchemaType<AuthenticatedProfileResetPasswordViewModel> =
+  {
+    type: 'object',
+    properties: {
+      currentPassword: { type: 'string', format: 'email' },
+      newPassword: { type: 'string' },
+      confirmNewPassword: { type: 'string' },
+    },
+    required: ['currentPassword', 'newPassword', 'confirmNewPassword'],
     additionalProperties: false,
   };
 
@@ -449,12 +467,23 @@ export function createViewModelMetadata() {
       email: String,
     },
   );
-  PojosMetadataMap.create<ResetPasswordViewModel>('ResetPasswordViewModel', {
-    email: String,
-    token: String,
-    password: String,
-    confirmPassword: String,
-  });
+  PojosMetadataMap.create<UnauthenticatedResetPasswordViewModel>(
+    'UnauthenticatedResetPasswordViewModel',
+    {
+      email: String,
+      token: String,
+      password: String,
+      confirmPassword: String,
+    },
+  );
+  PojosMetadataMap.create<AuthenticatedProfileResetPasswordViewModel>(
+    'AuthenticatedProfileResetPasswordViewModel',
+    {
+      currentPassword: String,
+      newPassword: String,
+      confirmNewPassword: String,
+    },
+  );
   PojosMetadataMap.create<SetUserRolesViewModel>('SetUserRolesViewModel', {
     roles: [String],
   });

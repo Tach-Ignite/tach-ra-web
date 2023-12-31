@@ -200,6 +200,9 @@ export class AuthOptionsFactory implements IAuthOptionsFactory {
   ): Partial<CallbacksOptions<Profile, Account>> | undefined {
     return {
       async signIn({ user }) {
+        if (user && user.disabled) {
+          return false;
+        }
         if (
           req.query.nextauth?.includes('callback') &&
           req.query.nextauth?.includes('credentials') &&
@@ -210,7 +213,7 @@ export class AuthOptionsFactory implements IAuthOptionsFactory {
             const sessionExpiry = new Date(Date.now() + session.maxAge * 1000);
             adapter.createSession({
               sessionToken,
-              userId: user._id!.toString(),
+              userId: user._id.toString(),
               expires: sessionExpiry,
             });
             const cookies = new Cookies(req, res, { secure: true });

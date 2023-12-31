@@ -1,10 +1,11 @@
 import { QueryReturnValue } from '@/lib/utils';
 import {
+  AuthenticatedProfileResetPasswordViewModel,
   CreateUserViewModel,
   MutateUserProfileViewModel,
   RequestPasswordResetViewModel,
-  ResetPasswordViewModel,
   SetUserRolesViewModel,
+  UnauthenticatedResetPasswordViewModel,
   UserViewModel,
 } from '@/models';
 import { emptyAppApi } from './emptyAppApi';
@@ -120,7 +121,10 @@ const usersApi = emptyAppApi.injectEndpoints({
         return response as QueryReturnValue<void>;
       },
     }),
-    resetPassword: build.mutation<void, ResetPasswordViewModel>({
+    unauthenticatedResetPassword: build.mutation<
+      void,
+      UnauthenticatedResetPasswordViewModel
+    >({
       queryFn: async (arg, baseQueryApi, extraOptions, baseQuery) => {
         const headers = {
           'Content-Type': 'application/json',
@@ -136,6 +140,45 @@ const usersApi = emptyAppApi.injectEndpoints({
         return response as QueryReturnValue<void>;
       },
     }),
+    authenticatedResetPassword: build.mutation<
+      void,
+      AuthenticatedProfileResetPasswordViewModel
+    >({
+      queryFn: async (arg, baseQueryApi, extraOptions, baseQuery) => {
+        const headers = {
+          'Content-Type': 'application/json',
+        };
+
+        const response = await baseQuery({
+          url: `myAccount/profile/resetPassword`,
+          method: 'POST',
+          body: arg,
+          headers,
+        });
+
+        return response as QueryReturnValue<void>;
+      },
+    }),
+    disableMyAccount: build.mutation<void, void>({
+      queryFn: async (arg, baseQueryApi, extraOptions, baseQuery) => {
+        const response = await baseQuery({
+          url: `myAccount/disable`,
+          method: 'POST',
+        });
+
+        return response as QueryReturnValue<void>;
+      },
+    }),
+    deleteMyAccount: build.mutation<void, void>({
+      queryFn: async (arg, baseQueryApi, extraOptions, baseQuery) => {
+        const response = await baseQuery({
+          url: `myAccount`,
+          method: 'DELETE',
+        });
+
+        return response as QueryReturnValue<void>;
+      },
+    }),
   }),
   overrideExisting: false,
 });
@@ -145,9 +188,12 @@ export const {
   useGetUserByIdQuery,
   useCreateUserMutation,
   useEditUserMutation,
-  useResetPasswordMutation,
+  useAuthenticatedResetPasswordMutation,
+  useUnauthenticatedResetPasswordMutation,
   useRequestPasswordResetMutation,
   useSetUserRolesMutation,
   useSetUserProfileMutation,
+  useDisableMyAccountMutation,
+  useDeleteMyAccountMutation,
   util: usersApiUtil,
 } = usersApi;

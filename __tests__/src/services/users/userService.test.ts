@@ -372,7 +372,12 @@ describe('UserService', () => {
       tokenService.validateToken.mockResolvedValueOnce(true);
       bcrypt.hash = jest.fn().mockResolvedValue('hashedPassword');
 
-      await service.resetPassword(email, token, password, password);
+      await service.unauthenticatedResetPassword(
+        email,
+        token,
+        password,
+        password,
+      );
 
       expect(userQueryRepository.find).toBeCalledTimes(1);
       expect(userQueryRepository.find).toBeCalledWith(

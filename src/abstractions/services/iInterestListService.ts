@@ -10,4 +10,14 @@ export interface IInterestListService {
     interestListFriendlyId: string,
     email: string,
   ): Promise<IInterestListItem | null>;
+  removeInterestListItemByEmail(
+    interestListFriendlyId: string,
+    email: string,
+  ): Promise<void>;
+  removeInterestListByPhoneNumber(
+    interestListFriendlyId: string,
+    phoneNumber: string,
+  ): Promise<void>;
+  removeFromAllInterestListsByEmail(email: string): Promise<void>;
+  removeFromAllInterestListsByPhoneNumber(phoneNumber: string): Promise<void>;
 }

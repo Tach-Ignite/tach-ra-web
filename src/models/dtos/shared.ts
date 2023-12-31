@@ -45,6 +45,7 @@ export type UserDto = {
   token?: string;
   passwordResetToken?: string;
   cart: CartDto;
+  disabled?: boolean;
 } & Partial<IdModel>;
 
 export type AccountDto = {} & Account;
@@ -140,6 +141,7 @@ export function createDtoMetadata() {
     token: String,
     passwordResetToken: String,
     cart: 'CartDto',
+    disabled: Boolean,
   });
   PojosMetadataMap.create<AccountDto>('AccountDto', {
     ...idModelMetadata,

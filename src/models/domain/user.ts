@@ -18,4 +18,5 @@ export interface IUser {
   defaultUserAddressId?: string | null;
   addresses: IUserAddress[];
   cart: ICart;
+  disabled?: boolean;
 }

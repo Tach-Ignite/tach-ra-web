@@ -15,6 +15,11 @@ export interface IOptions<T extends object> {
 export interface ITachConfiguration {
   storage: IDataStorageConfiguration;
   auth: IAuthConfiguration;
+  logging: ILoggingConfiguration;
+  payment: IPaymentConfiguration;
+  darkMode: IDarkModeConfiguration;
+  secrets: ISecretsConfiguration;
+  notifications: INotificationsConfiguration;
 }
 
 export interface IDataStorageConfiguration extends IConfigurationSection {

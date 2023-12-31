@@ -6,12 +6,16 @@ import Link from 'next/link';
 import { Session } from 'next-auth';
 import { Button, Input, CenterContainer, RootLayout } from '@/components';
 import { customFormats } from '@/lib/utils';
-import { ResetPasswordViewModel, resetPasswordViewModelSchema } from '@/models';
-import { useResetPasswordMutation } from '@/rtk';
+import { useUnauthenticatedResetPasswordMutation } from '@/rtk';
+import {
+  UnauthenticatedResetPasswordViewModel,
+  unauthenticatedResetPasswordViewModelSchema,
+} from '@/models';
 
 function VerifyResetPasswordPage() {
   const router = useRouter();
-  const [resetPassword, resetPasswordResponse] = useResetPasswordMutation();
+  const [resetPassword, resetPasswordResponse] =
+    useUnauthenticatedResetPasswordMutation();
   const [submitError, setSubmitError] = useState<string>('');
   const [sendingRequest, setSendingRequest] = useState(false);
   const [passwordChanged, setPasswordChanged] = useState(false);
@@ -25,10 +29,10 @@ function VerifyResetPasswordPage() {
     getValues,
     setValue,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<ResetPasswordViewModel>({
+  } = useForm<UnauthenticatedResetPasswordViewModel>({
     mode: 'onChange',
     reValidateMode: 'onChange',
-    resolver: ajvResolver(resetPasswordViewModelSchema, {
+    resolver: ajvResolver(unauthenticatedResetPasswordViewModelSchema, {
       allErrors: true,
       $data: true,
       formats: customFormats,
@@ -47,7 +51,10 @@ function VerifyResetPasswordPage() {
     }
   }, [email, setValue]);
 
-  function submitHandler(form: ResetPasswordViewModel, event: any) {
+  function submitHandler(
+    form: UnauthenticatedResetPasswordViewModel,
+    event: any,
+  ) {
     event.preventDefault();
     resetPassword(form)
       .then((result: any) => {

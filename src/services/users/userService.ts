@@ -25,6 +25,7 @@ import {
 
 import '@/mappingProfiles/services/users/mappingProfile';
 import { Injectable } from '@/lib/ioc/injectable';
+import { DeleteUserAddressCommand } from '@/commands/userAddresses';
 
 @Injectable(
   'userService',
@@ -267,7 +268,7 @@ export class UserService implements IUserService {
     );
   }
 
-  async resetPassword(
+  async unauthenticatedResetPassword(
     email: string,
     token: string,
     password: string,
@@ -326,7 +327,42 @@ export class UserService implements IUserService {
     await this._emailService.sendEmail(
       this._fromEmail,
       user.email,
-      'Tach Color Store password reset successful',
+      `${process.env.TACH_APPLICATION_NAME} password reset successful`,
+      `Your password has been successfully reset. You can now login with your new password.`,
+    );
+  }
+
+  async authenticatedResetPassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this._userQueryRepository.getById(userId);
+
+    if (!user) {
+      throw new ErrorWithStatusCode(
+        `User with id '${userId}' not found.`,
+        404,
+        'User not found.',
+      );
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isValid) {
+      throw new ErrorWithStatusCode('Current password is incorrect.', 400);
+    }
+
+    const encryptedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this._userCommandRepository.update(userId, {
+      password: encryptedPassword,
+    });
+
+    await this._emailService.sendEmail(
+      this._fromEmail,
+      user.email,
+      `${process.env.TACH_APPLICATION_NAME} password reset successful`,
       `Your password has been successfully reset. You can now login with your new password.`,
     );
   }
@@ -443,5 +479,14 @@ export class UserService implements IUserService {
     }
 
     return users;
+  }
+
+  async disableUser(userId: string): Promise<void> {
+    await this._userCommandRepository.update(userId, { disabled: true });
+  }
+
+  async deleteUserAndAccount(userId: string): Promise<void> {
+    this._userCommandRepository.delete(userId);
+    this._accountCommandRepository.deleteMany({ userId });
   }
 }

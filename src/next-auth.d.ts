@@ -1,18 +1,13 @@
-import { IUserRolesEnum } from './models';
+import { IUserRolesEnum, IUser } from '@/models';
 
 declare module 'next-auth/client';
 
 declare module 'next-auth' {
-  interface User {
+  interface User extends IUser {
     _id: string;
-    password: string;
     email: string;
-    name: string;
-    image: string;
-    emailVerified: Date;
-    roles: Extract<keyof IUserRolesEnum, string>[];
-    defaultUserAddressId: string;
-    addresses: UserAddress[];
+    emailVerified: Date | null;
+    password: string;
   }
   interface Session {
     user: User;
