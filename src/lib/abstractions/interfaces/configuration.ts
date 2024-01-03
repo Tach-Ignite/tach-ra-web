@@ -63,3 +63,7 @@ export interface INotificationsConfiguration extends IConfigurationSection {
   email: INotificationsEmailConfiguration;
   sms: INotificationsSmsConfiguration;
 }
+
+export interface IRecaptchaConfiguration extends IConfigurationSection {
+  provider: 'google' | 'fake';
+}

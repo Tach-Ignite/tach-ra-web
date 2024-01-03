@@ -219,8 +219,10 @@ export class InterestListService implements IInterestListService {
   async removeFromAllInterestListsByEmail(email: string): Promise<void> {
     const interestListDtos = await this._interestListQueryRepository.list();
 
+    const deletePromises: Promise<void>[] = [];
     for (let i = 0; i < interestListDtos.length; i++) {
       const interestListItemDtos =
+        // eslint-disable-next-line no-await-in-loop
         await this._interestListItemQueryRepository.find({
           interestListId: interestListDtos[i]._id,
           email,
@@ -241,6 +243,7 @@ export class InterestListService implements IInterestListService {
 
     for (let i = 0; i < interestListDtos.length; i++) {
       const interestListItemDtos =
+        // eslint-disable-next-line no-await-in-loop
         await this._interestListItemQueryRepository.find({
           interestListId: interestListDtos[i]._id,
           phoneNumber,

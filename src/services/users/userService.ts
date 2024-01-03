@@ -96,6 +96,18 @@ export class UserService implements IUserService {
   }
 
   async createUser(user: IUser, password: string): Promise<IUser> {
+    const existingUser = await this._userQueryRepository.find({
+      email: user.email,
+    });
+
+    if (existingUser.length > 0) {
+      throw new ErrorWithStatusCode(
+        `A user with email '${user.email}' already exists.`,
+        400,
+        'Bad request.',
+      );
+    }
+
     const encryptedPassword = await bcrypt.hash(password, 10);
 
     const mapper = this._automapperProvider.provide();

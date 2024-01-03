@@ -1,6 +1,6 @@
 import { QueryReturnValue } from '@/lib/utils';
 import {
-  AuthenticatedProfileResetPasswordViewModel,
+  AuthenticatedResetPasswordViewModel,
   CreateUserViewModel,
   MutateUserProfileViewModel,
   RequestPasswordResetViewModel,
@@ -142,7 +142,7 @@ const usersApi = emptyAppApi.injectEndpoints({
     }),
     authenticatedResetPassword: build.mutation<
       void,
-      AuthenticatedProfileResetPasswordViewModel
+      AuthenticatedResetPasswordViewModel
     >({
       queryFn: async (arg, baseQueryApi, extraOptions, baseQuery) => {
         const headers = {

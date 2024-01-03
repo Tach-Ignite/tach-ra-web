@@ -11,11 +11,13 @@ There are three main components for utilizing this capability:
 3. Send the token you recieve to the server along with the payload for validation:
 
 ```typescript
-import { RecaptchaValidator } from '@/lib/services/security/recaptchaValidator';
-
+import { IFactory, IRecaptchaValidator } from '@/lib/abstractions';
+import {RecaptchaModule} from '@/modules/recaptcha/recaptcha.module';
 ...
 
-const captchaValidator = new RecaptchaValidator();
+const m = new ModuleResolver().resolve(RecaptchaModule)
+const recaptchaValidatorFactory = m.resolve<IFactory<IRecaptchaValidator>>('recaptchaValidatorFactory');
+const captchaValidator = recaptchaValidatorFactory.create();
   const captchaValidation = await captchaValidator.validateRecaptchaToken(
     request.recaptchaToken,
   );

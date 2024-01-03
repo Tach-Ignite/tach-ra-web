@@ -22,8 +22,7 @@ router.delete(async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  const promises: Promise<any>[] = [];
-  promises.push(userService.deleteUserAndAccount(user._id));
+  userService.deleteUserAndAccount(user._id);
 
   return res.status(204).end();
 });

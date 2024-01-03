@@ -38,4 +38,7 @@ module.exports = {
       provider: 'sns', //sns, twilio, console
     },
   },
+  recaptcha: {
+    provider: 'google', //google, fake
+  },
 };

@@ -2,7 +2,7 @@ import cors from 'cors';
 import { createRouter, expressWrapper } from 'next-connect';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { IServerIdentity } from '@/lib/abstractions';
-import { AuthenticatedProfileResetPasswordViewModel } from '@/models';
+import { AuthenticatedResetPasswordViewModel } from '@/models';
 import '@/mappingProfiles/pages/api/users/mappingProfile';
 import { defaultHandler } from '@/lib/api';
 import { ModuleResolver } from '@/lib/ioc/';
@@ -25,8 +25,7 @@ router.post(async (req: NextApiRequest, res: NextApiResponse) => {
     throw new ErrorWithStatusCode('Unauthorized', 401);
   }
 
-  const resetPasswordViewModel: AuthenticatedProfileResetPasswordViewModel =
-    req.body;
+  const resetPasswordViewModel: AuthenticatedResetPasswordViewModel = req.body;
 
   await userService.authenticatedResetPassword(
     user._id,

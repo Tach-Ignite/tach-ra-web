@@ -187,6 +187,37 @@ export const requestPasswordResetViewModelSchema: JSONSchemaType<RequestPassword
     required: ['email'],
   };
 
+export const passwordComplexityPattern = `^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$`;
+
+export const passwordSchemaForProfile: JSONSchemaType<string> = {
+  type: 'string',
+  not: { const: { $data: '1/currentPassword' } as unknown as string },
+  pattern: passwordComplexityPattern,
+  errorMessage: {
+    not: 'Current password does not apply for the new password',
+    pattern:
+      'Your password must be a minimum 8 characters and include at least one letter, number, and special character -_*!^+.',
+  },
+};
+
+export const confirmPasswordRequiredSchema: JSONSchemaType<string> = {
+  type: 'string',
+  minLength: 1,
+  const: { $data: '1/password' } as unknown as string,
+  errorMessage: {
+    const: 'Password does not match the above entered password.',
+    minLength: 'Confirm Password is required.',
+  },
+};
+
+export const confirmNewPasswordSchema: JSONSchemaType<string> = {
+  type: 'string',
+  const: { $data: '1/newPassword' } as unknown as string,
+  errorMessage: {
+    const: 'Password does not match the above entered password.',
+  },
+};
+
 export type UnauthenticatedResetPasswordViewModel = {
   email: string;
   token: string;
@@ -201,25 +232,25 @@ export const unauthenticatedResetPasswordViewModelSchema: JSONSchemaType<Unauthe
       email: { type: 'string', format: 'email' },
       token: { type: 'string' },
       password: { type: 'string' },
-      confirmPassword: { type: 'string' },
+      confirmPassword: confirmNewPasswordSchema,
     },
     required: ['email', 'token', 'password', 'confirmPassword'],
     additionalProperties: false,
   };
 
-export type AuthenticatedProfileResetPasswordViewModel = {
+export type AuthenticatedResetPasswordViewModel = {
   currentPassword: string;
   newPassword: string;
   confirmNewPassword: string;
 };
 
-export const authenticatedResetPasswordViewModelSchema: JSONSchemaType<AuthenticatedProfileResetPasswordViewModel> =
+export const authenticatedResetPasswordViewModelSchema: JSONSchemaType<AuthenticatedResetPasswordViewModel> =
   {
     type: 'object',
     properties: {
-      currentPassword: { type: 'string', format: 'email' },
-      newPassword: { type: 'string' },
-      confirmNewPassword: { type: 'string' },
+      currentPassword: { type: 'string' },
+      newPassword: passwordSchemaForProfile,
+      confirmNewPassword: confirmNewPasswordSchema,
     },
     required: ['currentPassword', 'newPassword', 'confirmNewPassword'],
     additionalProperties: false,
@@ -476,8 +507,8 @@ export function createViewModelMetadata() {
       confirmPassword: String,
     },
   );
-  PojosMetadataMap.create<AuthenticatedProfileResetPasswordViewModel>(
-    'AuthenticatedProfileResetPasswordViewModel',
+  PojosMetadataMap.create<AuthenticatedResetPasswordViewModel>(
+    'AuthenticatedResetPasswordViewModel',
     {
       currentPassword: String,
       newPassword: String,
