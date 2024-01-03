@@ -161,4 +161,99 @@ export class InterestListService implements IInterestListService {
 
     return interestListItem;
   }
+
+  async removeInterestListItemByEmail(
+    interestListFriendlyId: string,
+    email: string,
+  ): Promise<void> {
+    const interestListDto = await this._interestListQueryRepository.find({
+      friendlyId: interestListFriendlyId,
+    });
+
+    if (interestListDto.length === 0) {
+      throw new ErrorWithStatusCode('Interest list not found', 404);
+    }
+
+    const interestListItemDto =
+      await this._interestListItemQueryRepository.find({
+        interestListId: interestListDto[0]._id,
+        email,
+      });
+
+    if (interestListItemDto.length === 0) {
+      throw new ErrorWithStatusCode('Interest list item not found', 404);
+    }
+
+    await this._interestListItemCommandRepository.delete(
+      interestListItemDto[0]._id,
+    );
+  }
+
+  async removeInterestListByPhoneNumber(
+    interestListFriendlyId: string,
+    phoneNumber: string,
+  ): Promise<void> {
+    const interestListDto = await this._interestListQueryRepository.find({
+      friendlyId: interestListFriendlyId,
+    });
+
+    if (interestListDto.length === 0) {
+      throw new ErrorWithStatusCode('Interest list not found', 404);
+    }
+
+    const interestListItemDto =
+      await this._interestListItemQueryRepository.find({
+        interestListId: interestListDto[0]._id,
+        phoneNumber,
+      });
+
+    if (interestListItemDto.length === 0) {
+      throw new ErrorWithStatusCode('Interest list item not found', 404);
+    }
+
+    await this._interestListItemCommandRepository.delete(
+      interestListItemDto[0]._id,
+    );
+  }
+
+  async removeFromAllInterestListsByEmail(email: string): Promise<void> {
+    const interestListDtos = await this._interestListQueryRepository.list();
+
+    const deletePromises: Promise<void>[] = [];
+    for (let i = 0; i < interestListDtos.length; i++) {
+      const interestListItemDtos =
+        // eslint-disable-next-line no-await-in-loop
+        await this._interestListItemQueryRepository.find({
+          interestListId: interestListDtos[i]._id,
+          email,
+        });
+
+      for (let j = 0; j < interestListItemDtos.length; j++) {
+        this._interestListItemCommandRepository.delete(
+          interestListItemDtos[j]._id,
+        );
+      }
+    }
+  }
+
+  async removeFromAllInterestListsByPhoneNumber(
+    phoneNumber: string,
+  ): Promise<void> {
+    const interestListDtos = await this._interestListQueryRepository.list();
+
+    for (let i = 0; i < interestListDtos.length; i++) {
+      const interestListItemDtos =
+        // eslint-disable-next-line no-await-in-loop
+        await this._interestListItemQueryRepository.find({
+          interestListId: interestListDtos[i]._id,
+          phoneNumber,
+        });
+
+      for (let j = 0; j < interestListItemDtos.length; j++) {
+        this._interestListItemCommandRepository.delete(
+          interestListItemDtos[j]._id,
+        );
+      }
+    }
+  }
 }

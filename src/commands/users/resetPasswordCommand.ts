@@ -16,7 +16,7 @@ export class ResetPasswordCommand extends Command<
   }
 
   async execute(): Promise<void> {
-    await this._userService.resetPassword(
+    await this._userService.unauthenticatedResetPassword(
       this._payload.email,
       this._payload.token,
       this._payload.password,

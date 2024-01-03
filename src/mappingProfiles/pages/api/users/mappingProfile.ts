@@ -17,9 +17,9 @@ import {
   MutateUserProfileViewModel,
   ResendEmailAddressVerificationCommandPayload,
   ResetPasswordCommandPayload,
-  ResetPasswordViewModel,
   SendPasswordResetRequestCommandPayload,
   SetUserProfileCommandPayload,
+  UnauthenticatedResetPasswordViewModel,
   UserViewModel,
   VerifyEmailAddressCommandPayload,
 } from '@/models';
@@ -86,9 +86,12 @@ export class UserApiIdMappingProfile implements ITachMappingProfile {
           mapFrom((s) => s),
         ),
       );
-      createMap<ResetPasswordViewModel, ResetPasswordCommandPayload>(
+      createMap<
+        UnauthenticatedResetPasswordViewModel,
+        ResetPasswordCommandPayload
+      >(
         mapper,
-        'ResetPasswordViewModel',
+        'UnauthenticatedResetPasswordViewModel',
         'ResetPasswordCommandPayload',
       );
       createMap<string, ResendEmailAddressVerificationCommandPayload>(

@@ -1,4 +1,5 @@
 import {
+  IFactory,
   IRecaptchaValidator,
   RecaptchaValidationResponse,
   ValidateRecaptchaTokenCommandPayload,
@@ -6,7 +7,11 @@ import {
 import { Injectable } from '@/lib/ioc/injectable';
 import { Command } from '../../command';
 
-@Injectable('validateRecaptchaTokenCommand', 'recaptchaValidator', 'payload')
+@Injectable(
+  'validateRecaptchaTokenCommand',
+  'recaptchaValidatorFactory',
+  'payload',
+)
 export class ValidateRecaptchaTokenCommand extends Command<
   ValidateRecaptchaTokenCommandPayload,
   RecaptchaValidationResponse
@@ -14,11 +19,11 @@ export class ValidateRecaptchaTokenCommand extends Command<
   private _recaptchaValidator: IRecaptchaValidator;
 
   constructor(
-    recaptchaValidator: IRecaptchaValidator,
+    recaptchaValidatorFactory: IFactory<IRecaptchaValidator>,
     payload: ValidateRecaptchaTokenCommandPayload,
   ) {
     super(payload);
-    this._recaptchaValidator = recaptchaValidator;
+    this._recaptchaValidator = recaptchaValidatorFactory.create();
   }
 
   async execute(): Promise<void> {

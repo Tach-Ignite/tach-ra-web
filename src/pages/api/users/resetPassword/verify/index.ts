@@ -7,7 +7,10 @@ import {
   ICommandFactory,
   IInvoker,
 } from '@/lib/abstractions';
-import { ResetPasswordCommandPayload, ResetPasswordViewModel } from '@/models';
+import {
+  ResetPasswordCommandPayload,
+  UnauthenticatedResetPasswordViewModel,
+} from '@/models';
 import '@/mappingProfiles/pages/api/users/mappingProfile';
 import { defaultHandler } from '@/lib/api';
 import { ModuleResolver } from '@/lib/ioc/';
@@ -27,11 +30,11 @@ router.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
   const mapper = automapperProvider.provide();
   const resetPasswordCommandPayload = mapper.map<
-    ResetPasswordViewModel,
+    UnauthenticatedResetPasswordViewModel,
     ResetPasswordCommandPayload
   >(
     resetPasswordViewModel,
-    'ResetPasswordViewModel',
+    'UnauthenticatedResetPasswordViewModel',
     'ResetPasswordCommandPayload',
   );
 

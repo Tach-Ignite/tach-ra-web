@@ -37,6 +37,7 @@ export interface ICommandRepository<T> {
   create(entity: T): Promise<string>;
   update(id: string, entity: Partial<T>): Promise<void>;
   delete(id: string): Promise<void>;
+  deleteMany(filter: any): Promise<void>;
   generateId(): Promise<string>;
 }
 

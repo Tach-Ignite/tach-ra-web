@@ -16,4 +16,5 @@ export interface IOrderService {
     paymentStatus: Extract<keyof IPaymentStatusEnum, string>,
     paymentProvider: string,
   ): Promise<IOrder>;
+  deleteOrdersByUserId(userId: string): Promise<void>;
 }

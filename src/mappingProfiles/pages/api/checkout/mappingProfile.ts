@@ -139,10 +139,14 @@ export class CheckoutApiMappingProfile implements ITachMappingProfile {
         ),
         forMember(
           (d) => d.shippingInformation,
-          mapFrom((s) => ({
-            address: s.userAddress.address,
-            recipientName: s.userAddress.recipientName,
-          })),
+          mapFrom((s) =>
+            s.userAddress
+              ? {
+                  address: s.userAddress.address,
+                  recipientName: s.userAddress.recipientName,
+                }
+              : undefined,
+          ),
         ),
         forMember(
           (d) => d.customerEmail,

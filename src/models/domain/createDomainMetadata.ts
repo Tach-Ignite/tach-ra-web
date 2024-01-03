@@ -48,6 +48,7 @@ export function createDomainMetadata() {
     smsOptedOutViaSmsDate: Date,
     addresses: ['IUserAddress'],
     cart: 'ICart',
+    disabled: Boolean,
   });
   PojosMetadataMap.create<ICategoryProperty>('ICategoryProperty', {
     ...idModelMetadata,

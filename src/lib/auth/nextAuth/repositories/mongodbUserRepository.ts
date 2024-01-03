@@ -43,6 +43,11 @@ export class MongoDbUserRepository implements ICommandRepository<User> {
     const response = await collections.Users.findOneAndDelete({ id });
   }
 
+  async deleteMany(filter: any): Promise<void> {
+    const collections = await this._collectionsFactory.create();
+    const response = await collections.Users.deleteMany(filter);
+  }
+
   async getById(id: string): Promise<User | null> {
     const collections = await this._collectionsFactory.create();
     const response = await collections.Users.findOne({ id });

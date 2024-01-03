@@ -20,6 +20,7 @@ import {
   UserRolesEnum,
 } from '@/models';
 import { IUserAddressService, IProductService } from '@/abstractions';
+import { ErrorWithStatusCode } from '@/lib/errors';
 
 describe('UserService', () => {
   let service: UserService;
@@ -49,6 +50,7 @@ describe('UserService', () => {
       update: jest.fn(),
       delete: jest.fn(),
       generateId: jest.fn(),
+      deleteMany: jest.fn(),
     };
     userQueryRepository = {
       getById: jest.fn(),
@@ -60,6 +62,7 @@ describe('UserService', () => {
       update: jest.fn(),
       delete: jest.fn(),
       generateId: jest.fn(),
+      deleteMany: jest.fn(),
     };
     accountQueryRepository = {
       getById: jest.fn(),
@@ -170,6 +173,7 @@ describe('UserService', () => {
       userCommandRepository.create.mockResolvedValueOnce(userId);
       accountCommandRepository.create.mockResolvedValueOnce(accountId);
       tokenService.createToken.mockResolvedValueOnce(token);
+      userQueryRepository.find.mockResolvedValueOnce([]);
       userQueryRepository.getById.mockResolvedValueOnce(userDtoWithId);
       idOmitter.omitId.mockReturnValueOnce(userDtoWithoutId);
       mapMock.mockReturnValueOnce(userWithId);
@@ -216,6 +220,69 @@ describe('UserService', () => {
         user.email,
         '[Action Required] Welcome to Tach Color Store!',
         `Please verify your email address by clicking this link: <a href="${nextPublicBaseUrl}/auth/verifyEmail?token=${token}" target="_blank">Verify Email</a>`,
+      );
+    });
+
+    it('should fail to create a user that already exists', async () => {
+      // Arrange
+      const userId = '123';
+      const accountId = 'acc123';
+      const recipientName = 'John Doe';
+      const addressId = '456';
+      const user: IUser = {
+        name: 'John Doe',
+        email: 'jdoe@test.com',
+        roles: [],
+        addresses: [],
+        cart: { items: [] },
+      };
+      const userDto: UserDto = {
+        _id: userId,
+        name: 'John Doe',
+        email: 'jdoe@test.com',
+        roles: [],
+        addresses: [],
+        password: 'hashedPassword',
+        emailVerified: undefined,
+        cart: { items: [] },
+      };
+      const userDtoWithId: UserDto & IdModel = {
+        ...userDto,
+        _id: userId,
+      };
+      const userDtoWithoutId: UserDto = {
+        name: 'John Doe',
+        email: 'jdoe@test.com',
+        roles: [],
+        addresses: [],
+        password: 'hashedPassword',
+        emailVerified: undefined,
+        cart: { items: [] },
+      };
+      const userWithId: IUser = {
+        ...user,
+        _id: userId,
+      };
+      const password = 'password123';
+      const token = 'someToken';
+      const emailService = emailServiceFactory.create();
+      bcrypt.hash = jest.fn().mockResolvedValue('hashedPassword');
+      mapMock.mockReturnValueOnce(userDtoWithoutId);
+      userCommandRepository.create.mockResolvedValueOnce(userId);
+      accountCommandRepository.create.mockResolvedValueOnce(accountId);
+      tokenService.createToken.mockResolvedValueOnce(token);
+      userQueryRepository.find.mockResolvedValueOnce([userDtoWithId]);
+      userQueryRepository.getById.mockResolvedValueOnce(userDtoWithId);
+      idOmitter.omitId.mockReturnValueOnce(userDtoWithoutId);
+      mapMock.mockReturnValueOnce(userWithId);
+
+      // Act
+      const promise = service.createUser(user, password);
+
+      // Assert
+      expect(promise).rejects.toThrow(ErrorWithStatusCode);
+      expect(promise).rejects.toThrow(
+        `A user with email 'jdoe@test.com' already exists.`,
       );
     });
   });
@@ -372,7 +439,12 @@ describe('UserService', () => {
       tokenService.validateToken.mockResolvedValueOnce(true);
       bcrypt.hash = jest.fn().mockResolvedValue('hashedPassword');
 
-      await service.resetPassword(email, token, password, password);
+      await service.unauthenticatedResetPassword(
+        email,
+        token,
+        password,
+        password,
+      );
 
       expect(userQueryRepository.find).toBeCalledTimes(1);
       expect(userQueryRepository.find).toBeCalledWith(

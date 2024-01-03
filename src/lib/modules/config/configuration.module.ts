@@ -7,6 +7,7 @@ import {
   ILoggingConfiguration,
   INotificationsConfiguration,
   IPaymentConfiguration,
+  IRecaptchaConfiguration,
   ISecretsConfiguration,
   IServiceResolver,
 } from '@/lib/abstractions';
@@ -150,6 +151,22 @@ export class ConfigurationModule extends ModuleClass {
             const config = factory.create(configFile);
             const section =
               config.getSection<INotificationsConfiguration>('notifications');
+            if (!section) {
+              return null;
+            }
+            return new Options(section);
+          },
+        },
+        {
+          provide: 'recaptchaConfigurationOptions',
+          useFactory: (serviceResolver: IServiceResolver) => {
+            const factory = serviceResolver.resolve<IConfigurationFactory>(
+              'configurationFactory',
+            );
+            const configFile = serviceResolver.resolve<any>('configFile');
+            const config = factory.create(configFile);
+            const section =
+              config.getSection<IRecaptchaConfiguration>('recaptcha');
             if (!section) {
               return null;
             }

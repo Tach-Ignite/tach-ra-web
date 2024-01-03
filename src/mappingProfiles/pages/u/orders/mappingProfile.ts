@@ -16,6 +16,10 @@ import {
 
 import {
   AddressViewModel,
+  CartItemViewModel,
+  CartViewModel,
+  ICart,
+  ICartItem,
   IOrder,
   IUser,
   IUserAddress,
@@ -32,6 +36,12 @@ import { TachMappingProfileClass, forMemberId } from '@/lib/mapping';
 export class UserOrdersMappingProfile implements ITachMappingProfile {
   getMappingProfile(): MappingProfile {
     return (mapper: Mapper) => {
+      createMap<ICartItem, CartItemViewModel>(
+        mapper,
+        'ICartItem',
+        'CartItemViewModel',
+      );
+      createMap<ICart, CartViewModel>(mapper, 'ICart', 'CartViewModel');
       createMap<IAddress, AddressViewModel>(
         mapper,
         'IAddress',

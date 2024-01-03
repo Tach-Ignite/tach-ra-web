@@ -233,4 +233,8 @@ export class OrderService implements IOrderService {
 
     return updatedOrder;
   }
+
+  async deleteOrdersByUserId(userId: string): Promise<void> {
+    this._orderCommandRepository.deleteMany({ userId });
+  }
 }

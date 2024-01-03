@@ -2,6 +2,7 @@ import {
   IDatabaseClient,
   IFactory,
   ICommandRepository,
+  DeleteResponse,
 } from '@/lib/abstractions';
 import { Injectable } from '../ioc/injectable';
 
@@ -66,5 +67,10 @@ export class DatabaseCommandRepository<T extends object>
   async generateId(): Promise<string> {
     const databaseClient = await this._databaseClientFactory.create();
     return databaseClient.generateId(this._collectionName);
+  }
+
+  async deleteMany(filter: any): Promise<void> {
+    const databaseClient = await this._databaseClientFactory.create();
+    await databaseClient.deleteMany<T>(filter, this._collectionName);
   }
 }

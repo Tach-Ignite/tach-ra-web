@@ -9,7 +9,7 @@ import { OrderServiceModule } from '@/modules/services/orders/orderService.modul
 import { UserServiceModule } from '@/modules/services/users/userService.module';
 
 @Module
-export class MyAccountApiModule extends ModuleClass {
+export class MyAccountOrdersApiModule extends ModuleClass {
   constructor() {
     super({
       imports: [
