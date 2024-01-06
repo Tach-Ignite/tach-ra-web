@@ -11,10 +11,10 @@ export class MongoDbDataProviderModule extends ModuleClass {
     super({
       imports: [SecretsModule],
       providers: [
-        {
-          provide: 'mongoClientFactory',
-          useClass: MongoClientFactory,
-        },
+        // {
+        //   provide: 'mongoClientFactory',
+        //   useClass: MongoClientFactory,
+        // },
         {
           provide: 'mongoDatabaseClient',
           useClass: MongoDatabaseClient,

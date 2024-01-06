@@ -15,6 +15,7 @@ export const passwordProtectedMiddlewareFactory: MiddlewareFactory = (
     if (
       path.startsWith(`/passwordProtected`) ||
       path.startsWith(`/api/passwordProtected`) ||
+      (path.startsWith(`/api`) && path.endsWith(`webhook`)) ||
       path.startsWith(`/_next`) ||
       path.includes('.') ||
       path.includes('[object%20Object]')

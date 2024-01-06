@@ -3,14 +3,10 @@ import { DataProvidersModule } from '@/lib/modules/services/server/data/provider
 import { FileStorageServiceModule } from '@/lib/modules/services/server/fileStorage/fileStorageService.module';
 import { ConfigurationFactory, Options } from '@/lib/config';
 import { IConfigurationFactory, IServiceResolver } from '@/lib/abstractions';
-import tc from 'tach.config';
 import { DataLoader } from './dataLoader';
 import { Seeder } from './seeder';
 import { ISeedConfiguration } from './abstractions';
-// @ts-ignore
-let tcLocal = require('tach.config.local');
-
-if (!tcLocal) tcLocal = {};
+import { getTachConfig } from '../../getTachConfig';
 
 @Module
 class SeederModule extends ModuleClass {
@@ -20,7 +16,7 @@ class SeederModule extends ModuleClass {
       providers: [
         {
           provide: 'configFile',
-          useValue: Object.keys(tcLocal).length === 0 ? tc : tcLocal,
+          useValue: getTachConfig(),
         },
         {
           provide: 'configurationFactory',

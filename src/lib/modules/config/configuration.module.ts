@@ -13,11 +13,7 @@ import {
 } from '@/lib/abstractions';
 import { ConfigurationFactory, Options } from '@/lib/config';
 import { Module, ModuleClass } from '@/lib/ioc/module';
-import tc from 'tach.config';
-// @ts-ignore
-let tcLocal = require('tach.config.local');
-
-if (!tcLocal) tcLocal = {};
+import { getTachConfig } from '@/lib/utils/getTachConfig';
 
 @Module
 export class ConfigurationModule extends ModuleClass {
@@ -26,8 +22,7 @@ export class ConfigurationModule extends ModuleClass {
       providers: [
         {
           provide: 'configFile',
-          useValue: Object.keys(tcLocal).length === 0 ? tc : tcLocal,
-          // useValue: tc,
+          useValue: getTachConfig(),
         },
         {
           provide: 'configurationFactory',

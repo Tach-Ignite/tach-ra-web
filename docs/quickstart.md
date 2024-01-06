@@ -97,6 +97,18 @@ Create a service user and user group in IAM with the following policy attached. 
 }
 ```
 
+## 6. MongoDB Setup
+
+We recommend using MongoDB Atlas for your database. You can use a free tier cluster for development and a paid tier cluster for production. For more information on how to set this up, see the [MongoDB docs](https://docs.atlas.mongodb.com/getting-started/). Be sure to configure the database to use AWS in your preferred region. Eventually we will setup an AWS PrivateLink for more security. In the meantime, you can setup network access to whitelist all IP addresses (0.0.0.0/0). You will also need to setup a user for access.
+
+You should set the `TACH_MONGO_URI` variable in the `.env.secrets.dev` file to your Atlas connection string.
+
+To seed the database, run the following command:
+
+```bash
+pnpm data:seed:dev
+```
+
 ### 5.1.3 Service User Access Key
 
 You will need to create an access key for the service user and apply the access. See [this guide](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey) to learn about creating an access key. The relevant section is `To create, modify, or delete the access keys of another IAM user (console)`. The `local code` use case makes the most sense. Once you have the `Access Key` and `Secret Access Key`, apply these to the `TACH_AWS_ACCESS_KEY_ID` variable in the `.env.local` and `.env.dev` files, and the `TACH_AWS_ACCESS_KEY_SECRET` variable in the `.env.secrets.local` and `.env.secrets.dev` files.
@@ -129,18 +141,6 @@ The RA uses SES to send emails for registration, password reset, and contact for
 - Verify the emails you'll be sending to and from
 
 Once done, set the `TACH_EMAIL_CONTACT_ADDRESS` and `TACH_EMAIL_SOURCE` variables in the `.env.local` and `.env.dev` files to the email address(es) you verified.
-
-## 6. MongoDB Setup
-
-We recommend using MongoDB Atlas for your database. You can use a free tier cluster for development and a paid tier cluster for production. For more information on how to set this up, see the [MongoDB docs](https://docs.atlas.mongodb.com/getting-started/). Be sure to configure the database to use AWS in your preferred region. Eventually we will setup an AWS PrivateLink for more security. In the meantime, you can setup network access to whitelist all IP addresses (0.0.0.0/0). You will also need to setup a user for access.
-
-You should set the `TACH_MONGO_URI` variable in the `.env.secrets.dev` file to your Atlas connection string.
-
-To seed the database, run the following command:
-
-```bash
-pnpm data:seed:dev
-```
 
 ## 7. Recaptcha Setup
 

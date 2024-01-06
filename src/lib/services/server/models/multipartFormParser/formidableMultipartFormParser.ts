@@ -18,6 +18,22 @@ export class FormidableFormParser implements IFormParser {
     this._automapperProvider = automapperProvider;
   }
 
+  async getRawBody(req: NextApiRequest): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+      const chunks: Buffer[] = [];
+
+      req.on('data', (chunk: Buffer) => {
+        chunks.push(chunk);
+      });
+
+      req.on('end', () => {
+        resolve(Buffer.concat(chunks));
+      });
+
+      req.on('error', reject);
+    });
+  }
+
   async parseJsonForm<TResult>(req: NextApiRequest): Promise<TResult> {
     const bodyParserPromise = await new Promise<string>((resolve, reject) => {
       let body = '';

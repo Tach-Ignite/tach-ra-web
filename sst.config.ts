@@ -70,6 +70,11 @@ export default {
         {
           name: process.env.TACH_AWS_BUCKET_NAME!,
           blockPublicACLs: false,
+          cdk: {
+            bucket: {
+              publicReadAccess: true,
+            },
+          },
         },
       );
 

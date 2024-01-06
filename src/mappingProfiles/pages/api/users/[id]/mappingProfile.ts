@@ -8,6 +8,10 @@ import {
 import { ITachMappingProfile } from '@/lib/abstractions';
 import { TachMappingProfileClass, forMemberId } from '@/lib/mapping';
 import {
+  CartItemViewModel,
+  CartViewModel,
+  ICart,
+  ICartItem,
   IUser,
   SetUserRolesCommandPayload,
   SetUserRolesViewModel,
@@ -19,6 +23,12 @@ import '../../addresses/currentUser/mappingProfile';
 export class USerApiIdMappingProfile implements ITachMappingProfile {
   getMappingProfile(): MappingProfile {
     return (mapper: Mapper) => {
+      createMap<ICartItem, CartItemViewModel>(
+        mapper,
+        'ICartItem',
+        'CartItemViewModel',
+      );
+      createMap<ICart, CartViewModel>(mapper, 'ICart', 'CartViewModel');
       createMap<IUser, UserViewModel>(
         mapper,
         'IUser',
