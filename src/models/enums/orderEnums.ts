@@ -11,7 +11,7 @@ export interface IOrderStatusEnum extends IEnum {
 }
 
 export const OrderStatusEnum: IOrderStatusEnum = enumFactory.create({
-  Created: 'Created',
+  Created: 'Order Created',
   Processed: 'Processed',
   Shipped: 'Shipped',
   Delivered: 'Delivered',

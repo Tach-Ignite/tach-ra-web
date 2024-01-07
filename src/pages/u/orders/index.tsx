@@ -38,30 +38,37 @@ MyOrdersPage.getLayout = function getLayout(
 };
 
 export async function getServerSideProps(context: any) {
-  const m = new ModuleResolver().resolve(UserOrdersModule);
-  const orderService = m.resolve<IOrderService>('orderService');
-  const serverIdentity = m.resolve<IServerIdentity>('serverIdentity');
-  const automapperProvider =
-    m.resolve<IProvider<IMapper>>('automapperProvider');
-  const user = await serverIdentity.getUser(context.req, context.res);
+  try {
+    const m = new ModuleResolver().resolve(UserOrdersModule);
+    const orderService = m.resolve<IOrderService>('orderService');
+    const serverIdentity = m.resolve<IServerIdentity>('serverIdentity');
+    const automapperProvider =
+      m.resolve<IProvider<IMapper>>('automapperProvider');
+    const user = await serverIdentity.getUser(context.req, context.res);
 
-  if (!user) {
-    throw new ErrorWithStatusCode('User is not authenticated', 401);
+    if (!user) {
+      throw new ErrorWithStatusCode('User is not authenticated', 401);
+    }
+
+    const orders = await orderService.getAllOrdersByUserId(user._id);
+
+    const mapper = automapperProvider.provide();
+    const orderViewModels = mapper.mapArray<IOrder, OrderViewModel>(
+      orders,
+      'IOrder',
+      'OrderViewModel',
+    );
+    const cleansedOrderViewModels = JSON.parse(JSON.stringify(orderViewModels));
+
+    return {
+      props: { orders: cleansedOrderViewModels },
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      props: { orders: [] },
+    };
   }
-
-  const orders = await orderService.getAllOrdersByUserId(user._id);
-
-  const mapper = automapperProvider.provide();
-  const orderViewModels = mapper.mapArray<IOrder, OrderViewModel>(
-    orders,
-    'IOrder',
-    'OrderViewModel',
-  );
-  const cleansedOrderViewModels = JSON.parse(JSON.stringify(orderViewModels));
-
-  return {
-    props: { orders: cleansedOrderViewModels },
-  };
 }
 
 export default MyOrdersPage;

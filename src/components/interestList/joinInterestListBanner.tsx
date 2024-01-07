@@ -77,8 +77,6 @@ export function JoinInterestListBanner() {
     }
   }
 
-  console.log(errors);
-
   return (
     <>
       {userAdded && <div>Thank you for joining our interest list!</div>}

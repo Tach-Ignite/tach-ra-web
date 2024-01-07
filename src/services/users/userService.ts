@@ -17,6 +17,7 @@ import {
 import { ErrorWithStatusCode } from '@/lib/errors';
 import {
   AccountDto,
+  IProduct,
   IUser,
   IUserAddress,
   IUserRolesEnum,
@@ -477,7 +478,17 @@ export class UserService implements IUserService {
         this._userAddressService.getAllUserAddresses(userDtos[i]._id),
       );
     }
+
+    const productPromises: Promise<IProduct>[] = [];
+    const productIds = userDtos.flatMap((u) =>
+      u.cart.items.map((i) => i.productId),
+    );
+    for (let i = 0; i < productIds.length; i++) {
+      productPromises.push(this._productService.getProductById(productIds[i]));
+    }
+
     const userAddresses = await Promise.all(userAddressPromises);
+    const products = await Promise.all(productPromises);
 
     const mapper = this._automapperProvider.provide();
 
@@ -485,7 +496,7 @@ export class UserService implements IUserService {
     for (let i = 0; i < userDtos.length; i++) {
       users.push(
         mapper.map<UserDto, IUser>(userDtos[i], 'UserDto', 'IUser', {
-          extraArgs: () => ({ userAddresses: userAddresses[i] }),
+          extraArgs: () => ({ userAddresses: userAddresses[i], products }),
         }),
       );
     }

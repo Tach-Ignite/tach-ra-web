@@ -17,10 +17,10 @@ export class FileStorageServiceModule extends ModuleClass {
     super({
       imports: [ConfigurationModule, LoggingModule, SecretsModule],
       providers: [
-        {
-          provide: 'mongoClientFactory',
-          useClass: MongoClientFactory,
-        },
+        // {
+        //   provide: 'mongoClientFactory',
+        //   useClass: MongoClientFactory,
+        // },
         {
           provide: 's3FileStorageService',
           useClass: S3FileStorageService,

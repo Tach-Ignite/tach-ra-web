@@ -8,20 +8,25 @@ import {
   QueryOptions,
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
+import clientPromise from '@/lib/services/server/data/providers/mongodb/mongoDbClientPromise';
 
-@Injectable('mongoDatabaseClient', 'mongoClientFactory')
+@Injectable(
+  'mongoDatabaseClient',
+  // 'mongoClientFactory'
+)
 export class MongoDatabaseClient implements IDatabaseClient {
-  private _clientFactory: IFactory<Promise<MongoClient>>;
+  // private _clientFactory: IFactory<Promise<MongoClient>>;
 
-  constructor(mongoClientFactory: IFactory<Promise<MongoClient>>) {
-    this._clientFactory = mongoClientFactory;
-  }
+  // constructor() {
+  //   // mongoClientFactory: IFactory<Promise<MongoClient>>
+  //   // this._clientFactory = mongoClientFactory;
+  // }
 
   async insert<T>(
     data: T | Array<T>,
     collectionName: string,
   ): Promise<InsertResponse> {
-    const client = await this._clientFactory.create();
+    const client = await clientPromise;
     const db = client.db();
     const now = new Date();
     let possibleId = (data as any)._id;
@@ -59,7 +64,7 @@ export class MongoDatabaseClient implements IDatabaseClient {
     data: Partial<T>,
     collectionName: string,
   ): Promise<UpdateResponse> {
-    const client = await this._clientFactory.create();
+    const client = await clientPromise;
     const db = client.db();
     const now = new Date();
     const filtered = Object.keys(data)
@@ -93,7 +98,7 @@ export class MongoDatabaseClient implements IDatabaseClient {
     filter: any,
     collectionName: string,
   ): Promise<DeleteResponse> {
-    const client = await this._clientFactory.create();
+    const client = await clientPromise;
     const db = client.db();
     if (typeof filter._id === 'string') {
       filter._id = new ObjectId(filter._id);
@@ -109,7 +114,7 @@ export class MongoDatabaseClient implements IDatabaseClient {
     fields: string[] | undefined = undefined,
     queryOptions: QueryOptions | undefined = undefined,
   ): Promise<Array<T>> {
-    const client = await this._clientFactory.create();
+    const client = await clientPromise;
     const db = client.db();
     if (filter._id && typeof filter._id === 'object') {
       Object.keys(filter._id).forEach((key) => {
@@ -154,7 +159,7 @@ export class MongoDatabaseClient implements IDatabaseClient {
   }
 
   async createIndex(index: any, collectionName: string): Promise<void> {
-    const client = await this._clientFactory.create();
+    const client = await clientPromise;
     const db = client.db();
     await db.collection(collectionName).createIndex(index);
   }
@@ -168,7 +173,7 @@ export class MongoDatabaseClient implements IDatabaseClient {
   }
 
   async truncate<T>(): Promise<boolean> {
-    const client = await this._clientFactory.create();
+    const client = await clientPromise;
     const db = client.db();
     const promises: Promise<any>[] = [];
     const collectionsList = db.listCollections();

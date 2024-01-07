@@ -2,12 +2,8 @@ import dotenv from 'dotenv';
 import { IDatabaseClient, IFactory, InsertResponse } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
 import fs from 'fs';
-import tc from 'tach.config';
 import { IDataLoader, ISeeder } from './abstractions';
-// @ts-ignore
-let tcLocal = require('tach.config.local');
-
-if (!tcLocal) tcLocal = {};
+import { getTachConfig } from '../../getTachConfig';
 
 @Injectable('seeder', 'dataLoader', 'databaseClientFactory')
 export class Seeder implements ISeeder {
@@ -26,7 +22,7 @@ export class Seeder implements ISeeder {
 
     let rawSecrets = {};
     let secrets = '{}';
-    const config = Object.keys(tcLocal).length === 0 ? tc : tcLocal;
+    const config = getTachConfig();
     if (
       config.secrets.provider === 'env' &&
       process.env.NODE_ENV !== 'production'

@@ -263,6 +263,7 @@ export type MultipartFormParserResult = {
 };
 
 export interface IFormParser {
+  getRawBody(req: NextApiRequest): Promise<Buffer>;
   parseMultipartForm(req: NextApiRequest): Promise<MultipartFormParserResult>;
   parseJsonForm<TResult>(req: NextApiRequest): Promise<TResult>;
 }

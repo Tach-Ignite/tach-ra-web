@@ -167,45 +167,52 @@ SetUserRolesAdminPage.getLayout = function getLayout(
 };
 
 export async function getServerSideProps({ query, req, res }: any) {
-  const m = new ModuleResolver().resolve(AdminUsersModule);
-  const serverIdentity = m.resolve<IServerIdentity>('serverIdentity');
+  try {
+    const m = new ModuleResolver().resolve(AdminUsersModule);
+    const serverIdentity = m.resolve<IServerIdentity>('serverIdentity');
 
-  const userIsAdmin = await serverIdentity.userHasRole(
-    req,
-    res,
-    UserRolesEnum.reverseLookup(UserRolesEnum.Admin),
-  );
+    const userIsAdmin = await serverIdentity.userHasRole(
+      req,
+      res,
+      UserRolesEnum.reverseLookup(UserRolesEnum.Admin),
+    );
 
-  if (!userIsAdmin) {
+    if (!userIsAdmin) {
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+    }
+
+    const userService = m.resolve<IUserService>('userService');
+    const automapperProvider =
+      m.resolve<IProvider<IMapper>>('automapperProvider');
+
+    const user = await userService.getUserById(query.id);
+
+    const mapper = automapperProvider.provide();
+
+    const userViewModel = mapper.map<IUser, UserViewModel>(
+      user,
+      'IUser',
+      'UserViewModel',
+    );
+
+    const cleansedUserViewModel = JSON.parse(
+      JSON.stringify(userViewModel),
+    ) as UserViewModel[];
+
     return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
+      props: { user: cleansedUserViewModel },
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      notFound: true,
     };
   }
-
-  const userService = m.resolve<IUserService>('userService');
-  const automapperProvider =
-    m.resolve<IProvider<IMapper>>('automapperProvider');
-
-  const user = await userService.getUserById(query.id);
-
-  const mapper = automapperProvider.provide();
-
-  const userViewModel = mapper.map<IUser, UserViewModel>(
-    user,
-    'IUser',
-    'UserViewModel',
-  );
-
-  const cleansedUserViewModel = JSON.parse(
-    JSON.stringify(userViewModel),
-  ) as UserViewModel[];
-
-  return {
-    props: { user: cleansedUserViewModel },
-  };
 }
 
 export default SetUserRolesAdminPage;

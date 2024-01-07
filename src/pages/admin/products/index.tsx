@@ -74,25 +74,33 @@ AdminProductsPage.getLayout = function getLayout(
 };
 
 export async function getServerSideProps({ res }: any) {
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=10, stale-while-revalidate=60',
-  );
+  try {
+    res.setHeader(
+      'Cache-Control',
+      'public, s-maxage=10, stale-while-revalidate=60',
+    );
 
-  const m = new ModuleResolver().resolve(AdminProductsModule);
-  const productService = m.resolve<IProductService>('productService');
-  const products = await productService.getAllProducts({ limit: 20, skip: 0 });
+    const m = new ModuleResolver().resolve(AdminProductsModule);
+    const productService = m.resolve<IProductService>('productService');
+    const products = await productService.getAllProducts({
+      limit: 20,
+      skip: 0,
+    });
 
-  const mapperProvider = m.resolve<IProvider<IMapper>>('automapperProvider');
-  const mapper = mapperProvider.provide();
-  const viewModels = mapper.mapArray<IProduct, ProductViewModel>(
-    products,
-    'IProduct',
-    'ProductViewModel',
-  );
+    const mapperProvider = m.resolve<IProvider<IMapper>>('automapperProvider');
+    const mapper = mapperProvider.provide();
+    const viewModels = mapper.mapArray<IProduct, ProductViewModel>(
+      products,
+      'IProduct',
+      'ProductViewModel',
+    );
 
-  const scrubbedViewModels = JSON.parse(JSON.stringify(viewModels));
-  return { props: { products: scrubbedViewModels } };
+    const scrubbedViewModels = JSON.parse(JSON.stringify(viewModels));
+    return { props: { products: scrubbedViewModels } };
+  } catch (error) {
+    console.log(error);
+    return { props: { products: [] } };
+  }
 }
 
 export default AdminProductsPage;

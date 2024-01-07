@@ -1,10 +1,13 @@
 import tc from 'tach.config';
-import { ITachConfiguration } from '@/lib/abstractions';
-// @ts-ignore
-let tcLocal = require('tach.config.local');
 
-if (!tcLocal) tcLocal = {};
-
-export function getTachConfig(): ITachConfiguration {
-  return Object.keys(tcLocal).length === 0 ? tc : tcLocal;
+export function getTachConfig() {
+  try {
+    // @ts-ignore
+    // eslint-disable-next-line global-require
+    const tcLocal = require('tach.config.local');
+    if (!tcLocal || Object.keys(tcLocal).length === 0) return tc;
+    return tcLocal;
+  } catch (error) {
+    return tc;
+  }
 }
