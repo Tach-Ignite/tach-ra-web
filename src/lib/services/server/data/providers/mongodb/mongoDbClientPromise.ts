@@ -20,22 +20,33 @@ if (process.env.NODE_ENV === 'development') {
   // is preserved across module reloads caused by HMR (Hot Module Replacement).
   const globalWithMongo = global as typeof globalThis & {
     _mongoClientPromise?: Promise<MongoClient>;
+    _mongoClient?: MongoClient;
   };
 
   if (!globalWithMongo._mongoClientPromise) {
     globalWithMongo._mongoClientPromise = new Promise<MongoClient>(
       (resolve, reject) => {
-        secretsProvider.provide('TACH_MONGO_URI').then((uri) => {
-          if (!uri) {
-            reject(
-              new Error(
-                'Cannot connect to database. Env var not found for TACH_MONGO_URI.',
-              ),
+        secretsProvider
+          .provide('TACH_MONGO_URI')
+          .then((uri) => {
+            if (!uri) {
+              reject(
+                new Error(
+                  'Cannot connect to database. Env var not found for TACH_MONGO_URI.',
+                ),
+              );
+            }
+            client = new MongoClient(uri, options);
+            resolve(client.connect());
+          })
+          .catch((err) => {
+            console.log(err);
+            globalWithMongo._mongoClient = new MongoClient(
+              'mongodb://localhost:27017',
+              options,
             );
-          }
-          client = new MongoClient(uri, options);
-          resolve(client.connect());
-        });
+            resolve(globalWithMongo._mongoClient.connect());
+          });
       },
     );
   }
@@ -43,17 +54,24 @@ if (process.env.NODE_ENV === 'development') {
 } else {
   // In production mode, it's best to not use a global variable.
   clientPromise = new Promise<MongoClient>((resolve, reject) => {
-    secretsProvider.provide('TACH_MONGO_URI').then((uri) => {
-      if (!uri) {
-        reject(
-          new Error(
-            'Cannot connect to database. Env var not found for TACH_MONGO_URI.',
-          ),
-        );
-      }
-      client = new MongoClient(uri, options);
-      resolve(client.connect());
-    });
+    secretsProvider
+      .provide('TACH_MONGO_URI')
+      .then((uri) => {
+        if (!uri) {
+          reject(
+            new Error(
+              'Cannot connect to database. Env var not found for TACH_MONGO_URI.',
+            ),
+          );
+        }
+        client = new MongoClient(uri, options);
+        resolve(client.connect());
+      })
+      .catch((err) => {
+        console.log(err);
+        client = new MongoClient('mongodb://localhost:27017', options);
+        resolve(client.connect());
+      });
   });
 }
 

@@ -70,36 +70,41 @@ MyFavoritesPage.getLayout = function getLayout(
 };
 
 export async function getServerSideProps({ query, res }: any) {
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=10, stale-while-revalidate=60',
-  );
+  try {
+    res.setHeader(
+      'Cache-Control',
+      'public, s-maxage=10, stale-while-revalidate=60',
+    );
 
-  if (!query) {
+    if (!query) {
+      return { props: { query: '', products: [] } };
+    }
+    const { q } = query;
+    if (!q) {
+      return { props: { query: '', products: [] } };
+    }
+
+    const m = new ModuleResolver().resolve(SearchProductsModule);
+    const productService = m.resolve<IProductService>('productService');
+    const products = await productService.searchProducts(q, {
+      skip: 0,
+      limit: pageSize,
+    });
+
+    const mapperProvider = m.resolve<IProvider<IMapper>>('automapperProvider');
+    const mapper = mapperProvider.provide();
+    const viewModels = mapper.mapArray<IProduct, ProductViewModel>(
+      products,
+      'IProduct',
+      'ProductViewModel',
+    );
+
+    const scrubbedViewModels = JSON.parse(JSON.stringify(viewModels));
+    return { props: { query: q, products: scrubbedViewModels } };
+  } catch (error) {
+    console.log(error);
     return { props: { query: '', products: [] } };
   }
-  const { q } = query;
-  if (!q) {
-    return { props: { query: '', products: [] } };
-  }
-
-  const m = new ModuleResolver().resolve(SearchProductsModule);
-  const productService = m.resolve<IProductService>('productService');
-  const products = await productService.searchProducts(q, {
-    skip: 0,
-    limit: pageSize,
-  });
-
-  const mapperProvider = m.resolve<IProvider<IMapper>>('automapperProvider');
-  const mapper = mapperProvider.provide();
-  const viewModels = mapper.mapArray<IProduct, ProductViewModel>(
-    products,
-    'IProduct',
-    'ProductViewModel',
-  );
-
-  const scrubbedViewModels = JSON.parse(JSON.stringify(viewModels));
-  return { props: { query: q, products: scrubbedViewModels } };
 }
 
 export default MyFavoritesPage;

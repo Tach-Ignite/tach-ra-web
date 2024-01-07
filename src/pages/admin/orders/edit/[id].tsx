@@ -193,40 +193,47 @@ EditOrderAdminPage.getLayout = function getLayout(
 };
 
 export async function getServerSideProps({ query, req, res }: any) {
-  const m = new ModuleResolver().resolve(AdminOrdersModule);
-  const orderService = m.resolve<IOrderService>('orderService');
-  const serverIdentity = m.resolve<IServerIdentity>('serverIdentity');
-  const automapperProvider =
-    m.resolve<IProvider<IMapper>>('automapperProvider');
-  const user = await serverIdentity.getUser(req, res);
+  try {
+    const m = new ModuleResolver().resolve(AdminOrdersModule);
+    const orderService = m.resolve<IOrderService>('orderService');
+    const serverIdentity = m.resolve<IServerIdentity>('serverIdentity');
+    const automapperProvider =
+      m.resolve<IProvider<IMapper>>('automapperProvider');
+    const user = await serverIdentity.getUser(req, res);
 
-  if (!user) {
-    throw new ErrorWithStatusCode('User is not authenticated', 401);
+    if (!user) {
+      throw new ErrorWithStatusCode('User is not authenticated', 401);
+    }
+
+    const userIsAdmin = await serverIdentity.userHasRole(
+      req,
+      res,
+      UserRolesEnum.reverseLookup(UserRolesEnum.Admin),
+    );
+
+    if (!userIsAdmin) {
+      throw new ErrorWithStatusCode('User is not authorized', 403);
+    }
+
+    const order = await orderService.getOrderById(query.id);
+
+    const mapper = automapperProvider.provide();
+    const orderViewModel = mapper.map<IOrder, OrderViewModel>(
+      order,
+      'IOrder',
+      'OrderViewModel',
+    );
+    const cleansedOrderViewModel = JSON.parse(JSON.stringify(orderViewModel));
+
+    return {
+      props: { order: cleansedOrderViewModel },
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      notFound: true,
+    };
   }
-
-  const userIsAdmin = await serverIdentity.userHasRole(
-    req,
-    res,
-    UserRolesEnum.reverseLookup(UserRolesEnum.Admin),
-  );
-
-  if (!userIsAdmin) {
-    throw new ErrorWithStatusCode('User is not authorized', 403);
-  }
-
-  const order = await orderService.getOrderById(query.id);
-
-  const mapper = automapperProvider.provide();
-  const orderViewModel = mapper.map<IOrder, OrderViewModel>(
-    order,
-    'IOrder',
-    'OrderViewModel',
-  );
-  const cleansedOrderViewModel = JSON.parse(JSON.stringify(orderViewModel));
-
-  return {
-    props: { order: cleansedOrderViewModel },
-  };
 }
 
 export default EditOrderAdminPage;
