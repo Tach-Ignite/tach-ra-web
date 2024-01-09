@@ -29,25 +29,26 @@ if (process.env.NODE_ENV === 'development') {
           !process.env.secrets
         ) {
           resolve({} as MongoClient);
+        } else {
+          const dependencyRegistry = new DependencyRegistry();
+          dependencyRegistry.registerModule(SecretsModule);
+          const m = new ModuleResolver().resolve(SecretsModule);
+          const secretsProviderFactory = m.resolve<
+            IFactory<IAsyncMultiProvider<string>>
+          >('secretsProviderFactory');
+          const secretsProvider = secretsProviderFactory.create();
+          secretsProvider.provide('TACH_MONGO_URI').then((uri) => {
+            if (!uri) {
+              console.log(
+                'Cannot connect to database. Env var not found for TACH_MONGO_URI.',
+              );
+              resolve({} as MongoClient);
+            } else {
+              globalWithMongo._mongoClient = new MongoClient(uri, options);
+              resolve(globalWithMongo._mongoClient.connect());
+            }
+          });
         }
-        const dependencyRegistry = new DependencyRegistry();
-        dependencyRegistry.registerModule(SecretsModule);
-        const m = new ModuleResolver().resolve(SecretsModule);
-        const secretsProviderFactory = m.resolve<
-          IFactory<IAsyncMultiProvider<string>>
-        >('secretsProviderFactory');
-        const secretsProvider = secretsProviderFactory.create();
-        secretsProvider.provide('TACH_MONGO_URI').then((uri) => {
-          if (!uri) {
-            console.log(
-              'Cannot connect to database. Env var not found for TACH_MONGO_URI.',
-            );
-            resolve({} as MongoClient);
-          } else {
-            globalWithMongo._mongoClient = new MongoClient(uri, options);
-            resolve(globalWithMongo._mongoClient.connect());
-          }
-        });
       },
     );
   }
@@ -63,25 +64,26 @@ if (process.env.NODE_ENV === 'development') {
       !process.env.secrets
     ) {
       resolve({} as MongoClient);
+    } else {
+      const dependencyRegistry = new DependencyRegistry();
+      dependencyRegistry.registerModule(SecretsModule);
+      const m = new ModuleResolver().resolve(SecretsModule);
+      const secretsProviderFactory = m.resolve<
+        IFactory<IAsyncMultiProvider<string>>
+      >('secretsProviderFactory');
+      const secretsProvider = secretsProviderFactory.create();
+      secretsProvider.provide('TACH_MONGO_URI').then((uri) => {
+        if (!uri) {
+          console.log(
+            'Cannot connect to database. Env var not found for TACH_MONGO_URI.',
+          );
+          resolve({} as MongoClient);
+        } else {
+          const client = new MongoClient(uri, options);
+          resolve(client.connect());
+        }
+      });
     }
-    const dependencyRegistry = new DependencyRegistry();
-    dependencyRegistry.registerModule(SecretsModule);
-    const m = new ModuleResolver().resolve(SecretsModule);
-    const secretsProviderFactory = m.resolve<
-      IFactory<IAsyncMultiProvider<string>>
-    >('secretsProviderFactory');
-    const secretsProvider = secretsProviderFactory.create();
-    secretsProvider.provide('TACH_MONGO_URI').then((uri) => {
-      if (!uri) {
-        console.log(
-          'Cannot connect to database. Env var not found for TACH_MONGO_URI.',
-        );
-        resolve({} as MongoClient);
-      } else {
-        const client = new MongoClient(uri, options);
-        resolve(client.connect());
-      }
-    });
   });
 }
 
