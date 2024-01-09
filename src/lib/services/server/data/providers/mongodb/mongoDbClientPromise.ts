@@ -23,10 +23,11 @@ if (process.env.NODE_ENV === 'development') {
       (resolve, reject) => {
         // There are no environment variables so resolution will fail. This can happen during build.
         if (
-          (!process.env.TACH_AWS_REGION ||
+          !process.env ||
+          ((!process.env.TACH_AWS_REGION ||
             !process.env.TACH_SST_APP_NAME ||
             !process.env.TACH_SST_STAGE) &&
-          !process.env.secrets
+            !process.env.secrets)
         ) {
           resolve({} as MongoClient);
         } else {
@@ -58,10 +59,11 @@ if (process.env.NODE_ENV === 'development') {
   clientPromise = new Promise<MongoClient>((resolve, reject) => {
     // There are no environment variables so resolution will fail. This can happen during build.
     if (
-      (!process.env.TACH_AWS_REGION ||
+      !process.env ||
+      ((!process.env.TACH_AWS_REGION ||
         !process.env.TACH_SST_APP_NAME ||
         !process.env.TACH_SST_STAGE) &&
-      !process.env.secrets
+        !process.env.secrets)
     ) {
       resolve({} as MongoClient);
     } else {
