@@ -2,6 +2,7 @@ import { IAsyncMultiProvider, IFactory } from '@/lib/abstractions';
 import { ModuleResolver } from '@/lib/ioc';
 import { DependencyRegistry } from '@/lib/ioc/dependencyRegistry';
 import { SecretsModule } from '@/lib/modules/services/server/security/secrets.module';
+import { ProductionAccessNotGrantedException } from '@aws-sdk/client-ses';
 import { MongoClient } from 'mongodb';
 
 const options = {};
@@ -21,6 +22,15 @@ if (process.env.NODE_ENV === 'development') {
   if (!globalWithMongo._mongoClientPromise) {
     globalWithMongo._mongoClientPromise = new Promise<MongoClient>(
       (resolve, reject) => {
+        // There are no environment variables so resolution will fail. This can happen during build.
+        if (
+          !process.env.TACH_MONGO_URI ||
+          !process.env.TACH_AWS_REGION ||
+          !process.env.TACH_SST_APP_NAME ||
+          !process.env.TACH_SST_STAGE
+        ) {
+          resolve({} as MongoClient);
+        }
         const dependencyRegistry = new DependencyRegistry();
         dependencyRegistry.registerModule(SecretsModule);
         const m = new ModuleResolver().resolve(SecretsModule);
