@@ -31,6 +31,12 @@
       "command": "pnpm data:seed"
     },
     {
+      "name": "debug dev-seeder",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm data:seed:dev"
+    },
+    {
       "name": "debug deploy-app",
       "type": "node-terminal",
       "request": "launch",

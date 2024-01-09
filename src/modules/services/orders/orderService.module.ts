@@ -1,8 +1,4 @@
 import { Module, ModuleClass } from '@/lib/ioc/module';
-import {
-  DatabaseCommandRepository,
-  DatabaseQueryRepository,
-} from '@/lib/repositories';
 import { AutomapperModule } from '@/modules/mapping/automapper/automapper.module';
 import { OrderService } from '@/services/orders';
 import {
@@ -10,6 +6,8 @@ import {
   IFactory,
   IServiceResolver,
 } from '@/lib/abstractions';
+import { DatabaseQueryRepository } from '@/lib/repositories/databaseQueryRepository';
+import { DatabaseCommandRepository } from '@/lib/repositories/databaseCommandRepository';
 import { UserAddressServiceModule } from '../userAddresses/userAddressService.module';
 
 @Module

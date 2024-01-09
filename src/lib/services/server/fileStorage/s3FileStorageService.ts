@@ -72,6 +72,13 @@ export class S3FileStorageService implements IPublicFileStorageService {
   }
 
   async getPublicUrl(key: string): Promise<string> {
+    const url = new URL(
+      `https://${process.env.TACH_AWS_BUCKET_NAME!}.s3.amazonaws.com/${key}`,
+    );
+    return url.toString();
+  }
+
+  async getSignedUrl(key: string): Promise<string> {
     const awsSecretAccessKey = (await this._secretsProvider.provide(
       'TACH_AWS_SECRET_ACCESS_KEY',
     ))!;

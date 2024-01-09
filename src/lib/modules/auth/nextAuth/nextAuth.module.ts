@@ -1,19 +1,17 @@
 import { ModuleClass, Module } from '@/lib/ioc/module';
-import { DatabaseQueryRepository } from '@/lib/repositories';
-import {
-  AuthOptionsFactory,
-  CredentialsProviderFactory,
-  NextAuthAdapterFactory,
-  ServerIdentity,
-} from '@/lib/auth/nextAuth';
 import {
   IDatabaseClient,
   IFactory,
   IServiceResolver,
 } from '@/lib/abstractions';
-import { ConfigurationModule } from '../../config/configuration.module';
-import { DataProvidersModule } from '../../services/server/data/providers/dataProviders.module';
+import { DatabaseQueryRepository } from '@/lib/repositories/databaseQueryRepository';
+import { CredentialsProviderFactory } from '@/lib/auth/nextAuth/authProviders/credentialsProviderFactory';
+import { NextAuthAdapterFactory } from '@/lib/auth/nextAuth/adapters/adapterFactory';
+import { AuthOptionsFactory } from '@/lib/auth/nextAuth/authOptions/authOptionsFactory';
+import { ServerIdentity } from '@/lib/auth/nextAuth/identity/serverIdentity';
 import { SecretsModule } from '../../services/server/security/secrets.module';
+import { DataProvidersModule } from '../../services/server/data/providers/dataProviders.module';
+import { ConfigurationModule } from '../../config/configuration.module';
 
 @Module
 export class NextAuthModule extends ModuleClass {

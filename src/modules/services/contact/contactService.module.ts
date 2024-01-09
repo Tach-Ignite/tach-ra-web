@@ -6,7 +6,7 @@ import {
 import { ErrorWithStatusCode } from '@/lib/errors';
 import { Module, ModuleClass } from '@/lib/ioc/module';
 import { EmailServiceModule } from '@/lib/modules/services/server/notifications/emailService.module';
-import { DatabaseCommandRepository } from '@/lib/repositories';
+import { DatabaseCommandRepository } from '@/lib/repositories/databaseCommandRepository';
 import { AutomapperModule } from '@/modules/mapping/automapper/automapper.module';
 import { ContactService } from '@/services/contact';
 

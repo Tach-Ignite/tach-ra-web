@@ -1,4 +1,3 @@
-import dotenv from 'dotenv';
 import { IDatabaseClient, IFactory, InsertResponse } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
 import fs from 'fs';
@@ -16,23 +15,6 @@ export class Seeder implements ISeeder {
     databaseClientFactory: IFactory<Promise<IDatabaseClient>>,
     env: string = 'local',
   ) {
-    dotenv.config({
-      path: `${process.cwd()}/.env.${env}`,
-    });
-
-    let rawSecrets = {};
-    let secrets = '{}';
-    const config = getTachConfig();
-    if (
-      config.secrets.provider === 'env' &&
-      process.env.NODE_ENV !== 'production'
-    ) {
-      const f = fs.readFileSync(`./.env.secrets.${env}`);
-      rawSecrets = dotenv.parse(f);
-      secrets = JSON.stringify(rawSecrets);
-    }
-    process.env.secrets = secrets;
-
     this._dataLoader = dataLoader;
 
     this._databaseClientFactory = databaseClientFactory;

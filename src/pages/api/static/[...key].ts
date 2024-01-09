@@ -16,15 +16,19 @@ const router = createRouter<NextApiRequest, NextApiResponse>();
 router.use(expressWrapper(cors()));
 
 router.get(async (req: NextApiRequest, res: NextApiResponse) => {
-  const splitKey = req.query.key as string[];
-  const joinedKey = splitKey.join('/');
-  const fileStorageService = await fileStorageServiceFactory.create();
-  const metadata = await fileStorageService.getFileMetadata(joinedKey);
-  const readable = await fileStorageService.getDownloadStream(joinedKey);
+  try {
+    const splitKey = req.query.key as string[];
+    const joinedKey = splitKey.join('/');
+    const fileStorageService = await fileStorageServiceFactory.create();
+    const metadata = await fileStorageService.getFileMetadata(joinedKey);
+    const readable = await fileStorageService.getDownloadStream(joinedKey);
 
-  res.setHeader('Content-Type', metadata.contentType);
+    res.setHeader('Content-Type', metadata.contentType);
 
-  return readable.pipe(res);
+    return readable.pipe(res);
+  } catch (err) {
+    return defaultHandler.onError(err, req, res);
+  }
 });
 
 export default router.handler(defaultHandler);

@@ -1,6 +1,7 @@
 import { MongoClient } from 'mongodb';
 import { IAsyncMultiProvider, IFactory } from '@/lib/abstractions';
 import { DependencyRegistry } from '@/lib/ioc/dependencyRegistry';
+import { Injectable } from '@/lib/ioc';
 
 class MongoClientFactory implements IFactory<Promise<MongoClient>> {
   private _secretsProvider: IAsyncMultiProvider<string | undefined>;

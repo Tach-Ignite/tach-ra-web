@@ -5,10 +5,8 @@ import {
 } from '@/lib/abstractions';
 import { Module, ModuleClass } from '@/lib/ioc/module';
 import { DataProvidersModule } from '@/lib/modules/services/server/data/providers/dataProviders.module';
-import {
-  DatabaseCommandRepository,
-  DatabaseQueryRepository,
-} from '@/lib/repositories';
+import { DatabaseCommandRepository } from '@/lib/repositories/databaseCommandRepository';
+import { DatabaseQueryRepository } from '@/lib/repositories/databaseQueryRepository';
 
 @Module
 export class InterestListRepositoriesModule extends ModuleClass {

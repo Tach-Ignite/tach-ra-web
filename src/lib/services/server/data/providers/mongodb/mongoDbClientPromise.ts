@@ -1,5 +1,6 @@
 import { IAsyncMultiProvider, IFactory } from '@/lib/abstractions';
 import { ModuleResolver } from '@/lib/ioc';
+import { DependencyRegistry } from '@/lib/ioc/dependencyRegistry';
 import { SecretsModule } from '@/lib/modules/services/server/security/secrets.module';
 import { MongoClient } from 'mongodb';
 
@@ -8,12 +9,6 @@ const options = {};
 let client;
 // eslint-disable-next-line import/no-mutable-exports
 let clientPromise: Promise<MongoClient>;
-
-const m = new ModuleResolver().resolve(SecretsModule);
-const secretsProviderFactory = m.resolve<IFactory<IAsyncMultiProvider<string>>>(
-  'secretsProviderFactory',
-);
-const secretsProvider = secretsProviderFactory.create();
 
 if (process.env.NODE_ENV === 'development') {
   // In development mode, use a global variable so that the value
@@ -26,27 +21,24 @@ if (process.env.NODE_ENV === 'development') {
   if (!globalWithMongo._mongoClientPromise) {
     globalWithMongo._mongoClientPromise = new Promise<MongoClient>(
       (resolve, reject) => {
-        secretsProvider
-          .provide('TACH_MONGO_URI')
-          .then((uri) => {
-            if (!uri) {
-              reject(
-                new Error(
-                  'Cannot connect to database. Env var not found for TACH_MONGO_URI.',
-                ),
-              );
-            }
-            client = new MongoClient(uri, options);
-            resolve(client.connect());
-          })
-          .catch((err) => {
-            console.log(err);
-            globalWithMongo._mongoClient = new MongoClient(
-              'mongodb://localhost:27017',
-              options,
+        const dependencyRegistry = new DependencyRegistry();
+        dependencyRegistry.registerModule(SecretsModule);
+        const m = new ModuleResolver().resolve(SecretsModule);
+        const secretsProviderFactory = m.resolve<
+          IFactory<IAsyncMultiProvider<string>>
+        >('secretsProviderFactory');
+        const secretsProvider = secretsProviderFactory.create();
+        secretsProvider.provide('TACH_MONGO_URI').then((uri) => {
+          if (!uri) {
+            console.log(
+              'Cannot connect to database. Env var not found for TACH_MONGO_URI.',
             );
+            resolve({} as MongoClient);
+          } else {
+            globalWithMongo._mongoClient = new MongoClient(uri, options);
             resolve(globalWithMongo._mongoClient.connect());
-          });
+          }
+        });
       },
     );
   }
@@ -54,24 +46,24 @@ if (process.env.NODE_ENV === 'development') {
 } else {
   // In production mode, it's best to not use a global variable.
   clientPromise = new Promise<MongoClient>((resolve, reject) => {
-    secretsProvider
-      .provide('TACH_MONGO_URI')
-      .then((uri) => {
-        if (!uri) {
-          reject(
-            new Error(
-              'Cannot connect to database. Env var not found for TACH_MONGO_URI.',
-            ),
-          );
-        }
-        client = new MongoClient(uri, options);
+    const dependencyRegistry = new DependencyRegistry();
+    dependencyRegistry.registerModule(SecretsModule);
+    const m = new ModuleResolver().resolve(SecretsModule);
+    const secretsProviderFactory = m.resolve<
+      IFactory<IAsyncMultiProvider<string>>
+    >('secretsProviderFactory');
+    const secretsProvider = secretsProviderFactory.create();
+    secretsProvider.provide('TACH_MONGO_URI').then((uri) => {
+      if (!uri) {
+        console.log(
+          'Cannot connect to database. Env var not found for TACH_MONGO_URI.',
+        );
+        resolve({} as MongoClient);
+      } else {
+        const client = new MongoClient(uri, options);
         resolve(client.connect());
-      })
-      .catch((err) => {
-        console.log(err);
-        client = new MongoClient('mongodb://localhost:27017', options);
-        resolve(client.connect());
-      });
+      }
+    });
   });
 }
 

@@ -1,5 +1,5 @@
 import { Module, ModuleClass } from '@/lib/ioc';
-import { TokenService } from '@/lib/services/server';
+import { TokenService } from '@/lib/services/server/security/tokenService';
 import { SecretsModule } from './secrets.module';
 
 @Module

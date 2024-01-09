@@ -1,8 +1,8 @@
 import { AddressDto } from '@/models';
 import { IDatabaseClient, IFactory, IIdOmitter } from '@/lib/abstractions';
-import { DatabaseQueryRepository } from '@/lib/repositories';
 import { IAddressQueryRepository } from '@/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
+import { DatabaseQueryRepository } from '@/lib/repositories/databaseQueryRepository';
 
 @Injectable('addressQueryRepository', 'databaseClientFactory', 'idOmitter')
 export class AddressDatabaseQueryRepository

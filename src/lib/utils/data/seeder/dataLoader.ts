@@ -28,12 +28,12 @@ export class DataLoader implements IDataLoader {
   async loadFiles(): Promise<void> {
     const fileStorageService = this._fileStorageServiceFactory.create();
     const importPromises: Promise<any>[] = [];
-    for (let i = 0; i < this._seedConfiguration.files.length; i++) {
-      importPromises.push(import(this._seedConfiguration.files[i]));
+    for (let i = 0; i < this._seedConfiguration.files.files.length; i++) {
+      importPromises.push(import(this._seedConfiguration.files.files[i]));
     }
     const imports = await Promise.all(importPromises);
     const fileStoragePromises: Promise<string>[] = [];
-    for (let i = 0; i < this._seedConfiguration.files.length; i++) {
+    for (let i = 0; i < this._seedConfiguration.files.files.length; i++) {
       const data = imports[i].default;
       for (let j = 0; j < data.length; j++) {
         const { key, filepath, metadata } = data[j];
@@ -50,11 +50,11 @@ export class DataLoader implements IDataLoader {
   async loadData<T>(sectionName: string): Promise<Array<T>> {
     let aggregateData: T[] = [];
     const importPromises: Promise<any>[] = [];
-    for (let i = 0; i < this._seedConfiguration.data.length; i++) {
-      importPromises.push(import(this._seedConfiguration.data[i]));
+    for (let i = 0; i < this._seedConfiguration.data.dataFiles.length; i++) {
+      importPromises.push(import(this._seedConfiguration.data.dataFiles[i]));
     }
     const imports = await Promise.all(importPromises);
-    for (let i = 0; i < this._seedConfiguration.data.length; i++) {
+    for (let i = 0; i < this._seedConfiguration.data.dataFiles.length; i++) {
       const data = imports[i].default;
       if (Object.prototype.hasOwnProperty.call(data, sectionName)) {
         aggregateData = [...aggregateData, ...(data[sectionName] as Array<T>)];
@@ -69,11 +69,11 @@ export class DataLoader implements IDataLoader {
   async loadIndexes(sectionName: string): Promise<Array<any>> {
     let aggregateIndexes: any[] = [];
     const importPromises: Promise<any>[] = [];
-    for (let i = 0; i < this._seedConfiguration.indexes.length; i++) {
-      importPromises.push(import(this._seedConfiguration.indexes[i]));
+    for (let i = 0; i < this._seedConfiguration.data.indexFiles.length; i++) {
+      importPromises.push(import(this._seedConfiguration.data.indexFiles[i]));
     }
     const imports = await Promise.all(importPromises);
-    for (let i = 0; i < this._seedConfiguration.indexes.length; i++) {
+    for (let i = 0; i < this._seedConfiguration.data.indexFiles.length; i++) {
       const index = imports[i].default;
       if (Object.prototype.hasOwnProperty.call(index, sectionName)) {
         aggregateIndexes = [
@@ -89,11 +89,11 @@ export class DataLoader implements IDataLoader {
   }
 
   async getIndexSectionNames(): Promise<Array<string>> {
-    return this.getSectionNames(this._seedConfiguration.indexes);
+    return this.getSectionNames(this._seedConfiguration.data.indexFiles);
   }
 
   async getDataSectionNames(): Promise<Array<string>> {
-    return this.getSectionNames(this._seedConfiguration.data);
+    return this.getSectionNames(this._seedConfiguration.data.dataFiles);
   }
 
   private async getSectionNames(

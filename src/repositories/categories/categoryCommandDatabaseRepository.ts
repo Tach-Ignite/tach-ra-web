@@ -2,7 +2,7 @@ import { ICategoryCommandRepository } from '@/abstractions';
 import { IDatabaseClient, IFactory } from '@/lib/abstractions';
 import { ErrorWithStatusCode } from '@/lib/errors';
 import { Injectable } from '@/lib/ioc/injectable';
-import { DatabaseCommandRepository } from '@/lib/repositories';
+import { DatabaseCommandRepository } from '@/lib/repositories/databaseCommandRepository';
 import { CategoryDto } from '@/models';
 
 @Injectable('categoryCommandRepository', 'databaseClientFactory')

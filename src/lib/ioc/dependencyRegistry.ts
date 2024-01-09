@@ -84,7 +84,8 @@ export class DependencyRegistry implements IServiceResolver {
   ) {
     const registryNode = DependencyRegistry._registry.get(s);
     if (!registryNode) {
-      throw new Error(`No implementation found for ${s.toString()}`);
+      console.log(`No implementation found for ${s.toString()}`);
+      return undefined;
     }
     if (registryNode.isFactory) {
       return registryNode.value(this, extraArgs);

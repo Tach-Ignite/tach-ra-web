@@ -1,4 +1,4 @@
-import { IConfigurationSection } from '@/lib/abstractions';
+import { IConfigurationSection, IDatabaseClient } from '@/lib/abstractions';
 
 export interface IDataLoader {
   loadFiles<T>(): Promise<void>;
@@ -12,9 +12,19 @@ export interface ISeeder {
   seed(): Promise<void>;
 }
 
-export interface ISeedConfiguration extends IConfigurationSection {
-  data: Array<string>;
+export interface ISeedDataConfiguration extends IConfigurationSection {
+  provider: string;
+  dataFiles: Array<string>;
+  indexFiles: Array<string>;
+  modelFiles: Array<string>;
+}
+
+export interface ISeedFilesConfiguration extends IConfigurationSection {
+  provider: string;
   files: Array<string>;
-  indexes: Array<string>;
-  models: Array<string>;
+}
+
+export interface ISeedConfiguration extends IConfigurationSection {
+  data: ISeedDataConfiguration;
+  files: ISeedFilesConfiguration;
 }
