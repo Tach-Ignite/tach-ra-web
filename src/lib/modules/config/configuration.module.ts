@@ -11,7 +11,8 @@ import {
   ISecretsConfiguration,
   IServiceResolver,
 } from '@/lib/abstractions';
-import { ConfigurationFactory, Options } from '@/lib/config';
+import { ConfigurationFactory } from '@/lib/config/configurationFactory';
+import { Options } from '@/lib/config/options';
 import { Module, ModuleClass } from '@/lib/ioc/module';
 import { getTachConfig } from '@/lib/utils/getTachConfig';
 

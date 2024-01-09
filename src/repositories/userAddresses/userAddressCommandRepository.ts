@@ -1,9 +1,9 @@
-import { DatabaseCommandRepository } from '@/lib/repositories';
 import { IDatabaseClient, IFactory, IdModel } from '@/lib/abstractions';
 import { ErrorWithStatusCode } from '@/lib/errors/';
 import { UserDto } from '@/models';
 import { IUserAddressCommandRepository } from '@/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
+import { DatabaseCommandRepository } from '@/lib/repositories/databaseCommandRepository';
 
 @Injectable('userAddressCommandRepository', 'databaseClientFactory')
 export class UserAddressDatabaseCommandRepository

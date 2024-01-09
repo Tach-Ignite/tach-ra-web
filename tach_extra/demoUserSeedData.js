@@ -8,6 +8,7 @@ const data = {
       password: bcrypt.hashSync('userpassword', 10),
       roles: [],
       addresses: [],
+      cart: { items: [] },
     },
     {
       name: 'Demo Admin',
@@ -15,6 +16,7 @@ const data = {
       password: bcrypt.hashSync('adminpassword', 10),
       roles: ['Admin'],
       addresses: [],
+      cart: { items: [] },
     },
   ],
 };

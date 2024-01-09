@@ -5,7 +5,7 @@ import {
 } from '@/lib/abstractions';
 import { Module, ModuleClass } from '@/lib/ioc/module';
 import { DataProvidersModule } from '@/lib/modules/services/server/data/providers/dataProviders.module';
-import { DatabaseQueryRepository } from '@/lib/repositories';
+import { DatabaseQueryRepository } from '@/lib/repositories/databaseQueryRepository';
 import { ProductCommandDatabaseRepository } from '@/repositories/products';
 
 @Module

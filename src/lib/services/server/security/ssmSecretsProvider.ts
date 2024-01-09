@@ -14,13 +14,24 @@ class SsmSecretsProvider implements IAsyncMultiProvider<string | undefined> {
 
   private static _checked: { [key: string]: boolean } = {};
 
-  private _client: SSMClient;
+  private __client?: SSMClient;
 
-  private readonly _prefix: string;
+  private get _client(): SSMClient {
+    if (!this.__client) {
+      this.__client = new SSMClient({
+        region: process.env.TACH_AWS_REGION,
+      });
+    }
+    return this.__client;
+  }
 
-  constructor() {
-    this._client = new SSMClient({ region: process.env.TACH_AWS_REGION });
-    this._prefix = `/sst/${process.env.TACH_SST_APP_NAME}/${process.env.TACH_SST_STAGE}/Secret/`;
+  private __prefix?: string;
+
+  private get _prefix(): string {
+    if (!this.__prefix) {
+      this.__prefix = `/sst/${process.env.TACH_SST_APP_NAME}/${process.env.TACH_SST_STAGE}/Secret/`;
+    }
+    return this.__prefix;
   }
 
   async provideAll(): Promise<{ [key: string]: string | undefined }> {

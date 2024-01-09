@@ -2,6 +2,8 @@ import tc from 'tach.config';
 
 export function getTachConfig() {
   try {
+    if (process.env.TACH_IGNORE_LOCAL_TACH_CONFIG === 'true') return tc;
+
     // @ts-ignore
     // eslint-disable-next-line global-require
     const tcLocal = require('tach.config.local');

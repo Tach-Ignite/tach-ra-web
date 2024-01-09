@@ -1,18 +1,24 @@
 module.exports = {
   storage: {
     data: {
-      provider: 'mongodb', //mongodb
+      provider: 'mongodb-atlas-data-api', //mongodb, mongodb-atlas-data-api
     },
     files: {
       provider: 's3', //mongodb, s3
     },
     seed: {
-      data: [
-        '~/tach_extra/colorStoreSeeder/seedData.js',
-        '~/tach_extra/demoUserSeedData.js',
-      ],
-      files: ['~/tach_extra/colorStoreSeeder/fileData.js'],
-      indexes: ['~/tach_extra/colorStoreSeeder/indexes.js'],
+      data: {
+        provider: 'mongodb', //mongodb,
+        dataFiles: [
+          '~/tach_extra/colorStoreSeeder/seedData.js',
+          '~/tach_extra/demoUserSeedData.js',
+        ],
+        indexFiles: ['~/tach_extra/colorStoreSeeder/indexes.js'],
+      },
+      files: {
+        provider: 's3', //mongodb,
+        files: ['~/tach_extra/colorStoreSeeder/fileData.js'],
+      },
     },
   },
   auth: {

@@ -7,6 +7,7 @@ import {
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
 import { MongoDatabaseClient } from './mongodb/mongoDatabaseClient';
+import { MongoDataApiClient } from './mongodb/mongoDataApiClient';
 
 @Injectable(
   'databaseClientFactory',
@@ -33,6 +34,10 @@ export class DatabaseClientFactory
       case 'mongodb':
         return this._serviceResolver.resolve<MongoDatabaseClient>(
           'mongoDatabaseClient',
+        );
+      case 'mongodb-atlas-data-api':
+        return this._serviceResolver.resolve<MongoDataApiClient>(
+          'mongoDataApiClient',
         );
       default:
         throw new Error(

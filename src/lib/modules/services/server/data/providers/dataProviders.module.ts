@@ -1,5 +1,5 @@
 import { Module, ModuleClass } from '@/lib/ioc/module';
-import { DatabaseClientFactory } from '@/lib/services/server/data/providers';
+import { DatabaseClientFactory } from '@/lib/services/server/data/providers/databaseClientFactory';
 import { ConfigurationModule } from '../../../../config/configuration.module';
 import { MongoDbDataProviderModule } from './mongodb/mongodbDataProvider.module';
 

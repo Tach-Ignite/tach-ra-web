@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { RouteProtector } from '@/lib/auth/nextAuth/client';
+import { RouteProtector } from '@/lib/auth/nextAuth/client/routeProtector';
 
 export type ProtectedRouteLayoutProps = {
   allowedRole: string;

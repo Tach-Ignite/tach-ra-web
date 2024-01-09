@@ -1,8 +1,7 @@
 import { Module, ModuleClass } from '@/lib/ioc/module';
-import {
-  MongoClientFactory,
-  MongoDatabaseClient,
-} from '@/lib/services/server/data/providers/mongodb';
+import { MongoDataApiClient } from '@/lib/services/server/data/providers/mongodb/mongoDataApiClient';
+import { MongoClientFactory } from '@/lib/services/server/data/providers/mongodb/mongoClientFactory';
+import { MongoDatabaseClient } from '@/lib/services/server/data/providers/mongodb/mongoDatabaseClient';
 import { SecretsModule } from '../../../security/secrets.module';
 
 @Module
@@ -11,10 +10,18 @@ export class MongoDbDataProviderModule extends ModuleClass {
     super({
       imports: [SecretsModule],
       providers: [
-        // {
-        //   provide: 'mongoClientFactory',
-        //   useClass: MongoClientFactory,
-        // },
+        {
+          provide: 'connectionMethodology',
+          useValue: 'factory',
+        },
+        {
+          provide: 'mongoClientFactory',
+          useClass: MongoClientFactory,
+        },
+        {
+          provide: 'mongoDataApiClient',
+          useClass: MongoDataApiClient,
+        },
         {
           provide: 'mongoDatabaseClient',
           useClass: MongoDatabaseClient,

@@ -8,30 +8,53 @@ import {
   QueryOptions,
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
-import clientPromise from '@/lib/services/server/data/providers/mongodb/mongoDbClientPromise';
+// import clientPromise from '@/lib/services/server/data/providers/mongodb/mongoDbClientPromise';
 
 @Injectable(
   'mongoDatabaseClient',
-  // 'mongoClientFactory'
+  'mongoClientFactory',
+  'connectionMethodology',
 )
 export class MongoDatabaseClient implements IDatabaseClient {
-  // private _clientFactory: IFactory<Promise<MongoClient>>;
+  private _clientFactory: IFactory<Promise<MongoClient>>;
 
-  // constructor() {
-  //   // mongoClientFactory: IFactory<Promise<MongoClient>>
-  //   // this._clientFactory = mongoClientFactory;
-  // }
+  private _connectionMethodology: 'factory'; // | 'module';
+
+  constructor(
+    mongoClientFactory: IFactory<Promise<MongoClient>>,
+    connectionMethodology: 'factory' = 'factory', // | 'module'
+  ) {
+    this._clientFactory = mongoClientFactory;
+    this._connectionMethodology = connectionMethodology;
+  }
+
+  private async getClient(): Promise<MongoClient> {
+    switch (this._connectionMethodology) {
+      // case 'module':
+      //   return clientPromise;
+      case 'factory':
+        return this._clientFactory.create();
+      default:
+        throw new Error(
+          `Invalid connection methodology: ${this._connectionMethodology}`,
+        );
+    }
+  }
 
   async insert<T>(
     data: T | Array<T>,
     collectionName: string,
   ): Promise<InsertResponse> {
-    const client = await clientPromise;
+    const client = await this.getClient();
     const db = client.db();
     const now = new Date();
     let possibleId = (data as any)._id;
     if (possibleId && typeof possibleId === 'string') {
-      possibleId = new ObjectId(possibleId);
+      try {
+        possibleId = new ObjectId(possibleId);
+      } catch (e) {
+        // ignore
+      }
     }
     if (!Array.isArray(data)) {
       const result = await db.collection(collectionName).insertOne({
@@ -46,7 +69,11 @@ export class MongoDatabaseClient implements IDatabaseClient {
       data.map((item) => {
         let possibleId = (data as any)._id;
         if (possibleId && typeof possibleId === 'string') {
-          possibleId = new ObjectId(possibleId);
+          try {
+            possibleId = new ObjectId(possibleId);
+          } catch (e) {
+            // ignore
+          }
         }
         return { ...item, _id: possibleId, createdAt: now, updatedAt: now };
       }),
@@ -64,7 +91,7 @@ export class MongoDatabaseClient implements IDatabaseClient {
     data: Partial<T>,
     collectionName: string,
   ): Promise<UpdateResponse> {
-    const client = await clientPromise;
+    const client = await this.getClient();
     const db = client.db();
     const now = new Date();
     const filtered = Object.keys(data)
@@ -98,7 +125,7 @@ export class MongoDatabaseClient implements IDatabaseClient {
     filter: any,
     collectionName: string,
   ): Promise<DeleteResponse> {
-    const client = await clientPromise;
+    const client = await this.getClient();
     const db = client.db();
     if (typeof filter._id === 'string') {
       filter._id = new ObjectId(filter._id);
@@ -114,7 +141,7 @@ export class MongoDatabaseClient implements IDatabaseClient {
     fields: string[] | undefined = undefined,
     queryOptions: QueryOptions | undefined = undefined,
   ): Promise<Array<T>> {
-    const client = await clientPromise;
+    const client = await this.getClient();
     const db = client.db();
     if (filter._id && typeof filter._id === 'object') {
       Object.keys(filter._id).forEach((key) => {
@@ -159,7 +186,7 @@ export class MongoDatabaseClient implements IDatabaseClient {
   }
 
   async createIndex(index: any, collectionName: string): Promise<void> {
-    const client = await clientPromise;
+    const client = await this.getClient();
     const db = client.db();
     await db.collection(collectionName).createIndex(index);
   }
@@ -173,17 +200,16 @@ export class MongoDatabaseClient implements IDatabaseClient {
   }
 
   async truncate<T>(): Promise<boolean> {
-    const client = await clientPromise;
+    const client = await this.getClient();
     const db = client.db();
     const promises: Promise<any>[] = [];
-    const collectionsList = db.listCollections();
-    if (collectionsList === undefined) {
+    const collections = await db.collections();
+    if (collections === undefined) {
       return false;
     }
-    const collections = await collectionsList.toArray();
     for (let i = 0; i < collections.length; i++) {
-      if (collections[i].name !== 'deleteme') {
-        promises.push(db.dropCollection(collections[i].name));
+      if (collections[i].collectionName !== 'deleteme') {
+        promises.push(db.dropCollection(collections[i].collectionName));
       }
     }
 

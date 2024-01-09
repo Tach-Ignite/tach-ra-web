@@ -1,7 +1,7 @@
 import { IProductCommandRepository } from '@/abstractions';
 import { IDatabaseClient, IFactory } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
-import { DatabaseCommandRepository } from '@/lib/repositories';
+import { DatabaseCommandRepository } from '@/lib/repositories/databaseCommandRepository';
 import { ProductDto } from '@/models';
 
 @Injectable('productCommandRepository', 'databaseClientFactory')

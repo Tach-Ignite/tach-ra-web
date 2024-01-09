@@ -1,4 +1,5 @@
-import { CommandFactory, Invoker } from '@/lib/commands';
+import { CommandFactory } from '@/lib/commands/commandFactory';
+import { Invoker } from '@/lib/commands/invoker';
 import { Module, ModuleClass } from '@/lib/ioc/module';
 
 @Module

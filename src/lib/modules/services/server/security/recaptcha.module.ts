@@ -1,8 +1,8 @@
 import { Module, ModuleClass } from '@/lib/ioc';
-import { RecaptchaValidator } from '@/lib/services/server';
 import { FakeRecaptchaValidator } from '@/lib/services/server/security/fakeRecaptchaValidator';
 import { RecaptchaValidatorFactory } from '@/lib/services/server/security/recaptchaValidatorFactory';
 import { ConfigurationModule } from '@/lib/modules/config/configuration.module';
+import { RecaptchaValidator } from '@/lib/services/server/security/recaptchaValidator';
 import { SecretsModule } from './secrets.module';
 
 @Module

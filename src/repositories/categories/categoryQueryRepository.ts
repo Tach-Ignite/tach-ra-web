@@ -1,8 +1,8 @@
 import { IDatabaseClient, IFactory, IdModel } from '@/lib/abstractions';
-import { DatabaseQueryRepository } from '@/lib/repositories';
 import { CategoryDto } from '@/models';
 import { ICategoryQueryRepository } from '@/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
+import { DatabaseQueryRepository } from '@/lib/repositories/databaseQueryRepository';
 
 @Injectable('categoryQueryRepository', 'databaseClientFactory')
 export class CategoryQueryDatabaseRepository
