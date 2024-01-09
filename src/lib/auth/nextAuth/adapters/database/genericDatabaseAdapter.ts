@@ -49,7 +49,7 @@ export function GenericDatabaseAdapter(
     async createUser(data) {
       const user = to<AdapterUser>(data);
       const insertResponse = await client.insert(user, 'users');
-      return from<AdapterUser>(user);
+      return from<AdapterUser>({ ...user, _id: insertResponse.insertedIds[0] });
     },
     async getUser(id) {
       const users = await client.select<AdapterUser>({ _id: id }, 'users');

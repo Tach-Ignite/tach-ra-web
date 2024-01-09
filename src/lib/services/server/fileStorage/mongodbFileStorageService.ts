@@ -8,7 +8,7 @@ import {
 } from '@/lib/abstractions';
 import { ErrorWithStatusCode } from '@/lib/errors';
 import { Injectable } from '@/lib/ioc/injectable';
-import clientPromise from '@/lib/services/server/data/providers/mongodb/mongoDbClientPromise';
+// import clientPromise from '@/lib/services/server/data/providers/mongodb/mongoDbClientPromise';
 
 @Injectable(
   'mongodbFileStorageService',
@@ -18,7 +18,7 @@ import clientPromise from '@/lib/services/server/data/providers/mongodb/mongoDbC
 export class MongodbFileStorageService implements IPublicFileStorageService {
   private _clientFactory: IFactory<Promise<MongoClient>>;
 
-  private _connectionMethodology: 'module' | 'factory';
+  private _connectionMethodology: 'factory'; // | module;
 
   private _pipeline: any;
 
@@ -26,7 +26,7 @@ export class MongodbFileStorageService implements IPublicFileStorageService {
 
   constructor(
     mongoClientFactory: IFactory<Promise<MongoClient>>,
-    connectionMethodology: 'module' | 'factory' = 'module',
+    connectionMethodology: 'factory' = 'factory', // | 'module'
   ) {
     this._clientFactory = mongoClientFactory;
     this._connectionMethodology = connectionMethodology;
@@ -36,8 +36,8 @@ export class MongodbFileStorageService implements IPublicFileStorageService {
 
   private async getClient(): Promise<MongoClient> {
     switch (this._connectionMethodology) {
-      case 'module':
-        return clientPromise;
+      // case 'module':
+      //   return clientPromise;
       case 'factory':
         return this._clientFactory.create();
       default:

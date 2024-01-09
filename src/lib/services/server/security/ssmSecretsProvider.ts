@@ -15,6 +15,7 @@ class SsmSecretsProvider implements IAsyncMultiProvider<string | undefined> {
   private static _checked: { [key: string]: boolean } = {};
 
   private __client?: SSMClient;
+
   private get _client(): SSMClient {
     if (!this.__client) {
       this.__client = new SSMClient({
@@ -25,6 +26,7 @@ class SsmSecretsProvider implements IAsyncMultiProvider<string | undefined> {
   }
 
   private __prefix?: string;
+
   private get _prefix(): string {
     if (!this.__prefix) {
       this.__prefix = `/sst/${process.env.TACH_SST_APP_NAME}/${process.env.TACH_SST_STAGE}/Secret/`;

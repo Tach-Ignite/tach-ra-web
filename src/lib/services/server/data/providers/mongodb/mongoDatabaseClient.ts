@@ -8,7 +8,7 @@ import {
   QueryOptions,
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
-import clientPromise from '@/lib/services/server/data/providers/mongodb/mongoDbClientPromise';
+// import clientPromise from '@/lib/services/server/data/providers/mongodb/mongoDbClientPromise';
 
 @Injectable(
   'mongoDatabaseClient',
@@ -18,11 +18,11 @@ import clientPromise from '@/lib/services/server/data/providers/mongodb/mongoDbC
 export class MongoDatabaseClient implements IDatabaseClient {
   private _clientFactory: IFactory<Promise<MongoClient>>;
 
-  private _connectionMethodology: 'module' | 'factory';
+  private _connectionMethodology: 'factory'; // | 'module';
 
   constructor(
     mongoClientFactory: IFactory<Promise<MongoClient>>,
-    connectionMethodology: 'module' | 'factory' = 'module',
+    connectionMethodology: 'factory' = 'factory', // | 'module'
   ) {
     this._clientFactory = mongoClientFactory;
     this._connectionMethodology = connectionMethodology;
@@ -30,8 +30,8 @@ export class MongoDatabaseClient implements IDatabaseClient {
 
   private async getClient(): Promise<MongoClient> {
     switch (this._connectionMethodology) {
-      case 'module':
-        return clientPromise;
+      // case 'module':
+      //   return clientPromise;
       case 'factory':
         return this._clientFactory.create();
       default:

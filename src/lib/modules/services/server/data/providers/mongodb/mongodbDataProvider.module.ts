@@ -12,7 +12,7 @@ export class MongoDbDataProviderModule extends ModuleClass {
       providers: [
         {
           provide: 'connectionMethodology',
-          useValue: 'module',
+          useValue: 'factory',
         },
         {
           provide: 'mongoClientFactory',
