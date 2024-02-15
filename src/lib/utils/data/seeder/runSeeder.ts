@@ -8,7 +8,7 @@ import { getTachConfig } from '../../getTachConfig';
 import { ISeeder } from './abstractions';
 import { SeederModule } from './seeder.module';
 
-let env = 'local';
+const env = 'local';
 // if (process.argv.length === 4 && process.argv[2] === '--env') {
 //   [, , , env] = process.argv;
 // }
