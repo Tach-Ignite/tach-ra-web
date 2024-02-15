@@ -6,11 +6,11 @@ These environment variables should not contain secrets. As a reminder, you shoul
 
 ## Automated Deployment
 
-All environment variables and secrets can be deployed automatically using `pnpm deploy-env-vars`. Running this script will deploy all environment variables from `.env.dev` and all secrets from `.env.secrets.dev` to:
+All environment variables and secrets can be deployed automatically using `pnpm deploy-env-vars`. Depending on which lines are uncommented in this script, it can deploy all environment variables from `.env.local` and all secrets from `.env.secrets.local` to:
 
 - Github
 - Amplify
-- SSM, with tight integration to SST automation.
+- SSM, with tight integration to SST automation
 
 To run this script, you must be authenticated via SSO to AWS as an admin and be authenticated to github with admin repo permissions. See [Infrastructure](./infrastructure.md) for more details on how to authenticate.
 

@@ -4,7 +4,9 @@ We use a very simple devops strategy, including a local script for deploying env
 
 ## Environment variables and secrets
 
-Environment variables are stored in the `.env.dev` file for dev and `.env.prod` for production. Secrets are stored in the `.env.secrets.dev` file for dev and `.env.secrets.prod` for production. The `.env` and `.secrets` files are not tracked by git. These should NOT be stored in your repo.
+If you wish to deploy environment variables, secrets, and/or the application from your local machine to a specific environment, you should clone the repo into a new folder specifically for that environment. All environment-specific variables can then be set in the `.env.local` and `.env.secrets.local` files.
+
+Environment variables are stored in the `.env.local` file. Secrets are stored in the `.env.secrets.local` file. The `.env` and `.secrets` files are not tracked by git. These should NOT be stored in your repo.
 
 To deploy the environment variables and secrets in these files, we provide a script `pnpm deploy-env-vars`. This script has a number of capabilities.
 
@@ -15,16 +17,14 @@ To deploy to github enterprise environments, uncomment the following lines in `.
 ```typescript
 // deployEnvVars.ts
 
-//addVarsAndSecretsToGitHub();
-// addEnvVarsToAmplify();
-addVarsAndSecretsToEnvsGitHub(devEnvVars, rawDevSecrets, 'dev', 'dev');
-addVarsAndSecretsToEnvsGitHub(prodEnvVars, rawProdSecrets, 'prod', 'main');
-//addSecretsToSSM('dev');
-//addSecretsToSSM('prod');
-//createGithubEnvFileVariables();
+// addVarsAndSecretsToGitHub();
+// addEnvVarsToAmplify(envVars, rawSecrets);
+addVarsAndSecretsToEnvsGitHub(envVars, rawSecrets, 'dev', 'dev');
+// addSecretsToSSM('dev', envVars, rawSecrets);
+// createGithubEnvFileVariables(envVars, rawSecrets, 'dev');
 ```
 
-Once these lines are uncommented, run `pnpm deploy-env-vars`. This will set up the env and prod environments in github as well as set the environment variables and secrets within them.
+Once these lines are uncommented, run `pnpm deploy-env-vars`. This will set up the specified environment in github as well as set the environment variables and secrets within them.
 
 ### Deploying environment variables to github (non-enterprise)
 
@@ -33,16 +33,14 @@ We can still manage to deploy environment variables to github, but we need to do
 ```typescript
 // deployEnvVars.ts
 
-//addVarsAndSecretsToGitHub();
-// addEnvVarsToAmplify();
-//addVarsAndSecretsToEnvsGitHub(devEnvVars, rawDevSecrets, 'dev', 'dev');
-//addVarsAndSecretsToEnvsGitHub(prodEnvVars, rawProdSecrets, 'prod', 'main');
-//addSecretsToSSM('dev');
-//addSecretsToSSM('prod');
-createGithubEnvFileVariables();
+// addVarsAndSecretsToGitHub();
+// addEnvVarsToAmplify(envVars, rawSecrets);
+//addVarsAndSecretsToEnvsGitHub(envVars, rawSecrets, 'dev', 'dev');
+// addSecretsToSSM('dev', envVars, rawSecrets);
+createGithubEnvFileVariables(envVars, rawSecrets, 'dev');
 ```
 
-Once these lines are uncommented, run `pnpm deploy-env-vars`. This will create and populate the environment variables in github. **Note: In this scenario, we don't deploy secrets to github. We may explore adding secrets in the future, provided it is proven secure to do so. Logging redaction is a potential concern.**
+Once these lines are uncommented, run `pnpm deploy-env-vars`. This will create and populate the environment variable in github. **Note: In this scenario, we don't deploy secrets to github. We may explore adding secrets in the future, provided it is proven secure to do so. Logging redaction is a potential concern.**
 
 ### Deploying secrets to SSM
 
@@ -51,13 +49,11 @@ To utilize the `ssm` secrets provider, we need to deploy the secrets to SSM. To 
 ```typescript
 // deployEnvVars.ts
 
-//addVarsAndSecretsToGitHub();
-// addEnvVarsToAmplify();
-//addVarsAndSecretsToEnvsGitHub(devEnvVars, rawDevSecrets, 'dev', 'dev');
-//addVarsAndSecretsToEnvsGitHub(prodEnvVars, rawProdSecrets, 'prod', 'main');
-addSecretsToSSM('dev');
-addSecretsToSSM('prod');
-//createGithubEnvFileVariables();
+// addVarsAndSecretsToGitHub();
+// addEnvVarsToAmplify(envVars, rawSecrets);
+// addVarsAndSecretsToEnvsGitHub(envVars, rawSecrets, 'dev', 'dev');
+addSecretsToSSM('dev', envVars, rawSecrets);
+// createGithubEnvFileVariables(envVars, rawSecrets, 'dev');
 ```
 
 Once these lines are uncommented, run `pnpm deploy-env-vars`. This will release the secrets to SSM.

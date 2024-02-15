@@ -7,8 +7,8 @@ const dotenv = require('dotenv');
 
 console.log('start config');
 let env: Record<string, string> = {};
-if (fs.existsSync(`../../../.././.env.prod`)) {
-  const ef = fs.readFileSync(`../../../.././.env.prod`);
+if (fs.existsSync(`../../../.././.env.local`)) {
+  const ef = fs.readFileSync(`../../../.././.env.local`);
   env = dotenv.parse(ef);
   process.env = { ...process.env, ...env };
 }

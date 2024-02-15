@@ -11,8 +11,8 @@ const dotenv = require('dotenv');
 console.log('start config');
 
 let env: Record<string, string> = {};
-if (fs.existsSync(`./.env.dev`)) {
-  const ef = fs.readFileSync(`./.env.dev`);
+if (fs.existsSync(`./.env.local`)) {
+  const ef = fs.readFileSync(`./.env.local`);
   env = dotenv.parse(ef);
   process.env = { ...process.env, ...env };
   console.log('loaded env file');

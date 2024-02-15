@@ -25,7 +25,7 @@ This script does the following:
 - Installs OpenSSL and Pnpm.
 - Runs pnpm install to install local dependencies.
 - Creates the `server.ts` file for local https. Note that this file is ignored by git and will not be committed to the repository. This file is only for local https development.
-- Creates a `.env` and `.env.secrets` files with the required environment variables. **Be sure to fill these out with the correct values**.
+- Creates `.env.local` and `.env.secrets.local` files with the required environment variables. **Be sure to fill these out with the correct values**.
 - Creates a self-signed SSL certificate for local development.
 - Sets `NODE_ENV` to `development`.
 
