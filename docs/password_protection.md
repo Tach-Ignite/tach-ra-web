@@ -4,14 +4,14 @@ This RA has the ability to protect private websites with a password so only auth
 
 ## Setting the username and password
 
-To set the username and password, you need to set the following variables within the `.env.secrets` file:
+To set the username and password, you need to set the following variables within the `.env.secrets.local` file:
 
 ```bash
 TACH_PASSWORD_PROTECTED_USERNAME=someusername
 TACH_PASSWORD_PROTECTED_PASSWORD=somepassword
 ```
 
-To set the password for the local environment, use `.env.secrets.local`. To set the password for the dev environment, use `.env.secrets.dev`.
+To set the password for the target environment, use `.env.secrets.local`.
 
 ## Removing password protection
 

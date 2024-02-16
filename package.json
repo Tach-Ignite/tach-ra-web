@@ -13,7 +13,7 @@
     "test:watch": "jest --watch --config jest.config.mjs",
     "test:coverage": "jest --coverage --config jest.config.mjs",
     "data:seed": "tsx --tsconfig src/lib/utils/data/seeder/tsconfig.runSeeder.json src/lib/utils/data/seeder/runSeeder.ts",
-    "data:seed:dev": "export TACH_IGNORE_LOCAL_TACH_CONFIG=true && tsx --tsconfig src/lib/utils/data/seeder/tsconfig.runSeeder.json src/lib/utils/data/seeder/runSeeder.ts  --env dev",
+    "data:seed:remote": "export TACH_IGNORE_LOCAL_TACH_CONFIG=true && tsx --tsconfig src/lib/utils/data/seeder/tsconfig.runSeeder.json src/lib/utils/data/seeder/runSeeder.ts",
     "lint": "next lint --no-cache --fix",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts,.tsx .",
     "prepare": "husky install",

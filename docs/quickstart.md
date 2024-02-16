@@ -24,7 +24,7 @@ To log in via SSO via the default profile, run the following command:
 aws sso login
 ```
 
-Once SSO is configured, set the TACH_AWS_PROFILE variable in the `.env.local` and `.env.dev` files to the name of your SSO profile to `default`.
+Once SSO is configured, set the TACH_AWS_PROFILE variable in the `.env.local` file to the name of your SSO profile to `default`.
 
 ## 2. Local Development Setup
 
@@ -45,11 +45,11 @@ Modify the `tach.config.js` file to prepare for running the application in the c
 
 ## 4. GitHub Repo
 
-Once you've created a GitHub repo for your project, you will need to set the `TACH_GITHUB_REPO` and `TACH_GITHUB_REPO_OWNER` variables in the `.env.local` and `.env.dev` files to your repo name. These are used to create the OpenID Link between GitHub and AWS to allow for GitHub Actions to deploy your application.
+Once you've created a GitHub repo for your project, you will need to set the `TACH_GITHUB_REPO` and `TACH_GITHUB_REPO_OWNER` variables in the `.env.local` file to your repo name. These are used to create the OpenID Link between GitHub and AWS to allow for GitHub Actions to deploy your application.
 
 ## 5. AWS Configuration
 
-We must configure AWS to deploy the application. Once you have created an AWS account, you'll need to fill in the following environment variables in the `.env.local` and `.env.dev` files:
+We must configure AWS to deploy the application. Once you have created an AWS account, you'll need to fill in the following environment variables in the `.env.local` file:
 
 - TACH_AWS_ACCOUNT_ID
 - TACH_AWS_REGION
@@ -60,7 +60,7 @@ The service account has the permissions necessary to run basic AWS services like
 
 #### 5.1.1 Pick an S3 Bucket Name
 
-You will need to pick a bucket name to use for public file storage. Fill in the `TACH_AWS_BUCKET_NAME` variable in the `.env.local` and `.env.dev` files with the desired bucket name.
+You will need to pick a bucket name to use for public file storage. Fill in the `TACH_AWS_BUCKET_NAME` variable in the `.env.local` file with the desired bucket name.
 
 #### 5.1.2 Create a Service User
 
@@ -101,17 +101,19 @@ Create a service user and user group in IAM with the following policy attached. 
 
 We recommend using MongoDB Atlas for your database. You can use a free tier cluster for development and a paid tier cluster for production. For more information on how to set this up, see the [MongoDB docs](https://docs.atlas.mongodb.com/getting-started/). Be sure to configure the database to use AWS in your preferred region. Eventually we will setup an AWS PrivateLink for more security. In the meantime, you can setup network access to whitelist all IP addresses (0.0.0.0/0). You will also need to setup a user for access.
 
-You should set the `TACH_MONGO_URI` variable in the `.env.secrets.dev` file to your Atlas connection string.
+You should set the `TACH_MONGO_URI` variable in the `.env.secrets.local` file to your Atlas connection string.
 
-To seed the database, run the following command:
+To seed a database in a remote environment like dev or prod, run the following command:
 
 ```bash
-pnpm data:seed:dev
+pnpm data:seed:remote
 ```
+
+This command differs from `data:seed` in that it will use `tach.config.js` values instead of `tach.config.local.js` values.
 
 ### 5.1.3 Service User Access Key
 
-You will need to create an access key for the service user and apply the access. See [this guide](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey) to learn about creating an access key. The relevant section is `To create, modify, or delete the access keys of another IAM user (console)`. The `local code` use case makes the most sense. Once you have the `Access Key` and `Secret Access Key`, apply these to the `TACH_AWS_ACCESS_KEY_ID` variable in the `.env.local` and `.env.dev` files, and the `TACH_AWS_ACCESS_KEY_SECRET` variable in the `.env.secrets.local` and `.env.secrets.dev` files.
+You will need to create an access key for the service user and apply the access. See [this guide](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey) to learn about creating an access key. The relevant section is `To create, modify, or delete the access keys of another IAM user (console)`. The `local code` use case makes the most sense. Once you have the `Access Key` and `Secret Access Key`, apply these to the `TACH_AWS_ACCESS_KEY_ID` variable in the `.env.local` file, and the `TACH_AWS_ACCESS_KEY_SECRET` variable in the `.env.secrets.local` file.
 
 ![Create Access Key](images/service-user.png 'Create Access Key')
 
@@ -140,33 +142,33 @@ The RA uses SES to send emails for registration, password reset, and contact for
 - Verify your domain
 - Verify the emails you'll be sending to and from
 
-Once done, set the `TACH_EMAIL_CONTACT_ADDRESS` and `TACH_EMAIL_SOURCE` variables in the `.env.local` and `.env.dev` files to the email address(es) you verified.
+Once done, set the `TACH_EMAIL_CONTACT_ADDRESS` and `TACH_EMAIL_SOURCE` variables in the `.env.local` file to the email address(es) you verified.
 
 ## 7. Recaptcha Setup
 
-Recaptcha is used to protect the site from DDOS or other bot attacks in conjunction with public-facing forms. The Recaptcha site will walk you through account creation [here](https://www.google.com/recaptcha/admin/enterprise). Once you have created an account, you will need to create a site key and secret key. You will need to set the `TACH_RECAPTCHA_SITE_KEY` variable in the `.env.local` and `.env.dev` files to your site key, and the `TACH_RECAPTCHA_SECRET_KEY` variable in the `.env.secrets.local` and `.env.secrets.dev` files to your secret key.
+Recaptcha is used to protect the site from DDOS or other bot attacks in conjunction with public-facing forms. The Recaptcha site will walk you through account creation [here](https://www.google.com/recaptcha/admin/enterprise). Once you have created an account, you will need to create a site key and secret key. You will need to set the `TACH_RECAPTCHA_SITE_KEY` variable in the `.env.local` file to your site key, and the `TACH_RECAPTCHA_SECRET_KEY` variable in the `.env.secrets.local` file to your secret key.
 
 ## 8. Hotjar Setup (Optional)
 
-The RA uses HotJar to track user behavior. You can create a free account [here](https://www.hotjar.com/). Once you have created an account, you will need to create a site id. You will need to set the `TACH_HOTJAR_SITE_ID` variable in the `.env.local` and `.env.dev` files to your site id.
+The RA uses HotJar to track user behavior. You can create a free account [here](https://www.hotjar.com/). Once you have created an account, you will need to create a site id. You will need to set the `TACH_HOTJAR_SITE_ID` variable in the `.env.local` file to your site id.
 
 ## 9. Stripe Setup
 
-We recommend Stripe for payment processing. Create a stripe account at https://www.stripe.com and navigate to the dashboard. Test mode is fine for now. Navigate to the [API keys](https://dashboard.stripe.com/test/apikeys) section and create a standard API key. You will need to set the `TACH_STRIPE_PUBLISHABLE_KEY` variable in the `env.local` and `.env.dev` files to your publishable key and the `TACH_STRIPE_SECRET_KEY` variable in the `.env.secrets.local` and `.env.secrets.dev` files to your secret key.
+We recommend Stripe for payment processing. Create a stripe account at https://www.stripe.com and navigate to the dashboard. Test mode is fine for now. Navigate to the [API keys](https://dashboard.stripe.com/test/apikeys) section and create a standard API key. You will need to set the `TACH_STRIPE_PUBLISHABLE_KEY` variable in the `env.local` file to your publishable key and the `TACH_STRIPE_SECRET_KEY` variable in the `.env.secrets.local` file to your secret key.
 
-Once you're ready to move to production, you will need a webhook signature to validate webhook calls. See the [webhooks](https://dashboard.stripe.com/test/webhooks) section in the dashboard. You will need to set the `TACH_STRIPE_WEBHOOK_SIGNATURE` variable in the `.env.secrets.dev` file to your webhook secret.
+Once you're ready to move to production, you will need a webhook signature to validate webhook calls. See the [webhooks](https://dashboard.stripe.com/test/webhooks) section in the dashboard. You will need to set the `TACH_STRIPE_WEBHOOK_SIGNATURE` variable in the `.env.secrets.local` file to your webhook secret.
 
 ## 10. Password Protection
 
-Password Protection is enabled by default. To set the username and password, set the `TACH_PASSWORD_PROTECTED_USERNAME` and `TACH_PASSWORD_PROTECTED_PASSWORD` variables in the `.env.secrets.local` and `.env.secrets.dev` files to your desired username and password. To remove password protection, simply remove the password protected middleware from the `middleware.ts` file.
+Password Protection is enabled by default. To set the username and password, set the `TACH_PASSWORD_PROTECTED_USERNAME` and `TACH_PASSWORD_PROTECTED_PASSWORD` variables in the `.env.secrets.local` file to your desired username and password. To remove password protection, simply remove the password protected middleware from the `middleware.ts` file.
 
 See the [Password Protection](/docs/password_protection.md) section for more information.
 
 ## 11. Application Name
 
-Set the `TACH_APPLICATION_NAME` variable in the `.env.local` and `.env.dev` files to your desired application name.
+Set the `TACH_APPLICATION_NAME` variable in the `.env.local` file to your desired application name.
 
-Set the `TACH_SST_APP_NAME` variable in the `.env.local` and `.env.dev` files to your desired application name. This is used by SST to name all of the resources created within AWS.
+Set the `TACH_SST_APP_NAME` variable in the `.env.local` file to your desired application name. This is used by SST to name all of the resources created within AWS.
 
 ## 12. Authenticate with AWS SSO
 
@@ -193,11 +195,11 @@ This will take some time to run, especially the first time while it sets up reso
 
 ## 14. Update Domain Environment Variables
 
-Once the application is deployed, you will need to update the environment variables for the domain. Note CloudFront url that is generated by the deployment, then set the `NEXTAUTH_URL`, `NEXT_PUBLIC_API_URL`, and `NEXT_PUBLIC_BASE_URL` variables in the `.env.local` and `.env.dev` files to utilize the cloudfront url instead of `https://localhost:3000`.
+Once the application is deployed, you will need to update the environment variables for the domain. Note CloudFront url that is generated by the deployment, then set the `NEXTAUTH_URL`, `NEXT_PUBLIC_API_URL`, and `NEXT_PUBLIC_BASE_URL` variables in the `.env.local` file to utilize the cloudfront url instead of `https://localhost:3000`.
 
 ## 15. OAuth Setup
 
-Due to a limitation in NextAuth, you will need at least one OAuth provider configured. We recommend using GitHub. You can learn more about how to create a an OAuth app in GitHub [here](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app). For now, you will use your cloudfront url. For more information on how to configure the callback, see the [NextAuth docs](https://next-auth.js.org/configuration/providers/oauth). Once you have created an OAuth app, you will need to set the `TACH_GITHUB_CLIENT_ID` variable in the `.env.local` and `.env.dev` files to your client id and the `TACH_GITHUB_CLIENT_SECRET` variable in the `.env.secrets.local` and `.env.secrets.dev` files to your client secret.
+Due to a limitation in NextAuth, you will need at least one OAuth provider configured. We recommend using GitHub. You can learn more about how to create a an OAuth app in GitHub [here](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app). For now, you will use your cloudfront url. For more information on how to configure the callback, see the [NextAuth docs](https://next-auth.js.org/configuration/providers/oauth). Once you have created an OAuth app, you will need to set the `TACH_GITHUB_CLIENT_ID` variable in the `.env.local` file to your client id and the `TACH_GITHUB_CLIENT_SECRET` variable in the `.env.secrets.local` file to your client secret.
 
 ![GitHub OAuth Configuration](images/github-oauth.png 'GitHub OAuth Configuration')
 
@@ -208,9 +210,11 @@ You are free to repeat this process for other OAuth providers such as LinkedIn, 
 We can utilize a script to deploy the secrets to SSM. In the bottom of the `deployEnvVars.ts` file at the project root, ensure the `addSecretsToSSM()` function is uncommented and the other functions are commented out:
 
 ```typescript
-//addSecretsToGitHub();
-// addEnvVarsToAmplify();
-addSecretsToSSM();
+// addVarsAndSecretsToGitHub();
+// addEnvVarsToAmplify(envVars, rawSecrets);
+// addVarsAndSecretsToEnvsGitHub(envVars, rawSecrets, 'dev', 'dev');
+addSecretsToSSM('dev', envVars, rawSecrets);
+// createGithubEnvFileVariables(envVars, rawSecrets, 'dev');
 ```
 
 Then run the following command:

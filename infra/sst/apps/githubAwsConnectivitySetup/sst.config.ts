@@ -7,13 +7,13 @@ const dotenv = require('dotenv');
 
 console.log('start config');
 let env: Record<string, string> = {};
-if (fs.existsSync(`../../../.././.env.prod`)) {
-  const ef = fs.readFileSync(`../../../.././.env.prod`);
+if (fs.existsSync(`../../../.././.env.local`)) {
+  const ef = fs.readFileSync(`../../../.././.env.local`);
   env = dotenv.parse(ef);
   process.env = { ...process.env, ...env };
 } else {
   throw new Error(
-    'No .env.prod file found. This is required for initial setup of Github Actions CI/CD.',
+    'No .env.local file found. This is required for initial setup of Github Actions CI/CD.',
   );
 }
 console.log('loaded env file');

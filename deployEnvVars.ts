@@ -8,37 +8,23 @@ const fs = require('fs');
 const dotenv = require('dotenv');
 const path = require('path');
 
-let rawDevSecrets: { [key: string]: string } = {};
-const f = fs.readFileSync(`./.env.secrets.dev`);
-rawDevSecrets = dotenv.parse(f);
+let rawSecrets: { [key: string]: string } = {};
+const f = fs.readFileSync(`./.env.secrets.local`);
+rawSecrets = dotenv.parse(f);
 
-let rawProdSecrets: { [key: string]: string } = {};
-const f2 = fs.readFileSync(`./.env.secrets.prod`);
-rawProdSecrets = dotenv.parse(f2);
+const _envVars = fs.readFileSync('.env.local', 'utf8').split('\n');
+const envVars: { [key: string]: string } = {};
 
-// Read environment variables from .env.dev
-const _devEnvVars = fs.readFileSync('.env.dev', 'utf8').split('\n');
-const devEnvVars: { [key: string]: string } = {};
-
-// Read environment variables from .env.prod
-const _prodEnvVars = fs.readFileSync('.env.prod', 'utf8').split('\n');
-const prodEnvVars: { [key: string]: string } = {};
-
-for (let i = 0; i < _devEnvVars.length; i++) {
-  const [key, value] = _devEnvVars[i].split('=');
-  devEnvVars[key] = value;
-}
-
-for (let i = 0; i < _prodEnvVars.length; i++) {
-  const [key, value] = _prodEnvVars[i].split('=');
-  prodEnvVars[key] = value;
+for (let i = 0; i < _envVars.length; i++) {
+  const [key, value] = _envVars[i].split('=');
+  envVars[key] = value;
 }
 
 // Add environment variables as secrets in GitHub
 const addVarsAndSecretsToGitHub = async () => {
-  const token = rawDevSecrets.TACH_GITHUB_API_TOKEN;
-  const repoName = devEnvVars.TACH_GITHUB_REPO_NAME;
-  const owner = devEnvVars.TACH_GITHUB_REPO_OWNER;
+  const token = rawSecrets.TACH_GITHUB_API_TOKEN;
+  const repoName = envVars.TACH_GITHUB_REPO_NAME;
+  const owner = envVars.TACH_GITHUB_REPO_OWNER;
   const octokit = new Octokit({ auth: token });
   const publicKeyResponse = await octokit.request(
     'GET /repos/{owner}/{repo}/actions/secrets/public-key',
@@ -55,11 +41,11 @@ const addVarsAndSecretsToGitHub = async () => {
     sodium.base64_variants.ORIGINAL,
   );
   const keyId = publicKeyResponse.data.key_id;
-  for (const key of Object.keys(devEnvVars)) {
+  for (const key of Object.keys(envVars)) {
     if (!key || key.match(/^ *$/) !== null) {
       continue;
     }
-    const value = devEnvVars[key];
+    const value = envVars[key];
     console.log(`Adding var for ${key}`);
 
     try {
@@ -106,11 +92,11 @@ const addVarsAndSecretsToGitHub = async () => {
     }
   }
 
-  for (const key of Object.keys(rawDevSecrets)) {
+  for (const key of Object.keys(rawSecrets)) {
     if (!key || key.match(/^ *$/) !== null) {
       continue;
     }
-    const value = rawDevSecrets[key];
+    const value = rawSecrets[key];
     console.log(`Adding secret for ${key}`);
     await sodium.ready;
 
@@ -325,23 +311,25 @@ const addVarsAndSecretsToEnvsGitHub = async (
   }
 };
 
-async function createGithubEnvFileVariables() {
+async function createGithubEnvFileVariables(
+  envVars: any,
+  rawSecrets: any,
+  env: string,
+) {
   // Read the contents of .env.dev
-  const devEnvFileContents = fs.readFileSync(
-    path.join(__dirname, '.env.dev'),
-    'utf8',
-  );
-  const prodEnvFileContents = fs.readFileSync(
-    path.join(__dirname, '.env.prod'),
+  const envFileContents = fs.readFileSync(
+    path.join(__dirname, '.env.local'),
     'utf8',
   );
 
-  console.log(`Adding secret for TACH_DEV_ENV_FILE`);
+  const secretName = `TACH_${env.toUpperCase()}_ENV_FILE`;
+
+  console.log(`Adding secret for ${secretName}`);
   await sodium.ready;
 
-  const token = rawDevSecrets.TACH_GITHUB_API_TOKEN;
-  const repoName = devEnvVars.TACH_GITHUB_REPO_NAME;
-  const owner = devEnvVars.TACH_GITHUB_REPO_OWNER;
+  const token = rawSecrets.TACH_GITHUB_API_TOKEN;
+  const repoName = envVars.TACH_GITHUB_REPO_NAME;
+  const owner = envVars.TACH_GITHUB_REPO_OWNER;
   const octokit = new Octokit({ auth: token });
   const publicKeyResponse = await octokit.request(
     'GET /repos/{owner}/{repo}/actions/secrets/public-key',
@@ -359,7 +347,7 @@ async function createGithubEnvFileVariables() {
   );
   const keyId = publicKeyResponse.data.key_id;
 
-  let binsec = sodium.from_string(devEnvFileContents);
+  let binsec = sodium.from_string(envFileContents);
 
   // Encrypt the secret using libsodium
   let encBytes = sodium.crypto_box_seal(binsec, binkey);
@@ -386,7 +374,7 @@ async function createGithubEnvFileVariables() {
       {
         owner,
         repo: repoName,
-        variable_name: 'TACH_DEV_ENV_FILE',
+        variable_name: secretName,
         headers: {
           'X-GitHub-Api-Version': '2022-11-28',
         },
@@ -399,8 +387,8 @@ async function createGithubEnvFileVariables() {
       {
         owner,
         repo: repoName,
-        variable_name: 'TACH_DEV_ENV_FILE',
-        value: devEnvFileContents,
+        variable_name: secretName,
+        value: envFileContents,
         headers: {
           'X-GitHub-Api-Version': '2022-11-28',
         },
@@ -412,73 +400,8 @@ async function createGithubEnvFileVariables() {
       await octokit.request(`POST /repos/{owner}/{repo}/actions/variables`, {
         owner,
         repo: repoName,
-        name: 'TACH_DEV_ENV_FILE',
-        value: devEnvFileContents,
-        headers: {
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
-      });
-    } else {
-      throw e;
-    }
-  }
-
-  console.log(`Adding secret for TACH_PROD_ENV_FILE`);
-  binsec = sodium.from_string(prodEnvFileContents);
-
-  // Encrypt the secret using libsodium
-  encBytes = sodium.crypto_box_seal(binsec, binkey);
-
-  // Convert the encrypted Uint8Array to Base64
-  output = sodium.to_base64(encBytes, sodium.base64_variants.ORIGINAL);
-  // await octokit.request(
-  //   `PUT /repos/{owner}/{repo}/actions/secrets/{secret_name}`,
-  //   {
-  //     owner,
-  //     repo: repoName,
-  //     secret_name: 'TACH_PROD_ENV_FILE',
-  //     encrypted_value: output,
-  //     key_id: keyId,
-  //     headers: {
-  //       'X-GitHub-Api-Version': '2022-11-28',
-  //     },
-  //   },
-  // );
-
-  try {
-    const existingVariable = await octokit.request(
-      `GET /repos/{owner}/{repo}/actions/variables/{variable_name}`,
-      {
-        owner,
-        repo: repoName,
-        variable_name: 'TACH_PROD_ENV_FILE',
-        headers: {
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
-      },
-    );
-    console.log(`existing var: ${existingVariable}`);
-
-    await octokit.request(
-      `PATCH /repos/{owner}/{repo}/actions/variables/{variable_name}`,
-      {
-        owner,
-        repo: repoName,
-        variable_name: 'TACH_PROD_ENV_FILE',
-        value: prodEnvFileContents,
-        headers: {
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
-      },
-    );
-  } catch (e) {
-    console.log(`error: ${e}`);
-    if ((e as any).status === 404) {
-      await octokit.request(`POST /repos/{owner}/{repo}/actions/variables`, {
-        owner,
-        repo: repoName,
-        name: 'TACH_PROD_ENV_FILE',
-        value: prodEnvFileContents,
+        name: secretName,
+        value: envFileContents,
         headers: {
           'X-GitHub-Api-Version': '2022-11-28',
         },
@@ -490,37 +413,37 @@ async function createGithubEnvFileVariables() {
 }
 
 // Add environment variables as environment variables in Amplify
-const addEnvVarsToAmplify = async () => {
-  const appID = devEnvVars.TACH_AWS_AMPLIFY_APP_ID;
-  const envName = devEnvVars.TACH_AWS_AMPLIFY_ENVIRONMENT_NAME;
+const addEnvVarsToAmplify = async (envVars: any, rawSecrets: any) => {
+  const appID = envVars.TACH_AWS_AMPLIFY_APP_ID;
+  const envName = envVars.TACH_AWS_AMPLIFY_ENVIRONMENT_NAME;
   const amplify = new AmplifyClient({
-    region: devEnvVars.TACH_AWS_REGION,
+    region: envVars.TACH_AWS_REGION,
     credentials: {
-      accessKeyId: devEnvVars.TACH_AWS_ACCESS_KEY_ID,
-      secretAccessKey: rawDevSecrets.TACH_AWS_SECRET_ACCESS_KEY,
+      accessKeyId: envVars.TACH_AWS_ACCESS_KEY_ID,
+      secretAccessKey: rawSecrets.TACH_AWS_SECRET_ACCESS_KEY,
     },
   });
   const input = {
     appId: appID,
-    environmentVariables: devEnvVars,
+    environmentVariables: envVars,
   };
   const command = new UpdateAppCommand(input);
   const response = await amplify.send(command);
   console.log(response);
 
   const smm = new SSMClient({
-    region: devEnvVars.TACH_AWS_REGION,
+    region: envVars.TACH_AWS_REGION,
     credentials: {
-      accessKeyId: devEnvVars.TACH_AWS_ACCESS_KEY_ID,
-      secretAccessKey: rawDevSecrets.TACH_AWS_SECRET_ACCESS_KEY,
+      accessKeyId: envVars.TACH_AWS_ACCESS_KEY_ID,
+      secretAccessKey: rawSecrets.TACH_AWS_SECRET_ACCESS_KEY,
     },
   });
 
-  for (const key of Object.keys(rawDevSecrets)) {
+  for (const key of Object.keys(rawSecrets)) {
     if (!key || key.match(/^ *$/) !== null) {
       continue;
     }
-    const value = rawDevSecrets[key];
+    const value = rawSecrets[key];
     console.log(`Adding secret for ${key}`);
     const name = `/amplify/${appID}/${envName}/${key}`;
     const input = {
@@ -535,10 +458,14 @@ const addEnvVarsToAmplify = async () => {
   }
 };
 
-const addSecretsToSSM = async (stage: 'prod' | 'dev') => {
+const addSecretsToSSM = async (
+  stage: 'prod' | 'dev',
+  envVars: any,
+  rawSecrets: any,
+) => {
   exec(
-    `aws sts get-caller-identity --query "Account" --profile  ${devEnvVars.TACH_AWS_PROFILE}`,
-    (error, stdout, stderr) => {
+    `aws sts get-caller-identity --query "Account" --profile  ${envVars.TACH_AWS_PROFILE}`,
+    (error: any, stdout: any, stderr: any) => {
       if (error) {
         console.log(`error: ${error.message}`);
         return;
@@ -554,8 +481,7 @@ const addSecretsToSSM = async (stage: 'prod' | 'dev') => {
         console.log(`stdout: ${stdout}`);
         return;
       }
-      const rawSecrets = stage === 'prod' ? rawProdSecrets : rawDevSecrets;
-      for (const key of Object.keys(rawDevSecrets)) {
+      for (const key of Object.keys(rawSecrets)) {
         if (!key || key.match(/^ *$/) !== null) {
           continue;
         }
@@ -563,7 +489,7 @@ const addSecretsToSSM = async (stage: 'prod' | 'dev') => {
 
         exec(
           `npx sst secrets set ${key} "${value}" --stage ${stage}`,
-          (error, stdout, stderr) => {
+          (error: any, stdout: any, stderr: any) => {
             if (error) {
               console.log(`error: ${error.message}`);
               return;
@@ -580,10 +506,8 @@ const addSecretsToSSM = async (stage: 'prod' | 'dev') => {
   );
 };
 
-//addVarsAndSecretsToGitHub();
-// addEnvVarsToAmplify();
-//addVarsAndSecretsToEnvsGitHub(devEnvVars, rawDevSecrets, 'dev', 'dev');
-//addVarsAndSecretsToEnvsGitHub(prodEnvVars, rawProdSecrets, 'prod', 'main');
-//addSecretsToSSM('dev');
-//addSecretsToSSM('prod');
-//createGithubEnvFileVariables();
+// addVarsAndSecretsToGitHub();
+// addEnvVarsToAmplify(envVars, rawSecrets);
+// addVarsAndSecretsToEnvsGitHub(envVars, rawSecrets, 'dev', 'dev');
+// addSecretsToSSM('dev', envVars, rawSecrets);
+// createGithubEnvFileVariables(envVars, rawSecrets, 'dev');
