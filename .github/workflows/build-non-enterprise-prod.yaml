@@ -1,4 +1,4 @@
-name: Dev Build - Tach Ignite - Web Reference Architecture
+name: Dev Build - Non-Enterprise - Tach Ignite - Web Reference Architecture
 env:
   TACH_ENV_FILE: ${{ vars.TACH_PROD_ENV_FILE }}
 
