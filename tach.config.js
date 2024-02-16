@@ -1,7 +1,7 @@
 module.exports = {
   storage: {
     data: {
-      provider: 'mongodb-atlas-data-api', //mongodb, mongodb-atlas-data-api
+      provider: 'mongodb', //mongodb, mongodb-atlas-data-api
     },
     files: {
       provider: 's3', //mongodb, s3
