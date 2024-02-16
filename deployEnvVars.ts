@@ -509,5 +509,5 @@ const addSecretsToSSM = async (
 // addVarsAndSecretsToGitHub();
 // addEnvVarsToAmplify(envVars, rawSecrets);
 // addVarsAndSecretsToEnvsGitHub(envVars, rawSecrets, 'dev', 'dev');
-addSecretsToSSM('dev', envVars, rawSecrets);
-//createGithubEnvFileVariables(envVars, rawSecrets, 'dev');
+// addSecretsToSSM('dev', envVars, rawSecrets);
+// createGithubEnvFileVariables(envVars, rawSecrets, 'dev');
