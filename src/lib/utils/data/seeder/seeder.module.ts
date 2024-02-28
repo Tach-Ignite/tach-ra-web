@@ -16,7 +16,7 @@ import {
   ISeedConfiguration,
   ISeedDataConfiguration,
   ISeedFilesConfiguration,
-} from './abstractions';
+} from '@/lib/abstractions';
 import { Seeder } from './seeder';
 import { DataLoader } from './dataLoader';
 

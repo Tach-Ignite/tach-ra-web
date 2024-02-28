@@ -1,4 +1,8 @@
-import { IConfiguration, IConfigurationSection } from '@/lib/abstractions';
+import {
+  IConfiguration,
+  IConfigurationSection,
+  ITachConfiguration,
+} from '@/lib/abstractions';
 import { Injectable } from '../ioc/injectable';
 
 @Injectable('configuration', 'configFile')
@@ -7,6 +11,10 @@ export class Configuration implements IConfiguration {
 
   constructor(configFile: any) {
     this._configFile = configFile;
+  }
+
+  getConfig(): ITachConfiguration {
+    return this._configFile;
   }
 
   getSection<T extends IConfigurationSection>(sectionName: string): T | null {

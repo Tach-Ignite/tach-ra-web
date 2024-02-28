@@ -1,0 +1,886 @@
+import fs from 'fs';
+import crypto from 'crypto';
+import inquirer from 'inquirer';
+import dotenv from 'dotenv';
+import { IOptions, ITachConfiguration } from '@/lib/abstractions';
+import { Injectable } from '@/lib/ioc';
+import { IConfigurator } from './abstractions/iConfigurator';
+
+@Injectable('configurator', 'tachConfigurationOptions')
+export class Configurator implements IConfigurator {
+  private readonly _questions = {
+    base: [
+      {
+        type: 'confirm',
+        name: 'isLocal',
+        message: 'Is this a local development config?',
+        default: true,
+      },
+      {
+        type: 'input',
+        name: 'envName',
+        message:
+          'What is the environment name? (e.g. local, dev, staging, prod)',
+        default: 'local',
+      },
+      {
+        type: 'input',
+        name: 'appId',
+        message: 'What is the app id? (e.g. tach-color-store)',
+        default: 'tach-color-store',
+      },
+      {
+        type: 'input',
+        name: 'appName',
+        message: 'What is the app name? (e.g. Tach Color Store)',
+        default: 'Tach Color Store',
+      },
+      {
+        type: 'confirm',
+        name: 'isPasswordProtected',
+        message: 'Should the app be password protected?',
+        default: true,
+      },
+    ],
+    'tach-config': [
+      {
+        type: 'list',
+        name: 'dataStorageProvider',
+        message: 'Which data storage provider will you use?',
+        choices: ['mongodb-atlas-data-api', 'mongodb'],
+        default: 'mongodb-atlas-data-api',
+      },
+      {
+        type: 'list',
+        name: 'fileStorageProvider',
+        message: 'Which file provider will you use?',
+        choices: ['s3', 'mongodb'],
+        default: 's3',
+      },
+      {
+        type: 'list',
+        name: 'seedDataStorageProvider',
+        message: 'Which seed data storage provider will you use?',
+        choices: ['mongodb'],
+        default: 'mongodb',
+      },
+      {
+        type: 'list',
+        name: 'seedFileStorageProvider',
+        message: 'Which seed file storage provider will you use?',
+        choices: ['s3', 'mongodb'],
+        default: 's3',
+      },
+      {
+        type: 'checkbox',
+        name: 'authProviders',
+        message: 'Which auth providers will you use?',
+        choices: ['credentials', 'github', 'google', 'linkedin', 'azuread'],
+        default: ['credentials', 'github'],
+      },
+      {
+        type: 'list',
+        name: 'loggingProvider',
+        message: 'Which logging provider will you use?',
+        choices: ['winston', 'pino'],
+        default: 'winston',
+      },
+      {
+        type: 'list',
+        name: 'paymentProvider',
+        message: 'Which payment provider will you use?',
+        choices: ['stripe', 'paypal'],
+        default: 'stripe',
+      },
+      {
+        type: 'list',
+        name: 'secretsProvider',
+        message: 'Which secrets provider will you use?',
+        choices: ['ssm', 'env'],
+        default: 'ssm',
+      },
+      {
+        type: 'list',
+        name: 'emailProvider',
+        message: 'Which email provider will you use?',
+        choices: ['ses', 'console'],
+        default: 'ses',
+      },
+      {
+        type: 'list',
+        name: 'smsProvider',
+        message: 'Which sms provider will you use?',
+        choices: ['sns', 'twilio', 'console'],
+        default: 'sns',
+      },
+      {
+        type: 'list',
+        name: 'recaptchaProvider',
+        message: 'Which recaptcha provider will you use?',
+        choices: ['google', 'console'],
+        default: 'google',
+      },
+    ],
+    'password-protection': [
+      {
+        type: 'input',
+        name: 'username',
+        message: 'What is the password-protected username?',
+      },
+      {
+        type: 'input',
+        name: 'password',
+        message: 'What is the password-protected password?',
+      },
+    ],
+    'ssl-cert': [
+      {
+        type: 'confirm',
+        name: 'isSslCertCreated',
+        message: 'Has the SSL certificate been created?',
+        default: false,
+      },
+    ],
+    'ssl-cert-creation': [
+      {
+        type: 'input',
+        name: 'domainName',
+        message: 'What is the domain name? (e.g. example.com)',
+      },
+    ],
+    'ssl-cert-arn': [
+      {
+        type: 'input',
+        name: 'certArn',
+        message: 'What is the SSL certificate ARN?',
+      },
+      {
+        type: 'confirm',
+        name: 'autofill',
+        message: 'Would you like to autofill the domain names?',
+        default: true,
+      },
+    ],
+    'ssl-domains': [
+      {
+        type: 'input',
+        name: 'baseUrl',
+        message:
+          'What is the base url of your app? (e.g. https://www.example.com)',
+      },
+      {
+        type: 'input',
+        name: 'apiUrl',
+        message:
+          'What is the api url or your app? (e.g. https://www.example.com/api)',
+      },
+    ],
+    'website-tracking': [
+      {
+        type: 'list',
+        name: 'websiteTrackingProvider',
+        message: 'Which website tracking provider will you use?',
+        choices: ['hotjar'],
+        default: 'hotjar',
+      },
+    ],
+    hotjar: [
+      {
+        type: 'input',
+        name: 'hotjarId',
+        message: 'What is the Hotjar ID? (e.g. 1234567)',
+      },
+      {
+        type: 'input',
+        name: 'hotjarVersion',
+        message: 'What is the Hotjar version? (e.g. [6])',
+        default: '6',
+      },
+    ],
+    captcha: [
+      {
+        type: 'list',
+        name: 'captchaProvider',
+        message: 'What captcha service are you using?',
+        choices: ['google'],
+        default: 'google',
+      },
+    ],
+    'captcha-google': [
+      {
+        type: 'input',
+        name: 'siteKey',
+        message: 'What is the Recaptcha site key?',
+      },
+      {
+        type: 'input',
+        name: 'secretKey',
+        message: 'What is the Recaptcha secret key?',
+      },
+    ],
+    payments: [
+      {
+        type: 'list',
+        name: 'paymentProvider',
+        message: 'What payment service are you using?',
+        choices: ['stripe', 'paypal'],
+        default: 'stripe',
+      },
+    ],
+    stripe: [
+      {
+        type: 'input',
+        name: 'publishableKey',
+        message: 'What is the Stripe publishable key?',
+      },
+      {
+        type: 'input',
+        name: 'secretKey',
+        message: 'What is the Stripe secret key?',
+      },
+      {
+        type: 'input',
+        name: 'webhookSecret',
+        message: 'What is the Stripe webhook secret?',
+      },
+    ],
+    paypal: [
+      {
+        type: 'input',
+        name: 'paypalSecret',
+        message: 'What is the Paypal secret?',
+      },
+    ],
+    aws: [
+      {
+        type: 'input',
+        name: 'region',
+        message: 'What is the AWS region?',
+        default: 'us-east-1',
+      },
+      {
+        type: 'input',
+        name: 'accountId',
+        message: 'What is the AWS account ID?',
+      },
+      {
+        type: 'input',
+        name: 'profile',
+        message:
+          'What is the AWS SSO profile? (We recommend using the [default] profile.) If you set this up, you can configure it with the AWS CLI: aws configure sso.',
+        default: 'default',
+      },
+    ],
+    'aws-service-account': [
+      {
+        type: 'input',
+        name: 'accessKeyId',
+        message: 'What is the AWS access key ID?',
+      },
+      {
+        type: 'input',
+        name: 'secretAccessKey',
+        message: 'What is the AWS secret access key?',
+      },
+    ],
+    'file-storage': [
+      {
+        type: 'list',
+        name: 'fileStorageProvider',
+        message: 'What file storage provider are you using?',
+        choices: ['s3', 'mongodb'],
+        default: 's3',
+      },
+    ],
+    s3: [
+      {
+        type: 'input',
+        name: 'bucketName',
+        message: 'What is the S3 bucket name?',
+      },
+    ],
+    mongodb: [
+      {
+        type: 'input',
+        name: 'connectionString',
+        message: 'What is the MongoDB connection string?',
+      },
+    ],
+    'data-storage': [
+      {
+        type: 'list',
+        name: 'dataStorageProvider',
+        message: 'What data storage provider are you using?',
+        choices: ['mongodb-atlas-data-api', 'mongodb'],
+        default: 'mongodb-atlas-data-api',
+      },
+    ],
+    'mongodb-atlas-data-api': [
+      {
+        type: 'input',
+        name: 'apiUrl',
+        message: 'What is the MongoDB Atlas Data API URL?',
+      },
+      {
+        type: 'input',
+        name: 'apiKey',
+        message: 'What is the MongoDB Atlas Data API key?',
+      },
+      {
+        type: 'input',
+        name: 'dataSource',
+        message: 'What is the MongoDB Atlas Data API data source?',
+      },
+      {
+        type: 'input',
+        name: 'databaseName',
+        message: 'What is the MongoDB Atlas Data API database?',
+      },
+    ],
+    email: [
+      {
+        type: 'input',
+        name: 'emailContactAddress',
+        message: 'What is the contact inbox email address?',
+      },
+      {
+        type: 'input',
+        name: 'emailFromAddress',
+        message: 'What is the contact from email address?',
+      },
+    ],
+    sms: [
+      {
+        type: 'list',
+        name: 'provider',
+        message: 'Which SMS provider are you using?',
+        choices: ['sns', 'twilio', 'console'],
+        default: 'sns',
+      },
+    ],
+    sns: [
+      {
+        type: 'input',
+        name: 'sqsQueueUrl',
+        message: 'What is SMS SNS Queue URL?',
+      },
+    ],
+    twilio: [
+      {
+        type: 'input',
+        name: 'accountSid',
+        message: 'What is the Twilio account SID?',
+      },
+      {
+        type: 'input',
+        name: 'originationNumber',
+        message: 'What is the Twilio origination number?',
+      },
+      {
+        type: 'input',
+        name: 'authToken',
+        message: 'What is the Twilio auth token?',
+      },
+    ],
+    'auth-providers': [
+      {
+        type: 'checkbox',
+        name: 'authProviders',
+        message: 'Which auth providers will you use?',
+        choices: ['credentials', 'google', 'github', 'linkedin', 'azuread'],
+        default: ['credentials', 'github'],
+      },
+    ],
+    'google-oauth': [
+      {
+        type: 'input',
+        name: 'clientId',
+        message: 'What is the Google OAuth client ID?',
+      },
+      {
+        type: 'input',
+        name: 'clientSecret',
+        message: 'What is the Google OAuth client secret?',
+      },
+    ],
+    'github-oauth': [
+      {
+        type: 'input',
+        name: 'clientId',
+        message: 'What is the Github OAuth client ID?',
+      },
+      {
+        type: 'input',
+        name: 'clientSecret',
+        message: 'What is the Github OAuth client secret?',
+      },
+    ],
+    'linkedin-oauth': [
+      {
+        type: 'input',
+        name: 'clientId',
+        message: 'What is the Linkedin OAuth client ID?',
+      },
+      {
+        type: 'input',
+        name: 'clientSecret',
+        message: 'What is the Linkedin OAuth client secret?',
+      },
+    ],
+    'azuread-oauth': [
+      {
+        type: 'input',
+        name: 'clientId',
+        message: 'What is the Azure AD OAuth client ID?',
+      },
+      {
+        type: 'input',
+        name: 'tenantId',
+        message: 'What is the Azure AD OAuth tenant ID?',
+      },
+      {
+        type: 'input',
+        name: 'clientSecret',
+        message: 'What is the Azure AD OAuth client secret?',
+      },
+    ],
+    'github-api': [
+      {
+        type: 'input',
+        name: 'repoOwner',
+        message: 'What is the Github repo owner?',
+      },
+      {
+        type: 'input',
+        name: 'repoName',
+        message: 'What is the Github repo name?',
+      },
+      {
+        type: 'input',
+        name: 'apiToken',
+        message: 'What is the Github API token?',
+      },
+    ],
+    secrets: [
+      {
+        type: 'list',
+        name: 'secretsProvider',
+        message: 'Which secrets provider will you use?',
+        choices: ['env', 'ssm'],
+        default: 'ssm',
+      },
+    ],
+    logging: [
+      {
+        type: 'list',
+        name: 'loggingProvider',
+        message: 'Which logging provider will you use?',
+        choices: ['winston', 'pino'],
+        default: 'winston',
+      },
+    ],
+  };
+
+  readonly _questionGroups = {
+    all: [
+      'base',
+      'aws',
+      'github-api',
+      'ssl-cert',
+      'website-tracking',
+      'captcha',
+      'payments',
+      'file-storage',
+      'data-storage',
+      'secrets',
+      'email',
+      'sms',
+      'auth-providers',
+      'logging',
+    ],
+  };
+
+  private _env: Record<string, string>;
+  private _secrets: Record<string, string>;
+  private _tachConfig: ITachConfiguration;
+  private _mongoUriAlreadyConfigured: boolean = false;
+
+  constructor(tachConfigurationOptions: IOptions<ITachConfiguration>) {
+    this._env = dotenv.parse('.env.local');
+    this._secrets = dotenv.parse('.env.secrets.local');
+    this._tachConfig = tachConfigurationOptions.value;
+  }
+
+  async configure(serviceCode: string): Promise<void> {
+    console.log(`Configuring service ${serviceCode}`);
+    switch (serviceCode) {
+      case 'base':
+        await this.configureBase();
+        break;
+      case 'tach-config':
+        await this.configureTachConfig();
+        break;
+      case 'password-protection':
+        await this.configurePasswordProtection();
+        break;
+      case 'aws':
+        await this.configureAWS();
+        break;
+      case 'ssl-cert':
+        await this.configureSSLCert();
+        break;
+      case 'website-tracking':
+        await this.configureWebsiteTracking();
+        break;
+      case 'captcha':
+        await this.configureCaptcha();
+        break;
+      case 'github-api':
+        await this.configureGithubAPI();
+        break;
+      case 'payments':
+        await this.configurePayments();
+        break;
+      case 'file-storage':
+        await this.configureFileStorage();
+        break;
+      case 'data-storage':
+        await this.configureDataStorage();
+        break;
+      case 'email':
+        await this.configureEmail();
+        break;
+      case 'sms':
+        await this.configureSMS();
+        break;
+      case 'auth-providers':
+        await this.configureAuthProviders();
+        break;
+      case 'secrets':
+        await this.configureSecrets();
+        break;
+      case 'logging':
+        await this.configureLogging();
+        break;
+    }
+
+    this.saveEnvAndSecrets();
+    this.saveTachConfig();
+  }
+
+  async configureAll(): Promise<void> {
+    for (let i = 0; i < this._questionGroups.all.length; i++) {
+      await this.configure(this._questionGroups.all[i]);
+    }
+    this.saveEnvAndSecrets();
+    this.saveTachConfig();
+  }
+
+  private async configureBase() {
+    const answers = await inquirer.prompt(this._questions.base);
+
+    this._env['NODE_ENV'] = answers['isLocal'] ? 'development' : 'production';
+    this._env['EXPOSE_ERROR_STACK'] = answers['isLocal'] ? 'true' : 'false';
+
+    this._env['TACH_SST_STAGE'] = answers['envName'];
+    this._env['TACH_SST_APP_NAME'] = answers['appId'];
+    this._env['TACH_APPLICATION_NAME'] = answers['appName'];
+    this._env['TACH_PASSWORD_PROTECTED'] = answers['isPasswordProtected']
+      ? 'true'
+      : 'false';
+
+    if (answers['isPasswordProtected']) {
+      await this.configurePasswordProtection();
+    }
+
+    //configure all secrets
+    this._secrets['NEXTAUTH_SECRET'] = crypto.randomBytes(32).toString('hex');
+    this._secrets['TACH_NEXTAUTH_JWT_SECRET'] = crypto
+      .randomBytes(32)
+      .toString('hex');
+  }
+
+  private async configurePasswordProtection() {
+    const answers = await inquirer.prompt(
+      this._questions['password-protection'],
+    );
+    this._env['TACH_PASSWORD_PROTECTED'] = 'true';
+    this._secrets['TACH_PASSWORD_PROTECTED_USERNAME'] = answers['username'];
+    this._secrets['TACH_PASSWORD_PROTECTED_PASSWORD'] = answers['password'];
+  }
+
+  private async configureTachConfig() {
+    const answers = await inquirer.prompt(this._questions['tach-config']);
+    this._tachConfig.storage.data.provider = answers['dataStorageProvider'];
+    this._tachConfig.storage.files.provider = answers['fileStorageProvider'];
+    this._tachConfig.seed.data.provider = answers['seedDataStorageProvider'];
+    this._tachConfig.seed.files.provider = answers['seedFileStorageProvider'];
+    this._tachConfig.auth.providers = answers['authProviders'];
+    this._tachConfig.logging.provider = answers['loggingProvider'];
+    this._tachConfig.payment.provider = answers['paymentProvider'];
+    this._tachConfig.secrets.provider = answers['secretsProvider'];
+    this._tachConfig.notifications.email.provider = answers['emailProvider'];
+    this._tachConfig.notifications.sms.provider = answers['smsProvider'];
+    this._tachConfig.recaptcha.provider = answers['recaptchaProvider'];
+  }
+
+  private async configureSSLCert() {
+    const answers = await inquirer.prompt(this._questions['ssl-cert']);
+    if (!answers['isSslCertCreated']) {
+      await this.configureSSLCertCreation();
+    } else {
+      await this.configureSSLCertArn();
+    }
+  }
+
+  private async configureSSLCertCreation() {
+    const answers = await inquirer.prompt(this._questions['ssl-cert-creation']);
+    this._env['TACH_SST_DOMAIN_NAME'] = answers['domainName'];
+  }
+
+  private async configureSSLCertArn() {
+    const answers = await inquirer.prompt(this._questions['ssl-cert-arn']);
+    this._env['TACH_SST_CERTIFICATE_ARN'] = answers['certArn'];
+    const stage = this._env['TACH_SST_STAGE'];
+    if (answers['autofill'] && stage !== 'local') {
+      let baseUrl = `https://${this._env['TACH_SST_DOMAIN_NAME']}`;
+      if (stage === 'dev') {
+        baseUrl = `https://dev.${this._env['TACH_SST_DOMAIN_NAME']}`;
+      } else if (stage === 'prod') {
+        baseUrl = `https://www.${this._env['TACH_SST_DOMAIN_NAME']}`;
+      }
+      this._env['NEXTAUTH_URL'] = baseUrl;
+      this._env['NEXT_PUBLIC_BASE_URL'] = baseUrl;
+      this._env['TACH_SST_API_URL'] = `${baseUrl}/api`;
+    } else {
+      await this.configureSSLDomains();
+    }
+  }
+
+  private async configureSSLDomains() {
+    const answers = await inquirer.prompt(this._questions['ssl-domains']);
+    this._env['NEXTAUTH_URL'] = answers['baseUrl'];
+    this._env['NEXT_PUBLIC_BASE_URL'] = answers['baseUrl'];
+    this._env['TACH_SST_API_URL'] = answers['apiUrl'];
+  }
+
+  private async configureWebsiteTracking() {
+    const answers = await inquirer.prompt(this._questions['website-tracking']);
+    if (answers['websiteTrackingProvider'] === 'hotjar') {
+      await this.configureHotjar();
+    }
+  }
+
+  private async configureHotjar() {
+    const answers = await inquirer.prompt(this._questions['hotjar']);
+    this._env['NEXT_PUBLIC_HOTJAR_HJID'] = answers['hotjarId'];
+    this._env['NEXT_PUBLIC_HOTJAR_HJSV'] = answers['hotjarVersion'];
+  }
+
+  private async configureCaptcha() {
+    const answers = await inquirer.prompt(this._questions['captcha']);
+    if (answers['captchaProvider'] === 'google') {
+      await this.configureGoogleCaptcha();
+      this._tachConfig.recaptcha.provider = 'google';
+    }
+  }
+
+  private async configureGoogleCaptcha() {
+    const answers = await inquirer.prompt(this._questions['captcha-google']);
+    this._env['NEXT_PUBLIC_GOOGLE_RECAPTCHA_SITE_KEY'] = answers['siteKey'];
+    this._env['TACH_GOOGLE_RECAPTCHA_SECRET_KEY'] = answers['secretKey'];
+  }
+
+  private async configurePayments() {
+    const answers = await inquirer.prompt(this._questions['payments']);
+    if (answers['paymentProvider'] === 'stripe') {
+      await this.configureStripe();
+      this._tachConfig.payment.provider = 'stripe';
+    } else if (answers['paymentProvider'] === 'paypal') {
+      await this.configurePaypal();
+      this._tachConfig.payment.provider = 'paypal';
+    }
+  }
+
+  private async configureStripe() {
+    const answers = await inquirer.prompt(this._questions['stripe']);
+    this._env['NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY'] = answers['publishableKey'];
+    this._secrets['TACH_STRIPE_SECRET_KEY'] = answers['secretKey'];
+    this._secrets['TACH_STRIPE_WEBHOOK_SIGNATURE'] = answers['webhookSecret'];
+  }
+
+  private async configurePaypal() {
+    const answers = await inquirer.prompt(this._questions['paypal']);
+    this._secrets['TACH_PAYPAL_SECRET_KEY'] = answers['paypalSecret'];
+  }
+
+  private async configureAWS() {
+    const answers = await inquirer.prompt(this._questions['aws']);
+    this._env['TACH_AWS_REGION'] = answers['region'];
+    this._env['TACH_AWS_ACCOUNT_ID'] = answers['accountId'];
+    this._env['TACH_AWS_PROFILE'] = answers['profile'];
+    await this.configureAWSServiceAccount();
+  }
+
+  private async configureAWSServiceAccount() {
+    const answers = await inquirer.prompt(
+      this._questions['aws-service-account'],
+    );
+    this._env['TACH_AWS_ACCESS_KEY_ID'] = answers['accessKeyId'];
+    this._secrets['TACH_AWS_SECRET_ACCESS_KEY'] = answers['secretAccessKey'];
+  }
+
+  private async configureFileStorage() {
+    const answers = await inquirer.prompt(this._questions['file-storage']);
+    if (answers['fileStorageProvider'] === 's3') {
+      await this.configureS3();
+      this._tachConfig.storage.files.provider = 's3';
+    } else if (answers['fileStorageProvider'] === 'mongodb') {
+      await this.configureMongoDB();
+      this._tachConfig.storage.files.provider = 'mongodb';
+    }
+  }
+
+  private async configureS3() {
+    const answers = await inquirer.prompt(this._questions['s3']);
+    this._env['TACH_S3_BUCKET_NAME'] = answers['bucketName'];
+  }
+
+  private async configureMongoDB() {
+    const answers = await inquirer.prompt(this._questions['mongodb']);
+    if (!this._mongoUriAlreadyConfigured) {
+      this._secrets['TACH_MONGO_URI'] = answers['connectionString'];
+      this._mongoUriAlreadyConfigured = true;
+    }
+  }
+
+  private async configureDataStorage() {
+    const answers = await inquirer.prompt(this._questions['data-storage']);
+    if (answers['dataStorageProvider'] === 'mongodb-atlas-data-api') {
+      await this.configureMongoDBAtlasDataAPI();
+      this._tachConfig.storage.data.provider = 'mongodb-atlas-data-api';
+    } else if (answers['dataStorageProvider'] === 'mongodb') {
+      await this.configureMongoDB();
+      this._tachConfig.storage.data.provider = 'mongodb';
+    }
+  }
+
+  private async configureMongoDBAtlasDataAPI() {
+    const answers = await inquirer.prompt(
+      this._questions['mongodb-atlas-data-api'],
+    );
+    this._secrets['TACH_MONGO_DATA_API_URI'] = answers['apiUrl'];
+    this._secrets['TACH_MONGO_DATA_API_KEY'] = answers['apiKey'];
+    this._secrets['TACH_MONGO_DATA_API_DATA_SOURCE'] = answers['dataSource'];
+    this._secrets['TACH_MONGO_DATA_API_DATABASE_NAME'] =
+      answers['databaseName'];
+  }
+
+  private async configureEmail() {
+    const answers = await inquirer.prompt(this._questions['email']);
+    this._env['TACH_CONTACT_EMAIL_ADDRESS'] = answers['emailContactAddress'];
+    this._env['TACH_FROM_EMAIL_ADDRESS'] = answers['emailFromAddress'];
+  }
+
+  private async configureSMS() {
+    const answers = await inquirer.prompt(this._questions['sms']);
+    if (answers['provider'] === 'sns') {
+      await this.configureSNS();
+      this._tachConfig.notifications.sms.provider = 'sns';
+    } else if (answers['provider'] === 'twilio') {
+      await this.configureTwilio();
+      this._tachConfig.notifications.sms.provider = 'twilio';
+    } else if (answers['provider'] === 'console') {
+      this._tachConfig.notifications.sms.provider = 'console';
+    }
+  }
+
+  private async configureSNS() {
+    const answers = await inquirer.prompt(this._questions['sns']);
+    this._env['TACH_SMS_QUEUE_URL'] = answers['sqsQueueUrl'];
+  }
+
+  private async configureTwilio() {
+    const answers = await inquirer.prompt(this._questions['twilio']);
+    this._env['TACH_TWILIO_ACCOUNT_SID'] = answers['accountSid'];
+    this._env['TACH_TWILIO_ORIGINATION_NUMBER'] = answers['originationNumber'];
+    this._secrets['TACH_TWILIO_AUTH_TOKEN'] = answers['authToken'];
+  }
+
+  private async configureAuthProviders() {
+    const answers = await inquirer.prompt(this._questions['auth-providers']);
+    if (answers['authProviders'].includes('google')) {
+      await this.configureGoogleOAuth();
+    }
+    if (answers['authProviders'].includes('github')) {
+      await this.configureGithubOAuth();
+    }
+    if (answers['authProviders'].includes('linkedin')) {
+      await this.configureLinkedinOAuth();
+    }
+    if (answers['authProviders'].includes('azuread')) {
+      await this.configureAzureADOAuth();
+    }
+    this._tachConfig.auth.providers = answers['authProviders'];
+  }
+
+  private async configureGoogleOAuth() {
+    const answers = await inquirer.prompt(this._questions['google-oauth']);
+    this._env['TACH_GOOGLE_CLIENT_ID'] = answers['clientId'];
+    this._secrets['TACH_GOOGLE_CLIENT_SECRET'] = answers['clientSecret'];
+  }
+
+  private async configureGithubOAuth() {
+    const answers = await inquirer.prompt(this._questions['github-oauth']);
+    this._env['TACH_GITHUB_CLIENT_ID'] = answers['clientId'];
+    this._secrets['TACH_GITHUB_CLIENT_SECRET'] = answers['clientSecret'];
+  }
+
+  private async configureLinkedinOAuth() {
+    const answers = await inquirer.prompt(this._questions['linkedin-oauth']);
+    this._env['TACH_LINKEDIN_CLIENT_ID'] = answers['clientId'];
+    this._secrets['TACH_LINKEDIN_CLIENT_SECRET'] = answers['clientSecret'];
+  }
+
+  private async configureAzureADOAuth() {
+    const answers = await inquirer.prompt(this._questions['azuread-oauth']);
+    this._env['TACH_AZURE_AD_CLIENT_ID'] = answers['clientId'];
+    this._env['TACH_AZURE_AD_TENANT_ID'] = answers['tenantId'];
+    this._secrets['TACH_AZURE_AD_CLIENT_SECRET'] = answers['clientSecret'];
+  }
+
+  private async configureGithubAPI() {
+    const answers = await inquirer.prompt(this._questions['github-api']);
+    this._secrets['TACH_GITHUB_API_TOKEN'] = answers['apiToken'];
+    this._env['TACH_GITHUB_REPO_NAME'] = answers['repoName'];
+    this._env['TACH_GITHUB_REPO_OWNER'] = answers['repoOwner'];
+  }
+
+  private async configureSecrets() {
+    const answers = await inquirer.prompt(this._questions['secrets']);
+    this._tachConfig.secrets.provider = answers['secretsProvider'];
+  }
+
+  private async configureLogging() {
+    const answers = await inquirer.prompt(this._questions['logging']);
+    this._tachConfig.logging.provider = answers['loggingProvider'];
+  }
+
+  private saveEnvAndSecrets() {
+    const envData = Object.entries(this._env)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('\n');
+    const secretsData = Object.entries(this._secrets)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('\n');
+    fs.writeFileSync('.env.local', envData);
+    fs.writeFileSync('.env.secrets.local', secretsData);
+  }
+
+  private saveTachConfig() {
+    fs.writeFileSync(
+      'tach.config.js',
+      `module.exports = ${JSON.stringify(this._tachConfig, null, 2)};`,
+    );
+  }
+}

@@ -3,10 +3,10 @@ import {
   IDatabaseClient,
   IServiceResolver,
   IFactory,
+  ISeedDataConfiguration,
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
 import { MongoDatabaseClient } from '@/lib/services/server/data/providers/mongodb/mongoDatabaseClient';
-import { ISeedDataConfiguration } from './abstractions';
 
 @Injectable(
   'databaseClientFactory',

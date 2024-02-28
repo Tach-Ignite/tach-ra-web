@@ -1,8 +1,6 @@
 import { IDatabaseClient, IFactory, InsertResponse } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
-import fs from 'fs';
 import { IDataLoader, ISeeder } from './abstractions';
-import { getTachConfig } from '../../getTachConfig';
 
 @Injectable('seeder', 'dataLoader', 'databaseClientFactory')
 export class Seeder implements ISeeder {

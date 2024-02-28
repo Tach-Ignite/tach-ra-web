@@ -3,9 +3,9 @@ import {
   IPublicFileStorageService,
   IOptions,
   IServiceResolver,
+  ISeedFilesConfiguration,
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
-import { ISeedFilesConfiguration } from './abstractions';
 
 @Injectable(
   'fileStorageServiceFactory',
