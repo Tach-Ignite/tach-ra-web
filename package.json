@@ -6,6 +6,8 @@
     "**/mappingProfile.ts"
   ],
   "scripts": {
+    "configure:all": "tsx ./src/lib/utils/config/configure.ts configure",
+    "configure:minimal": "tsx ./src/lib/utils/config/configure.ts configure minimal",
     "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node --skip-project server.ts",
     "build": "next build",
     "start": "next start",

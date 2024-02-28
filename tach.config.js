@@ -28,10 +28,7 @@ module.exports = {
   "auth": {
     "providers": [
       "credentials",
-      "google",
-      "github",
-      "linkedin",
-      "azuread"
+      "github"
     ]
   },
   "logging": {

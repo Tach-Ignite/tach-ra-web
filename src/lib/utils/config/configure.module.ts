@@ -1,8 +1,8 @@
 import { Module, ModuleClass } from '@/lib/ioc';
-import { getTachConfig } from '../getTachConfig';
 import { ConfigurationFactory } from '@/lib/config/configurationFactory';
 import { IConfigurationFactory, IServiceResolver } from '@/lib/abstractions';
 import { Options } from '@/lib/config/options';
+import { getTachConfig } from '../getTachConfig';
 import { Configurator } from './configurator';
 
 @Module

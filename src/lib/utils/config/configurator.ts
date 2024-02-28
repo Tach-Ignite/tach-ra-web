@@ -39,7 +39,7 @@ export class Configurator implements IConfigurator {
         type: 'confirm',
         name: 'isPasswordProtected',
         message: 'Should the app be password protected?',
-        default: true,
+        default: false,
       },
     ],
     'tach-config': [
@@ -146,6 +146,7 @@ export class Configurator implements IConfigurator {
         type: 'input',
         name: 'domainName',
         message: 'What is the domain name? (e.g. example.com)',
+        default: 'localhost:3000',
       },
     ],
     'ssl-cert-arn': [
@@ -154,6 +155,8 @@ export class Configurator implements IConfigurator {
         name: 'certArn',
         message: 'What is the SSL certificate ARN?',
       },
+    ],
+    urls: [
       {
         type: 'confirm',
         name: 'autofill',
@@ -161,7 +164,7 @@ export class Configurator implements IConfigurator {
         default: true,
       },
     ],
-    'ssl-domains': [
+    'manual-urls': [
       {
         type: 'input',
         name: 'baseUrl',
@@ -287,7 +290,8 @@ export class Configurator implements IConfigurator {
       {
         type: 'list',
         name: 'fileStorageProvider',
-        message: 'What file storage provider are you using?',
+        message:
+          'What file storage provider are you using? (mongodb is for LOCAL DEV ONLY! It does NOT work when deployed to AWS!)',
         choices: ['s3', 'mongodb'],
         default: 's3',
       },
@@ -304,6 +308,7 @@ export class Configurator implements IConfigurator {
         type: 'input',
         name: 'connectionString',
         message: 'What is the MongoDB connection string?',
+        default: 'mongodb://localhost:27017',
       },
     ],
     'data-storage': [
@@ -487,6 +492,7 @@ export class Configurator implements IConfigurator {
       'aws',
       'github-api',
       'ssl-cert',
+      'urls',
       'website-tracking',
       'captcha',
       'payments',
@@ -498,11 +504,41 @@ export class Configurator implements IConfigurator {
       'auth-providers',
       'logging',
     ],
+    minimal: ['base', 'ssl-cert-creation', 'urls', 'mongodb'],
+  };
+
+  readonly _helpText: Record<string, string> = {
+    minimal: `This will configure the absolute minimum needed for local development. Recommended for use with the tach.config.local.js file.`,
+    base: `This is the base configuration for the app. It includes the environment name, app id, app name, and whether the app is password protected.`,
+    // 'tach-config': `This is the Tach configuration for the app. It includes the data storage provider, file storage provider, seed data storage provider, seed file storage provider, auth providers, logging provider, payment provider, secrets provider, email provider, sms provider, and recaptcha provider.`,
+    'password-protection': `This is the password protection configuration for the app. It includes the username and password for password protection.`,
+    'ssl-cert': `This is the SSL certificate configuration for the app. It includes whether the SSL certificate has been created and the SSL certificate ARN.`,
+    urls: `This configures the app URLs, used by the backend, external services, and NextAuth. If you choose to autofill, the base URL will be autofilled based on the SST domain name and environment name. If you choose not to autofill, you will be prompted to enter the base URL and API URL manually.`,
+    // 'ssl-cert-creation': `This is the SSL certificate creation configuration for the app. It includes the domain name.`,
+    // 'ssl-cert-arn': `This is the SSL certificate ARN configuration for the app. It includes the SSL certificate ARN and whether to autofill the domain names.`,
+    // 'ssl-domains': `This is the SSL domains configuration for the app. It includes the base url and api url of the app.`,
+    'website-tracking': `This is the website tracking configuration for the app. It includes the website tracking provider.`,
+    // hotjar: `This is the Hotjar configuration for the app. It includes the Hotjar ID and Hotjar version.`,
+    captcha: `This is the captcha configuration for the app. It includes the captcha provider.`,
+    // 'captcha-google': `This is the Google Recaptcha configuration for the app. It includes the site key and secret key.`,
+    payments: `This is the payments configuration for the app. It includes the payment provider.`,
+    // stripe: `This is the Stripe configuration for the app. It includes the Stripe publishable key, Stripe secret key, and Stripe webhook secret.`,
+    // paypal: `This is the Paypal configuration for the app. It includes the Paypal secret.`,
+    aws: `This is the AWS configuration for the app. It includes the AWS region, AWS account ID, service account credentials, and AWS profile.`,
+    // 'aws-service-account': `This is the AWS service account configuration for the app. It includes the AWS access key ID and AWS secret access key.`,
+    'data-storage': `This is the data storage configuration for the app. It includes the data storage provider.`,
+    'file-storage': `This is the file storage configuration for the app. It includes the file storage provider.`,
+    secrets: `This is the secrets configuration for the app. It includes the secrets provider.`,
+    logging: `This is the logging configuration for the app. It includes the logging provider.`,
+    'auth-providers': `This is the auth providers configuration for the app. It includes the auth providers.`,
   };
 
   private _env: Record<string, string>;
+
   private _secrets: Record<string, string>;
+
   private _tachConfig: ITachConfiguration;
+
   private _mongoUriAlreadyConfigured: boolean = false;
 
   constructor(tachConfigurationOptions: IOptions<ITachConfiguration>) {
@@ -512,7 +548,7 @@ export class Configurator implements IConfigurator {
   }
 
   async configure(serviceCode: string): Promise<void> {
-    console.log(`Configuring service ${serviceCode}`);
+    console.log(`Configuring ${serviceCode}...`);
     switch (serviceCode) {
       case 'base':
         await this.configureBase();
@@ -528,6 +564,9 @@ export class Configurator implements IConfigurator {
         break;
       case 'ssl-cert':
         await this.configureSSLCert();
+        break;
+      case 'urls':
+        await this.configureUrls();
         break;
       case 'website-tracking':
         await this.configureWebsiteTracking();
@@ -562,6 +601,20 @@ export class Configurator implements IConfigurator {
       case 'logging':
         await this.configureLogging();
         break;
+      case 'minimal':
+        await this.configureMinimal();
+        break;
+      case 'mongodb':
+        await this.configureMongoDB();
+        break;
+      case 'ssl-cert-creation':
+        await this.configureSSLCertCreation();
+        break;
+      default:
+        console.log(
+          `${serviceCode} is not recognized. Use the help command to see available services.`,
+        );
+        return;
     }
 
     this.saveEnvAndSecrets();
@@ -570,7 +623,51 @@ export class Configurator implements IConfigurator {
 
   async configureAll(): Promise<void> {
     for (let i = 0; i < this._questionGroups.all.length; i++) {
+      // eslint-disable-next-line no-await-in-loop
       await this.configure(this._questionGroups.all[i]);
+    }
+    this.saveEnvAndSecrets();
+    this.saveTachConfig();
+  }
+
+  help(command?: string): void {
+    if (command) {
+      if (command in this._helpText) {
+        console.log(this._helpText[command]);
+      } else {
+        console.log(
+          `\tCommand ${command} is not recognized or has no help text.`,
+        );
+      }
+    } else {
+      console.log(`\tThis CLI tool is used to assist in configuring the application along with any service providers used.
+      \ttach-cli configure <foo>
+
+\tUsage
+
+\ttach-cli configure                Configure all services within the application
+\ttach-cli configure <foo>          Configure <foo> within the application
+\ttach-cli help configure           Display this help message
+\ttach-cli help configure <foo>     Display help for <command>
+
+\tAvailable Configuration Commands
+
+${Object.keys(this._helpText)
+  .map(
+    (command) =>
+      `\t${command}\t${command.length < 15 ? '\t' : ''}${
+        command.length < 8 ? '\t' : ''
+      }${this._helpText[command]}`,
+  )
+  .join('\n')}
+`);
+    }
+  }
+
+  private async configureMinimal() {
+    for (let i = 0; i < this._questionGroups.minimal.length; i++) {
+      // eslint-disable-next-line no-await-in-loop
+      await this.configure(this._questionGroups.minimal[i]);
     }
     this.saveEnvAndSecrets();
     this.saveTachConfig();
@@ -579,23 +676,23 @@ export class Configurator implements IConfigurator {
   private async configureBase() {
     const answers = await inquirer.prompt(this._questions.base);
 
-    this._env['NODE_ENV'] = answers['isLocal'] ? 'development' : 'production';
-    this._env['EXPOSE_ERROR_STACK'] = answers['isLocal'] ? 'true' : 'false';
+    this._env.NODE_ENV = answers.isLocal ? 'development' : 'production';
+    this._env.EXPOSE_ERROR_STACK = answers.isLocal ? 'true' : 'false';
 
-    this._env['TACH_SST_STAGE'] = answers['envName'];
-    this._env['TACH_SST_APP_NAME'] = answers['appId'];
-    this._env['TACH_APPLICATION_NAME'] = answers['appName'];
-    this._env['TACH_PASSWORD_PROTECTED'] = answers['isPasswordProtected']
+    this._env.TACH_SST_STAGE = answers.envName;
+    this._env.TACH_SST_APP_NAME = answers.appId;
+    this._env.TACH_APPLICATION_NAME = answers.appName;
+    this._env.TACH_PASSWORD_PROTECTED = answers.isPasswordProtected
       ? 'true'
       : 'false';
 
-    if (answers['isPasswordProtected']) {
+    if (answers.isPasswordProtected) {
       await this.configurePasswordProtection();
     }
 
-    //configure all secrets
-    this._secrets['NEXTAUTH_SECRET'] = crypto.randomBytes(32).toString('hex');
-    this._secrets['TACH_NEXTAUTH_JWT_SECRET'] = crypto
+    // configure all secrets
+    this._secrets.NEXTAUTH_SECRET = crypto.randomBytes(32).toString('hex');
+    this._secrets.TACH_NEXTAUTH_JWT_SECRET = crypto
       .randomBytes(32)
       .toString('hex');
   }
@@ -604,82 +701,93 @@ export class Configurator implements IConfigurator {
     const answers = await inquirer.prompt(
       this._questions['password-protection'],
     );
-    this._env['TACH_PASSWORD_PROTECTED'] = 'true';
-    this._secrets['TACH_PASSWORD_PROTECTED_USERNAME'] = answers['username'];
-    this._secrets['TACH_PASSWORD_PROTECTED_PASSWORD'] = answers['password'];
+    this._env.TACH_PASSWORD_PROTECTED = 'true';
+    this._secrets.TACH_PASSWORD_PROTECTED_USERNAME = answers.username;
+    this._secrets.TACH_PASSWORD_PROTECTED_PASSWORD = answers.password;
   }
 
   private async configureTachConfig() {
     const answers = await inquirer.prompt(this._questions['tach-config']);
-    this._tachConfig.storage.data.provider = answers['dataStorageProvider'];
-    this._tachConfig.storage.files.provider = answers['fileStorageProvider'];
-    this._tachConfig.seed.data.provider = answers['seedDataStorageProvider'];
-    this._tachConfig.seed.files.provider = answers['seedFileStorageProvider'];
-    this._tachConfig.auth.providers = answers['authProviders'];
-    this._tachConfig.logging.provider = answers['loggingProvider'];
-    this._tachConfig.payment.provider = answers['paymentProvider'];
-    this._tachConfig.secrets.provider = answers['secretsProvider'];
-    this._tachConfig.notifications.email.provider = answers['emailProvider'];
-    this._tachConfig.notifications.sms.provider = answers['smsProvider'];
-    this._tachConfig.recaptcha.provider = answers['recaptchaProvider'];
+    this._tachConfig.storage.data.provider = answers.dataStorageProvider;
+    this._tachConfig.storage.files.provider = answers.fileStorageProvider;
+    this._tachConfig.seed.data.provider = answers.seedDataStorageProvider;
+    this._tachConfig.seed.files.provider = answers.seedFileStorageProvider;
+    this._tachConfig.auth.providers = answers.authProviders;
+    this._tachConfig.logging.provider = answers.loggingProvider;
+    this._tachConfig.payment.provider = answers.paymentProvider;
+    this._tachConfig.secrets.provider = answers.secretsProvider;
+    this._tachConfig.notifications.email.provider = answers.emailProvider;
+    this._tachConfig.notifications.sms.provider = answers.smsProvider;
+    this._tachConfig.recaptcha.provider = answers.recaptchaProvider;
   }
 
   private async configureSSLCert() {
     const answers = await inquirer.prompt(this._questions['ssl-cert']);
-    if (!answers['isSslCertCreated']) {
+    if (!answers.isSslCertCreated) {
       await this.configureSSLCertCreation();
     } else {
+      if (!this._env.TACH_SST_DOMAIN_NAME) {
+        await this.configureSSLCertCreation();
+      }
       await this.configureSSLCertArn();
     }
   }
 
   private async configureSSLCertCreation() {
     const answers = await inquirer.prompt(this._questions['ssl-cert-creation']);
-    this._env['TACH_SST_DOMAIN_NAME'] = answers['domainName'];
+    this._env.TACH_SST_DOMAIN_NAME = answers.domainName;
   }
 
   private async configureSSLCertArn() {
     const answers = await inquirer.prompt(this._questions['ssl-cert-arn']);
-    this._env['TACH_SST_CERTIFICATE_ARN'] = answers['certArn'];
-    const stage = this._env['TACH_SST_STAGE'];
-    if (answers['autofill'] && stage !== 'local') {
-      let baseUrl = `https://${this._env['TACH_SST_DOMAIN_NAME']}`;
-      if (stage === 'dev') {
-        baseUrl = `https://dev.${this._env['TACH_SST_DOMAIN_NAME']}`;
-      } else if (stage === 'prod') {
-        baseUrl = `https://www.${this._env['TACH_SST_DOMAIN_NAME']}`;
-      }
-      this._env['NEXTAUTH_URL'] = baseUrl;
-      this._env['NEXT_PUBLIC_BASE_URL'] = baseUrl;
-      this._env['TACH_SST_API_URL'] = `${baseUrl}/api`;
+    this._env.TACH_SST_CERTIFICATE_ARN = answers.certArn;
+  }
+
+  private async configureUrls() {
+    const answers = await inquirer.prompt(this._questions['urls']);
+    if (answers.autofill) {
+      this.automaticallyConfigureUrls();
     } else {
-      await this.configureSSLDomains();
+      await this.manuallyConfigureUrls();
     }
   }
 
-  private async configureSSLDomains() {
-    const answers = await inquirer.prompt(this._questions['ssl-domains']);
-    this._env['NEXTAUTH_URL'] = answers['baseUrl'];
-    this._env['NEXT_PUBLIC_BASE_URL'] = answers['baseUrl'];
-    this._env['TACH_SST_API_URL'] = answers['apiUrl'];
+  private async automaticallyConfigureUrls() {
+    const stage = this._env.TACH_SST_STAGE;
+    let baseUrl = `https://${this._env.TACH_SST_DOMAIN_NAME}`;
+    if (stage === 'dev') {
+      baseUrl = `https://dev.${this._env.TACH_SST_DOMAIN_NAME}`;
+    } else if (stage === 'prod') {
+      baseUrl = `https://www.${this._env.TACH_SST_DOMAIN_NAME}`;
+    }
+    this._env.NEXTAUTH_URL = baseUrl;
+    this._env.NEXT_PUBLIC_BASE_URL = baseUrl;
+    this._env.NEXT_PUBLIC_API_URL = `${baseUrl}/api`;
+  }
+
+  private async manuallyConfigureUrls() {
+    const answers = await inquirer.prompt(this._questions['manual-urls']);
+    this._env.NEXTAUTH_URL = answers.baseUrl;
+    this._env.NEXT_PUBLIC_BASE_URL = answers.baseUrl;
+    this._env.NEXT_PUBLIC_API_URL = answers.apiUrl;
   }
 
   private async configureWebsiteTracking() {
     const answers = await inquirer.prompt(this._questions['website-tracking']);
-    if (answers['websiteTrackingProvider'] === 'hotjar') {
+    if (answers.websiteTrackingProvider === 'hotjar') {
       await this.configureHotjar();
     }
   }
 
   private async configureHotjar() {
-    const answers = await inquirer.prompt(this._questions['hotjar']);
-    this._env['NEXT_PUBLIC_HOTJAR_HJID'] = answers['hotjarId'];
-    this._env['NEXT_PUBLIC_HOTJAR_HJSV'] = answers['hotjarVersion'];
+    const answers = await inquirer.prompt(this._questions.hotjar);
+    this._env.NEXT_PUBLIC_HOTJAR_HJID = answers.hotjarId;
+    this._env.NEXT_PUBLIC_HOTJAR_HJSV = answers.hotjarVersion;
   }
 
   private async configureCaptcha() {
-    const answers = await inquirer.prompt(this._questions['captcha']);
-    if (answers['captchaProvider'] === 'google') {
+    const answers = await inquirer.prompt(this._questions.captcha);
+    if (answers.captchaProvider === 'google') {
       await this.configureGoogleCaptcha();
       this._tachConfig.recaptcha.provider = 'google';
     }
@@ -687,38 +795,38 @@ export class Configurator implements IConfigurator {
 
   private async configureGoogleCaptcha() {
     const answers = await inquirer.prompt(this._questions['captcha-google']);
-    this._env['NEXT_PUBLIC_GOOGLE_RECAPTCHA_SITE_KEY'] = answers['siteKey'];
-    this._env['TACH_GOOGLE_RECAPTCHA_SECRET_KEY'] = answers['secretKey'];
+    this._env.NEXT_PUBLIC_GOOGLE_RECAPTCHA_SITE_KEY = answers.siteKey;
+    this._env.TACH_GOOGLE_RECAPTCHA_SECRET_KEY = answers.secretKey;
   }
 
   private async configurePayments() {
-    const answers = await inquirer.prompt(this._questions['payments']);
-    if (answers['paymentProvider'] === 'stripe') {
+    const answers = await inquirer.prompt(this._questions.payments);
+    if (answers.paymentProvider === 'stripe') {
       await this.configureStripe();
       this._tachConfig.payment.provider = 'stripe';
-    } else if (answers['paymentProvider'] === 'paypal') {
+    } else if (answers.paymentProvider === 'paypal') {
       await this.configurePaypal();
       this._tachConfig.payment.provider = 'paypal';
     }
   }
 
   private async configureStripe() {
-    const answers = await inquirer.prompt(this._questions['stripe']);
-    this._env['NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY'] = answers['publishableKey'];
-    this._secrets['TACH_STRIPE_SECRET_KEY'] = answers['secretKey'];
-    this._secrets['TACH_STRIPE_WEBHOOK_SIGNATURE'] = answers['webhookSecret'];
+    const answers = await inquirer.prompt(this._questions.stripe);
+    this._env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = answers.publishableKey;
+    this._secrets.TACH_STRIPE_SECRET_KEY = answers.secretKey;
+    this._secrets.TACH_STRIPE_WEBHOOK_SIGNATURE = answers.webhookSecret;
   }
 
   private async configurePaypal() {
-    const answers = await inquirer.prompt(this._questions['paypal']);
-    this._secrets['TACH_PAYPAL_SECRET_KEY'] = answers['paypalSecret'];
+    const answers = await inquirer.prompt(this._questions.paypal);
+    this._secrets.TACH_PAYPAL_SECRET_KEY = answers.paypalSecret;
   }
 
   private async configureAWS() {
-    const answers = await inquirer.prompt(this._questions['aws']);
-    this._env['TACH_AWS_REGION'] = answers['region'];
-    this._env['TACH_AWS_ACCOUNT_ID'] = answers['accountId'];
-    this._env['TACH_AWS_PROFILE'] = answers['profile'];
+    const answers = await inquirer.prompt(this._questions.aws);
+    this._env.TACH_AWS_REGION = answers.region;
+    this._env.TACH_AWS_ACCOUNT_ID = answers.accountId;
+    this._env.TACH_AWS_PROFILE = answers.profile;
     await this.configureAWSServiceAccount();
   }
 
@@ -726,40 +834,40 @@ export class Configurator implements IConfigurator {
     const answers = await inquirer.prompt(
       this._questions['aws-service-account'],
     );
-    this._env['TACH_AWS_ACCESS_KEY_ID'] = answers['accessKeyId'];
-    this._secrets['TACH_AWS_SECRET_ACCESS_KEY'] = answers['secretAccessKey'];
+    this._env.TACH_AWS_ACCESS_KEY_ID = answers.accessKeyId;
+    this._secrets.TACH_AWS_SECRET_ACCESS_KEY = answers.secretAccessKey;
   }
 
   private async configureFileStorage() {
     const answers = await inquirer.prompt(this._questions['file-storage']);
-    if (answers['fileStorageProvider'] === 's3') {
+    if (answers.fileStorageProvider === 's3') {
       await this.configureS3();
       this._tachConfig.storage.files.provider = 's3';
-    } else if (answers['fileStorageProvider'] === 'mongodb') {
+    } else if (answers.fileStorageProvider === 'mongodb') {
       await this.configureMongoDB();
       this._tachConfig.storage.files.provider = 'mongodb';
     }
   }
 
   private async configureS3() {
-    const answers = await inquirer.prompt(this._questions['s3']);
-    this._env['TACH_S3_BUCKET_NAME'] = answers['bucketName'];
+    const answers = await inquirer.prompt(this._questions.s3);
+    this._env.TACH_S3_BUCKET_NAME = answers.bucketName;
   }
 
   private async configureMongoDB() {
-    const answers = await inquirer.prompt(this._questions['mongodb']);
+    const answers = await inquirer.prompt(this._questions.mongodb);
     if (!this._mongoUriAlreadyConfigured) {
-      this._secrets['TACH_MONGO_URI'] = answers['connectionString'];
+      this._secrets.TACH_MONGO_URI = answers.connectionString;
       this._mongoUriAlreadyConfigured = true;
     }
   }
 
   private async configureDataStorage() {
     const answers = await inquirer.prompt(this._questions['data-storage']);
-    if (answers['dataStorageProvider'] === 'mongodb-atlas-data-api') {
+    if (answers.dataStorageProvider === 'mongodb-atlas-data-api') {
       await this.configureMongoDBAtlasDataAPI();
       this._tachConfig.storage.data.provider = 'mongodb-atlas-data-api';
-    } else if (answers['dataStorageProvider'] === 'mongodb') {
+    } else if (answers.dataStorageProvider === 'mongodb') {
       await this.configureMongoDB();
       this._tachConfig.storage.data.provider = 'mongodb';
     }
@@ -769,101 +877,100 @@ export class Configurator implements IConfigurator {
     const answers = await inquirer.prompt(
       this._questions['mongodb-atlas-data-api'],
     );
-    this._secrets['TACH_MONGO_DATA_API_URI'] = answers['apiUrl'];
-    this._secrets['TACH_MONGO_DATA_API_KEY'] = answers['apiKey'];
-    this._secrets['TACH_MONGO_DATA_API_DATA_SOURCE'] = answers['dataSource'];
-    this._secrets['TACH_MONGO_DATA_API_DATABASE_NAME'] =
-      answers['databaseName'];
+    this._secrets.TACH_MONGO_DATA_API_URI = answers.apiUrl;
+    this._secrets.TACH_MONGO_DATA_API_KEY = answers.apiKey;
+    this._secrets.TACH_MONGO_DATA_API_DATA_SOURCE = answers.dataSource;
+    this._secrets.TACH_MONGO_DATA_API_DATABASE_NAME = answers.databaseName;
   }
 
   private async configureEmail() {
-    const answers = await inquirer.prompt(this._questions['email']);
-    this._env['TACH_CONTACT_EMAIL_ADDRESS'] = answers['emailContactAddress'];
-    this._env['TACH_FROM_EMAIL_ADDRESS'] = answers['emailFromAddress'];
+    const answers = await inquirer.prompt(this._questions.email);
+    this._env.TACH_CONTACT_EMAIL_ADDRESS = answers.emailContactAddress;
+    this._env.TACH_FROM_EMAIL_ADDRESS = answers.emailFromAddress;
   }
 
   private async configureSMS() {
-    const answers = await inquirer.prompt(this._questions['sms']);
-    if (answers['provider'] === 'sns') {
+    const answers = await inquirer.prompt(this._questions.sms);
+    if (answers.provider === 'sns') {
       await this.configureSNS();
       this._tachConfig.notifications.sms.provider = 'sns';
-    } else if (answers['provider'] === 'twilio') {
+    } else if (answers.provider === 'twilio') {
       await this.configureTwilio();
       this._tachConfig.notifications.sms.provider = 'twilio';
-    } else if (answers['provider'] === 'console') {
+    } else if (answers.provider === 'console') {
       this._tachConfig.notifications.sms.provider = 'console';
     }
   }
 
   private async configureSNS() {
-    const answers = await inquirer.prompt(this._questions['sns']);
-    this._env['TACH_SMS_QUEUE_URL'] = answers['sqsQueueUrl'];
+    const answers = await inquirer.prompt(this._questions.sns);
+    this._env.TACH_SMS_QUEUE_URL = answers.sqsQueueUrl;
   }
 
   private async configureTwilio() {
-    const answers = await inquirer.prompt(this._questions['twilio']);
-    this._env['TACH_TWILIO_ACCOUNT_SID'] = answers['accountSid'];
-    this._env['TACH_TWILIO_ORIGINATION_NUMBER'] = answers['originationNumber'];
-    this._secrets['TACH_TWILIO_AUTH_TOKEN'] = answers['authToken'];
+    const answers = await inquirer.prompt(this._questions.twilio);
+    this._env.TACH_TWILIO_ACCOUNT_SID = answers.accountSid;
+    this._env.TACH_TWILIO_ORIGINATION_NUMBER = answers.originationNumber;
+    this._secrets.TACH_TWILIO_AUTH_TOKEN = answers.authToken;
   }
 
   private async configureAuthProviders() {
     const answers = await inquirer.prompt(this._questions['auth-providers']);
-    if (answers['authProviders'].includes('google')) {
+    if (answers.authProviders.includes('google')) {
       await this.configureGoogleOAuth();
     }
-    if (answers['authProviders'].includes('github')) {
+    if (answers.authProviders.includes('github')) {
       await this.configureGithubOAuth();
     }
-    if (answers['authProviders'].includes('linkedin')) {
+    if (answers.authProviders.includes('linkedin')) {
       await this.configureLinkedinOAuth();
     }
-    if (answers['authProviders'].includes('azuread')) {
+    if (answers.authProviders.includes('azuread')) {
       await this.configureAzureADOAuth();
     }
-    this._tachConfig.auth.providers = answers['authProviders'];
+    this._tachConfig.auth.providers = answers.authProviders;
   }
 
   private async configureGoogleOAuth() {
     const answers = await inquirer.prompt(this._questions['google-oauth']);
-    this._env['TACH_GOOGLE_CLIENT_ID'] = answers['clientId'];
-    this._secrets['TACH_GOOGLE_CLIENT_SECRET'] = answers['clientSecret'];
+    this._env.TACH_GOOGLE_CLIENT_ID = answers.clientId;
+    this._secrets.TACH_GOOGLE_CLIENT_SECRET = answers.clientSecret;
   }
 
   private async configureGithubOAuth() {
     const answers = await inquirer.prompt(this._questions['github-oauth']);
-    this._env['TACH_GITHUB_CLIENT_ID'] = answers['clientId'];
-    this._secrets['TACH_GITHUB_CLIENT_SECRET'] = answers['clientSecret'];
+    this._env.TACH_GITHUB_CLIENT_ID = answers.clientId;
+    this._secrets.TACH_GITHUB_CLIENT_SECRET = answers.clientSecret;
   }
 
   private async configureLinkedinOAuth() {
     const answers = await inquirer.prompt(this._questions['linkedin-oauth']);
-    this._env['TACH_LINKEDIN_CLIENT_ID'] = answers['clientId'];
-    this._secrets['TACH_LINKEDIN_CLIENT_SECRET'] = answers['clientSecret'];
+    this._env.TACH_LINKEDIN_CLIENT_ID = answers.clientId;
+    this._secrets.TACH_LINKEDIN_CLIENT_SECRET = answers.clientSecret;
   }
 
   private async configureAzureADOAuth() {
     const answers = await inquirer.prompt(this._questions['azuread-oauth']);
-    this._env['TACH_AZURE_AD_CLIENT_ID'] = answers['clientId'];
-    this._env['TACH_AZURE_AD_TENANT_ID'] = answers['tenantId'];
-    this._secrets['TACH_AZURE_AD_CLIENT_SECRET'] = answers['clientSecret'];
+    this._env.TACH_AZURE_AD_CLIENT_ID = answers.clientId;
+    this._env.TACH_AZURE_AD_TENANT_ID = answers.tenantId;
+    this._secrets.TACH_AZURE_AD_CLIENT_SECRET = answers.clientSecret;
   }
 
   private async configureGithubAPI() {
     const answers = await inquirer.prompt(this._questions['github-api']);
-    this._secrets['TACH_GITHUB_API_TOKEN'] = answers['apiToken'];
-    this._env['TACH_GITHUB_REPO_NAME'] = answers['repoName'];
-    this._env['TACH_GITHUB_REPO_OWNER'] = answers['repoOwner'];
+    this._secrets.TACH_GITHUB_API_TOKEN = answers.apiToken;
+    this._env.TACH_GITHUB_REPO_NAME = answers.repoName;
+    this._env.TACH_GITHUB_REPO_OWNER = answers.repoOwner;
   }
 
   private async configureSecrets() {
-    const answers = await inquirer.prompt(this._questions['secrets']);
-    this._tachConfig.secrets.provider = answers['secretsProvider'];
+    const answers = await inquirer.prompt(this._questions.secrets);
+    this._tachConfig.secrets.provider = answers.secretsProvider;
   }
 
   private async configureLogging() {
-    const answers = await inquirer.prompt(this._questions['logging']);
-    this._tachConfig.logging.provider = answers['loggingProvider'];
+    const answers = await inquirer.prompt(this._questions.logging);
+    this._tachConfig.logging.provider = answers.loggingProvider;
   }
 
   private saveEnvAndSecrets() {
