@@ -1028,7 +1028,7 @@ ${Object.keys(this._helpText)
   }
 
   private async configureS3() {
-    if (this._s3BucketAlreadyConfigured) {
+    if (!this._s3BucketAlreadyConfigured) {
       const answers = await inquirer.prompt(this._questions.s3);
       this._env.TACH_S3_BUCKET_NAME = answers.bucketName;
       this._s3BucketAlreadyConfigured = true;
