@@ -18,7 +18,7 @@ module.exports = {
         ]
       },
       "files": {
-        "provider": "mongodb",
+        "provider": "s3",
         "files": [
           "~/tach_extra/colorStoreSeeder/fileData.js"
         ]
@@ -45,10 +45,10 @@ module.exports = {
   },
   "notifications": {
     "email": {
-      "provider": "console"
+      "provider": "ses"
     },
     "sms": {
-      "provider": "sns"
+      "provider": "twilio"
     }
   },
   "recaptcha": {

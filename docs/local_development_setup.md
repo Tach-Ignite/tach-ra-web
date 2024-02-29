@@ -59,6 +59,8 @@ The following sections will walk you through the basics of starting development 
 
 ## Environment Variables
 
+It is recommended that you use the Tach CLI to configure your environment variables, secrets, and `tach.config.js`. To learn more about the Tach CLI, see [this guide](/docs/tach_cli.md).
+
 You will need to configure a `.env.local` file with the variables from `.env.local.example` filled out with relevant values. While this example file covers a large number of external services, you only need to fill out the ones that you are using with real values. For example, if you aren't using paypal as a payment provider, feel free to leave those as default.
 
 Read [here](/docs/environment_variables.md) to learn more about these environment variables.

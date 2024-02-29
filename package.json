@@ -8,6 +8,8 @@
   "scripts": {
     "configure:all": "tsx ./src/lib/utils/config/configure.ts configure",
     "configure:minimal": "tsx ./src/lib/utils/config/configure.ts configure minimal",
+    "configure:from-tach-config": "tsx ./src/lib/utils/config/configure.ts configure from-tach-config",
+    "configure:ssl-cert-arn": "tsx ./src/lib/utils/config/configure.ts configure ssl-cert-arn",
     "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node --skip-project server.ts",
     "build": "next build",
     "start": "next start",

@@ -15,7 +15,6 @@ export interface IOptions<T extends object> {
 
 export interface ITachConfiguration {
   storage: IStorageConfiguration;
-  seed: ISeedConfiguration;
   auth: IAuthConfiguration;
   logging: ILoggingConfiguration;
   payment: IPaymentConfiguration;
@@ -36,6 +35,7 @@ export interface IFileStorageConfiguration extends IConfigurationSection {
 export interface IStorageConfiguration extends IConfigurationSection {
   data: IDataStorageConfiguration;
   files: IFileStorageConfiguration;
+  seed: ISeedConfiguration;
 }
 
 export interface ISeedDataConfiguration extends IConfigurationSection {

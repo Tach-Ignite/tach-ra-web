@@ -205,7 +205,7 @@ export class Configurator implements IConfigurator {
         type: 'list',
         name: 'captchaProvider',
         message: 'What captcha service are you using?',
-        choices: ['google'],
+        choices: ['google', 'fake'],
         default: 'google',
       },
     ],
@@ -505,6 +505,15 @@ export class Configurator implements IConfigurator {
       'logging',
     ],
     minimal: ['base', 'ssl-cert-creation', 'urls', 'mongodb'],
+    'from-tach-config': [
+      'base',
+      'ssl-cert',
+      'urls',
+      'email',
+      'website-tracking',
+      'services-from-tach-config',
+      'github-api',
+    ],
   };
 
   readonly _helpText: Record<string, string> = {
@@ -533,17 +542,19 @@ export class Configurator implements IConfigurator {
     'auth-providers': `This is the auth providers configuration for the app. It includes the auth providers.`,
   };
 
-  private _env: Record<string, string>;
+  private _env: Record<string, string> = {};
 
-  private _secrets: Record<string, string>;
+  private _secrets: Record<string, string> = {};
 
   private _tachConfig: ITachConfiguration;
 
   private _mongoUriAlreadyConfigured: boolean = false;
 
+  private _s3BucketAlreadyConfigured: boolean = false;
+
   constructor(tachConfigurationOptions: IOptions<ITachConfiguration>) {
-    this._env = dotenv.parse('.env.local');
-    this._secrets = dotenv.parse('.env.secrets.local');
+    dotenv.config({ path: '.env.local', processEnv: this._env });
+    dotenv.config({ path: '.env.secrets.local', processEnv: this._secrets });
     this._tachConfig = tachConfigurationOptions.value;
   }
 
@@ -564,6 +575,9 @@ export class Configurator implements IConfigurator {
         break;
       case 'ssl-cert':
         await this.configureSSLCert();
+        break;
+      case 'ssl-cert-arn':
+        await this.configureSSLCertArn();
         break;
       case 'urls':
         await this.configureUrls();
@@ -609,6 +623,12 @@ export class Configurator implements IConfigurator {
         break;
       case 'ssl-cert-creation':
         await this.configureSSLCertCreation();
+        break;
+      case 'from-tach-config':
+        await this.configureAllFromTachConfig();
+        break;
+      case 'services-from-tach-config':
+        await this.configureFromTachConfig();
         break;
       default:
         console.log(
@@ -673,6 +693,162 @@ ${Object.keys(this._helpText)
     this.saveTachConfig();
   }
 
+  private async configureAllFromTachConfig() {
+    for (let i = 0; i < this._questionGroups['from-tach-config'].length; i++) {
+      // eslint-disable-next-line no-await-in-loop
+      await this.configure(this._questionGroups['from-tach-config'][i]);
+    }
+    this.saveEnvAndSecrets();
+    this.saveTachConfig();
+  }
+
+  private async configureFromTachConfig() {
+    let awsConfigured = false;
+    switch (this._tachConfig.storage.data.provider) {
+      case 'mongodb-atlas-data-api':
+        await this.configureMongoDBAtlasDataAPI();
+        break;
+      case 'mongodb':
+        await this.configureMongoDB();
+        break;
+      default:
+        console.log(
+          'Data storage provider not recognized. Please configure it manually.',
+        );
+    }
+    switch (this._tachConfig.storage.files.provider) {
+      case 's3':
+        await this.configureS3();
+        break;
+      case 'mongodb':
+        await this.configureMongoDB();
+        break;
+      default:
+        console.log(
+          'File storage provider not recognized. Please configure it manually.',
+        );
+    }
+    switch (this._tachConfig.storage.seed.data.provider) {
+      case 'mongodb':
+        await this.configureMongoDB();
+        break;
+      default:
+        console.log(
+          'Seed data storage provider not recognized. Please configure it manually.',
+        );
+    }
+    switch (this._tachConfig.storage.seed.files.provider) {
+      case 's3':
+        await this.configureS3();
+        break;
+      case 'mongodb':
+        await this.configureMongoDB();
+        break;
+      default:
+        console.log(
+          'Seed file storage provider not recognized. Please configure it manually.',
+        );
+    }
+    for (let i = 0; i < this._tachConfig.auth.providers.length; i++) {
+      switch (this._tachConfig.auth.providers[i]) {
+        case 'github':
+          // eslint-disable-next-line no-await-in-loop
+          await this.configureGithubOAuth();
+          break;
+        case 'google':
+          // eslint-disable-next-line no-await-in-loop
+          await this.configureGoogleOAuth();
+          break;
+        case 'linkedin':
+          // eslint-disable-next-line no-await-in-loop
+          await this.configureLinkedinOAuth();
+          break;
+        case 'azuread':
+          // eslint-disable-next-line no-await-in-loop
+          await this.configureAzureADOAuth();
+          break;
+        case 'credentials':
+          break;
+        default:
+          console.log(
+            'Auth provider not recognized. Please configure it manually.',
+          );
+      }
+    }
+    switch (this._tachConfig.payment.provider) {
+      case 'stripe':
+        await this.configureStripe();
+        break;
+      case 'paypal':
+        await this.configurePaypal();
+        break;
+      default:
+        console.log(
+          'Payment provider not recognized. Please configure it manually.',
+        );
+    }
+    switch (this._tachConfig.secrets.provider) {
+      case 'ssm':
+        if (!awsConfigured) {
+          await this.configureAWS();
+          awsConfigured = true;
+        }
+        break;
+      case 'env':
+        break;
+      default:
+        console.log(
+          'Secrets provider not recognized. Please configure it manually.',
+        );
+    }
+    switch (this._tachConfig.notifications.email.provider) {
+      case 'ses':
+        if (!awsConfigured) {
+          await this.configureAWS();
+          awsConfigured = true;
+        }
+        break;
+      case 'console':
+        break;
+      default:
+        console.log(
+          'Email provider not recognized. Please configure it manually.',
+        );
+    }
+    switch (this._tachConfig.notifications.sms.provider) {
+      case 'sns':
+        if (!awsConfigured) {
+          await this.configureAWS();
+          awsConfigured = true;
+        }
+        await this.configureSNS();
+        break;
+      case 'twilio':
+        await this.configureTwilio();
+        break;
+      case 'console':
+        break;
+      default:
+        console.log(
+          'SMS provider not recognized. Please configure it manually.',
+        );
+    }
+    switch (this._tachConfig.recaptcha.provider) {
+      case 'google':
+        await this.configureGoogleCaptcha();
+        break;
+      case 'fake':
+        break;
+      default:
+        console.log(
+          'Recaptcha provider not recognized. Please configure it manually.',
+        );
+    }
+
+    this.saveEnvAndSecrets();
+    this.saveTachConfig();
+  }
+
   private async configureBase() {
     const answers = await inquirer.prompt(this._questions.base);
 
@@ -710,8 +886,10 @@ ${Object.keys(this._helpText)
     const answers = await inquirer.prompt(this._questions['tach-config']);
     this._tachConfig.storage.data.provider = answers.dataStorageProvider;
     this._tachConfig.storage.files.provider = answers.fileStorageProvider;
-    this._tachConfig.seed.data.provider = answers.seedDataStorageProvider;
-    this._tachConfig.seed.files.provider = answers.seedFileStorageProvider;
+    this._tachConfig.storage.seed.data.provider =
+      answers.seedDataStorageProvider;
+    this._tachConfig.storage.seed.files.provider =
+      answers.seedFileStorageProvider;
     this._tachConfig.auth.providers = answers.authProviders;
     this._tachConfig.logging.provider = answers.loggingProvider;
     this._tachConfig.payment.provider = answers.paymentProvider;
@@ -744,7 +922,7 @@ ${Object.keys(this._helpText)
   }
 
   private async configureUrls() {
-    const answers = await inquirer.prompt(this._questions['urls']);
+    const answers = await inquirer.prompt(this._questions.urls);
     if (answers.autofill) {
       this.automaticallyConfigureUrls();
     } else {
@@ -789,14 +967,14 @@ ${Object.keys(this._helpText)
     const answers = await inquirer.prompt(this._questions.captcha);
     if (answers.captchaProvider === 'google') {
       await this.configureGoogleCaptcha();
-      this._tachConfig.recaptcha.provider = 'google';
     }
+    this._tachConfig.recaptcha.provider = answers.captchaProvider;
   }
 
   private async configureGoogleCaptcha() {
     const answers = await inquirer.prompt(this._questions['captcha-google']);
     this._env.NEXT_PUBLIC_GOOGLE_RECAPTCHA_SITE_KEY = answers.siteKey;
-    this._env.TACH_GOOGLE_RECAPTCHA_SECRET_KEY = answers.secretKey;
+    this._secrets.TACH_GOOGLE_RECAPTCHA_SECRET_KEY = answers.secretKey;
   }
 
   private async configurePayments() {
@@ -850,13 +1028,16 @@ ${Object.keys(this._helpText)
   }
 
   private async configureS3() {
-    const answers = await inquirer.prompt(this._questions.s3);
-    this._env.TACH_S3_BUCKET_NAME = answers.bucketName;
+    if (this._s3BucketAlreadyConfigured) {
+      const answers = await inquirer.prompt(this._questions.s3);
+      this._env.TACH_S3_BUCKET_NAME = answers.bucketName;
+      this._s3BucketAlreadyConfigured = true;
+    }
   }
 
   private async configureMongoDB() {
-    const answers = await inquirer.prompt(this._questions.mongodb);
     if (!this._mongoUriAlreadyConfigured) {
+      const answers = await inquirer.prompt(this._questions.mongodb);
       this._secrets.TACH_MONGO_URI = answers.connectionString;
       this._mongoUriAlreadyConfigured = true;
     }
