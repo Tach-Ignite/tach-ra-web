@@ -1,6 +1,7 @@
 export interface IConfigurationSection {}
 
 export interface IConfiguration {
+  getConfig(): ITachConfiguration;
   getSection<T extends IConfigurationSection>(sectionName: string): T | null;
 }
 
@@ -13,13 +14,14 @@ export interface IOptions<T extends object> {
 }
 
 export interface ITachConfiguration {
-  storage: IDataStorageConfiguration;
+  storage: IStorageConfiguration;
   auth: IAuthConfiguration;
   logging: ILoggingConfiguration;
   payment: IPaymentConfiguration;
   darkMode: IDarkModeConfiguration;
   secrets: ISecretsConfiguration;
   notifications: INotificationsConfiguration;
+  recaptcha: IRecaptchaConfiguration;
 }
 
 export interface IDataStorageConfiguration extends IConfigurationSection {
@@ -28,6 +30,29 @@ export interface IDataStorageConfiguration extends IConfigurationSection {
 
 export interface IFileStorageConfiguration extends IConfigurationSection {
   provider: string;
+}
+
+export interface IStorageConfiguration extends IConfigurationSection {
+  data: IDataStorageConfiguration;
+  files: IFileStorageConfiguration;
+  seed: ISeedConfiguration;
+}
+
+export interface ISeedDataConfiguration extends IConfigurationSection {
+  provider: string;
+  dataFiles: Array<string>;
+  indexFiles: Array<string>;
+  modelFiles: Array<string>;
+}
+
+export interface ISeedFilesConfiguration extends IConfigurationSection {
+  provider: string;
+  files: Array<string>;
+}
+
+export interface ISeedConfiguration extends IConfigurationSection {
+  data: ISeedDataConfiguration;
+  files: ISeedFilesConfiguration;
 }
 
 export interface IAuthConfiguration extends IConfigurationSection {

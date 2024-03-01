@@ -3,9 +3,10 @@ import {
   IFactory,
   IPublicFileStorageService,
   IOptions,
+  ISeedConfiguration,
 } from '@/lib/abstractions';
 import { Injectable } from '@/lib/ioc/injectable';
-import { IDataLoader, ISeedConfiguration } from './abstractions';
+import { IDataLoader } from './abstractions';
 
 @Injectable(
   'dataLoader',

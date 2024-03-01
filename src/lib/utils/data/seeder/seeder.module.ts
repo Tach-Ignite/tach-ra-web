@@ -1,5 +1,11 @@
 import { Module, ModuleClass } from '@/lib/ioc/module';
-import { IConfigurationFactory, IServiceResolver } from '@/lib/abstractions';
+import {
+  IConfigurationFactory,
+  IServiceResolver,
+  ISeedConfiguration,
+  ISeedDataConfiguration,
+  ISeedFilesConfiguration,
+} from '@/lib/abstractions';
 import { SecretsModule } from '@/lib/modules/services/server/security/secrets.module';
 import { MongoDbDataProviderModule } from '@/lib/modules/services/server/data/providers/mongodb/mongodbDataProvider.module';
 import { LoggingModule } from '@/lib/modules/logging/logging.module';
@@ -12,11 +18,6 @@ import { ImageStorageService } from '@/lib/services/server/fileStorage/imageStor
 import { SeederDatabaseClientFactory } from './seederDatabaseClientFactory';
 import { SeederFileStorageServiceFactory } from './seederFileStorageServiceFactory';
 import { getTachConfig } from '../../getTachConfig';
-import {
-  ISeedConfiguration,
-  ISeedDataConfiguration,
-  ISeedFilesConfiguration,
-} from './abstractions';
 import { Seeder } from './seeder';
 import { DataLoader } from './dataLoader';
 

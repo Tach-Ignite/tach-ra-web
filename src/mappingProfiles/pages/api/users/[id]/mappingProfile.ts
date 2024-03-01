@@ -18,6 +18,7 @@ import {
   UserViewModel,
 } from '@/models';
 import '../../addresses/currentUser/mappingProfile';
+import '../../products/mappingProfile';
 
 @TachMappingProfileClass('pages/api/users/[id]/mappingProfile')
 export class USerApiIdMappingProfile implements ITachMappingProfile {
