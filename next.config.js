@@ -107,8 +107,6 @@ const nextConfig = {
       `${process.env.TACH_AWS_BUCKET_NAME}.s3.${process.env.TACH_AWS_REGION}.amazonaws.com`,
       `${process.env.TACH_AWS_BUCKET_NAME}.s3.amazonaws.com`,
       'authjs.dev',
-      'tachignitelocal11335-local.s3.us-east-1.amazonaws.com',
-      'example.s3.us-east-1.amazonaws.com',
       'avatars.githubusercontent.com',
       'picsum.photos',
       'localhost',
