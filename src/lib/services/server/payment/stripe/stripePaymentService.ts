@@ -68,37 +68,34 @@ export class StripePaymentService implements IPaymentService {
     request: NextApiRequest,
     mapper: IMapper,
   ): Promise<IConfirmPaymentIntentRequest | null> {
-    const body =
-      await this._formParser.parseJsonForm<IStripeConfirmPaymentIntentRequest>(
-        request,
-      );
+    const rawBody = await this._formParser.getRawBody(request);
+
+    const stripe = await this._stripeClientFactory.create();
+    const webhookSecret = (await this._secretsProvider.provide(
+      'TACH_STRIPE_WEBHOOK_SIGNATURE',
+    ))!;
+
+    const body = stripe.webhooks.constructEvent(
+      rawBody,
+      request.headers['stripe-signature']!,
+      webhookSecret,
+    );
 
     if (body.type !== 'checkout.session.completed') {
       return null;
     }
 
-    const webhookSecret = (await this._secretsProvider.provide(
-      'TACH_STRIPE_WEBHOOK_SIGNATURE',
-    ))!;
-    const stripe = await this._stripeClientFactory.create();
-    return mapper.map<
-      IStripeConfirmPaymentIntentRequest,
-      IConfirmPaymentIntentRequest
-    >(
+    return mapper.map<Stripe.Event, IConfirmPaymentIntentRequest>(
       body,
       'IStripeConfirmPaymentIntentRequest',
       'IConfirmPaymentIntentRequest',
       {
-        extraArgs:
-          process.env.NODE_ENV === 'production'
-            ? () => ({
-                stripe,
-                signature: request.headers['stripe-signature'],
-                rawBody: body,
-                paymentProvider: 'stripe',
-                stripeWebhookSecret: webhookSecret,
-              })
-            : () => ({ paymentProvider: 'stripe' }),
+        extraArgs: () => ({
+          signature: request.headers['stripe-signature'],
+          rawBody,
+          paymentProvider: 'stripe',
+          stripeWebhookSecret: webhookSecret,
+        }),
       },
     );
   }

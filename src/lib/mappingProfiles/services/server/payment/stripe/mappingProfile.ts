@@ -3,7 +3,6 @@ import {
   Mapper,
   MappingProfile,
   SnakeCaseNamingConvention,
-  beforeMap,
   createMap,
   forMember,
   mapFrom,
@@ -131,22 +130,6 @@ export class StripePaymentServiceMappingProfile implements ITachMappingProfile {
         namingConventions({
           source: new SnakeCaseNamingConvention(),
           destination: new CamelCaseNamingConvention(),
-        }),
-        beforeMap((s, d, extraArgs) => {
-          if (
-            extraArgs &&
-            extraArgs.stripe &&
-            extraArgs.signature &&
-            extraArgs.rawBody &&
-            extraArgs.stripeWebhookSecret
-          ) {
-            s = extraArgs!.stripe.webhooks.constructEvent(
-              extraArgs.rawBody,
-              extraArgs!.signature!,
-              extraArgs.stripeWebhookSecret,
-            );
-          }
-          return s;
         }),
         forMember(
           (d) => d.paymentStatus,
