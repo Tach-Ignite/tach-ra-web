@@ -19,6 +19,8 @@ The Stripe CLI will throw an error that the CA is untrusted because we are using
 stripe listen --forward-to https://localhost:3000/api/checkout/webhook --skip-verify
 ```
 
+Be sure to set the `TACH_STRIPE_WEBHOOK_SECRET` environment variable to the secret key provided by this command.
+
 # Paypal
 
 We also support Paypal as a payment processor using the `@paypal/react-paypal-js` library provided by PayPal.
